@@ -1,0 +1,126 @@
+\documentclass[a4paper]{article}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{microtype}
+\usepackage[maxbibnames=99]{biblatex}
+\usepackage{url}\urlstyle{tt}
+\input{include/asp-macros/dtel}
+\input{include/asp-macros/logics}
+\input{include/asp-macros/systems}
+\input{local-macros.tex}
+% \usepackage{include/comments/comments}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage[font=footnotesize]{caption}
+
+% For exported plots and tables
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\DeclareUnicodeCharacter{2212}{−}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+\usepackage[toc,page]{appendix}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[inline]{enumitem}
+
+
+\lstdefinelanguage{clingo}{
+  keywordstyle=[1]\usefont{OT1}{cmtt}{m}{n},%
+  keywordstyle=[2]\textbf,%
+  keywordstyle=[3]\usefont{OT1}{cmtt}{m}{n},%\textit
+  alsoletter={\#,\&},%
+  keywords=[1]{not,from,import,def,if,else,return,while,break,and,or,for,in,del,and,class},%
+  keywords=[2]{\#const,\#show,\#minimize,\#base,\#theory,\#count,\#external,\#program,\#script,\#end,\#heuristic,\#edge,\#project,\#show},%
+  keywords=[3]{&,&dom,&sum,&diff,&show,&minimize},%
+  morecomment=[l]{\#\ },%
+  morecomment=[l]{\%\ },%
+  commentstyle={\color{darkgray}}%
+}
+\lstset
+{ %Formatting for code in appendix
+    literate={~}{{\fontfamily{ptm}\selectfont \textasciitilde}}1,
+    language=clingo,
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    xleftmargin=2em
+}
+
+\usetikzlibrary{arrows,automata,positioning}
+
+%%%%%%%%%%%%%%%%%%%%% Formats %%%%%%%%%%%%%%%%%%%%%%
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkblue}{HTML}{00305E}
+\definecolor{darkred}{rgb}{0.8,0,0}
+\newtheoremstyle{exampstyle}
+{7pt} % Space above
+{7pt} % Space below
+{} % Body font
+{} % Indent amount
+{\bfseries} % Theorem head font
+{.} % Punctuation after theorem head
+{.5em} % Space after theorem head
+{\thmname{#1}\thmnumber{ #2} \thmnote{(\emph{#3})}}%                                     % Theorem head spec (can be left empty, meaning `normal')
+
+\theoremstyle{exampstyle}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcounter{example}
+\newenvironment{example}[1][]{\refstepcounter{example}\par\medskip
+\noindent \textcolor{black!45}{\textbf{Example~\theexample. #1}}
+\par\nopagebreak%
+\begin{mdframed}[
+   linewidth=3pt,
+   linecolor=black!17,
+   bottomline=false,topline=false,rightline=false,
+   innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt,
+   innerleftmargin=1em,% Distance between vertical rule & proof content
+   skipabove=.5\baselineskip
+ ]}
+{\end{mdframed}}
+
+\bibliography{krr,procs}
+\bibliography{local-bib}
+
+\begin{document}
+
+
+\input{title}
+\pagebreak
+
+
+\input{abstract.tex}
+
+
+\pagebreak
+\tableofcontents
+\pagebreak
+\input{1-introduction/main.tex}
+\input{2-background/main.tex}
+\input{3-approach/main.tex}
+\input{4-experiments/main.tex}
+\input{5-discussion/main.tex}
+
+\begin{appendices}
+\input{appendixA.tex}
+\end{appendices}
+
+\input{statement.tex}
+\printbibliography{}
+
+\end{document}

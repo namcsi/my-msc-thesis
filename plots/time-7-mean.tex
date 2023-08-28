@@ -1,0 +1,88 @@
+% This file was created by tikzplotlib v0.9.3.
+\begin{tikzpicture}
+
+    \definecolor{color0}{rgb}{0,0.607843137254902,1}
+    \definecolor{color1}{rgb}{0,0.607843137254902,0.2}
+    \definecolor{color2}{rgb}{0.607843137254902,0.607843137254902,0.784313725490196}
+    \definecolor{color3}{rgb}{1,0.498039215686275,0}
+    
+    \begin{axis}[
+    legend cell align={left},
+    legend style={font=\scriptsize,fill opacity=0.8, draw opacity=1, text opacity=1, at={(1,1)}, anchor=north west, draw=white!80!black},
+    tick align=outside,
+    tick pos=left,
+    title={Mean},
+    x grid style={white!69.0196078431373!black},
+    xlabel={instance},
+    xmin=-0.65875, xmax=4.48375,
+    xtick style={color=black},
+    xtick={0,1,2,3,4},
+    xticklabel style = {font=\scriptsize,rotate=90.0},
+    xticklabels={s-x7\_y6\_r4-01,*s-x7\_y6\_r4-02,s-x7\_y6\_r4-03,s-x7\_y6\_r4-04,s-x7\_y6\_r4-05},
+    y grid style={white!69.0196078431373!black},
+    ylabel={solving + grounding time (sec)},
+    ymin=0, ymax=1260.01051025391,
+    ytick style={color=black}
+    ]
+    \draw[draw=none,fill=color0] (axis cs:0.25,0) rectangle (axis cs:0.1,57.9530029296875);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color0};
+    \addlegendentry{afw ltl}
+    
+    \draw[draw=none,fill=color0] (axis cs:1.25,0) rectangle (axis cs:1.1,0.0643333345651627);
+    \draw[draw=none,fill=color0] (axis cs:2.25,0) rectangle (axis cs:2.1,353.798980712891);
+    \draw[draw=none,fill=color0] (axis cs:3.25,0) rectangle (axis cs:3.1,67.5556640625);
+    \draw[draw=none,fill=color0] (axis cs:4.25,0) rectangle (axis cs:4.1,120.026000976562);
+    \draw[draw=none,fill=color1] (axis cs:0.075,0) rectangle (axis cs:-0.075,68.9150009155273);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color1};
+    \addlegendentry{afw ldl}
+    
+    \draw[draw=none,fill=color1] (axis cs:1.075,0) rectangle (axis cs:0.925,0.0816666707396507);
+    \draw[draw=none,fill=color1] (axis cs:2.075,0) rectangle (axis cs:1.925,524.588317871094);
+    \draw[draw=none,fill=color1] (axis cs:3.075,0) rectangle (axis cs:2.925,98.8453369140625);
+    \draw[draw=none,fill=color1] (axis cs:4.075,0) rectangle (axis cs:3.925,166.195343017578);
+    \draw[draw=none,fill=color2] (axis cs:-0.1,0) rectangle (axis cs:-0.25,47.4580039978027);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color2};
+    \addlegendentry{asp}
+    
+    \draw[draw=none,fill=color2] (axis cs:0.9,0) rectangle (axis cs:0.75,0.0489999987185001);
+    \draw[draw=none,fill=color2] (axis cs:1.9,0) rectangle (axis cs:1.75,132.566665649414);
+    \draw[draw=none,fill=color2] (axis cs:2.9,0) rectangle (axis cs:2.75,30.5513324737549);
+    \draw[draw=none,fill=color2] (axis cs:3.9,0) rectangle (axis cs:3.75,114.831665039062);
+    \draw[draw=none,fill=color3] (axis cs:-0.275,0) rectangle (axis cs:-0.425,1199.98498535156);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color3};
+    \addlegendentry{nc}
+    
+    \draw[draw=none,fill=color3] (axis cs:0.725,0) rectangle (axis cs:0.575,0.0260000005364418);
+    \draw[draw=none,fill=color3] (axis cs:1.725,0) rectangle (axis cs:1.575,1200.01000976562);
+    \draw[draw=none,fill=color3] (axis cs:2.725,0) rectangle (axis cs:2.575,1200.0009765625);
+    \draw[draw=none,fill=color3] (axis cs:3.725,0) rectangle (axis cs:3.575,1199.98596191406);
+    \addplot [line width=0.28pt, white!50.1960784313725!black, dashed]
+    table {%
+    2 2.8421709430404e-14
+    2 1260.01051025391
+    };
+    \addlegendentry{Timeout}
+    \addplot [line width=0.28pt, white!50.1960784313725!black, dashed]
+    table {%
+    -0.35 2.8421709430404e-14
+    -0.35 1260.01051025391
+    };
+    \addplot [line width=0.28pt, white!50.1960784313725!black, dashed]
+    table {%
+    1.65 2.8421709430404e-14
+    1.65 1260.01051025391
+    };
+    \addplot [line width=0.28pt, white!50.1960784313725!black, dashed]
+    table {%
+    2.65 2.8421709430404e-14
+    2.65 1260.01051025391
+    };
+    \addplot [line width=0.28pt, white!50.1960784313725!black, dashed]
+    table {%
+    3.65 2.8421709430404e-14
+    3.65 1260.01051025391
+    };
+    \end{axis}
+    
+    \end{tikzpicture}
+    

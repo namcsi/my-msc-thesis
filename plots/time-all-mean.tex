@@ -1,0 +1,68 @@
+% This file was created by tikzplotlib v0.9.3.
+\begin{tikzpicture}
+
+    \definecolor{color0}{rgb}{0,0.607843137254902,1}
+    \definecolor{color1}{rgb}{0,0.607843137254902,0.498039215686275}
+    \definecolor{color2}{rgb}{0.607843137254902,0.607843137254902,0.784313725490196}
+    \definecolor{color3}{rgb}{1,0.498039215686275,0}
+    \definecolor{color4}{rgb}{1,1,0}
+    
+    \begin{axis}[
+    legend cell align={left},
+    legend style={font=\scriptsize,fill opacity=0.8, draw opacity=1, text opacity=1, at={(1,1)}, anchor=north west, draw=white!80!black},
+    tick align=outside,
+    tick pos=left,
+    title={Mean},
+    x grid style={white!69.0196078431373!black},
+    xlabel={instance},
+    xmin=-0.65875, xmax=4.48375,
+    xtick style={color=black},
+    xtick={0,1,2,3,4},
+    xticklabel style = {font=\scriptsize,rotate=90.0},
+    xticklabels={g-x4\_y4\_n12\_r4-01,g-x4\_y4\_n12\_r4-02,g-x4\_y4\_n12\_r4-03,g-x4\_y4\_n12\_r4-04,g-x4\_y4\_n12\_r4-05},
+    y grid style={white!69.0196078431373!black},
+    ylabel={time (sec)},
+    ymin=0, ymax=0.0710500057786703,
+    ytick style={color=black}
+    ]
+    \draw[draw=none,fill=color0] (axis cs:0.25,0) rectangle (axis cs:0.1,0.0273333340883255);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color0};
+    \addlegendentry{grid-afw ltlh-4}
+    
+    \draw[draw=none,fill=color0] (axis cs:1.25,0) rectangle (axis cs:1.1,0.0293333325535059);
+    \draw[draw=none,fill=color0] (axis cs:2.25,0) rectangle (axis cs:2.1,0.0400000028312206);
+    \draw[draw=none,fill=color0] (axis cs:3.25,0) rectangle (axis cs:3.1,0.0273333340883255);
+    \draw[draw=none,fill=color0] (axis cs:4.25,0) rectangle (axis cs:4.1,0.0536666661500931);
+    \draw[draw=none,fill=color1] (axis cs:0.075,0) rectangle (axis cs:-0.075,0.0489999987185001);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color1};
+    \addlegendentry{grid-afw ldl h-4}
+    
+    \draw[draw=none,fill=color1] (axis cs:1.075,0) rectangle (axis cs:0.925,0.0496666692197323);
+    \draw[draw=none,fill=color1] (axis cs:2.075,0) rectangle (axis cs:1.925,0.0656666681170464);
+    \draw[draw=none,fill=color1] (axis cs:3.075,0) rectangle (axis cs:2.925,0.0676666721701622);
+    \draw[draw=none,fill=color1] (axis cs:4.075,0) rectangle (axis cs:3.925,0.0390000008046627);
+    \draw[draw=none,fill=color2] (axis cs:-0.1,0) rectangle (axis cs:-0.25,0.0273333340883255);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color2};
+    \addlegendentry{grid-asp h-4}
+    
+    \draw[draw=none,fill=color2] (axis cs:0.9,0) rectangle (axis cs:0.75,0.0189999993890524);
+    \draw[draw=none,fill=color2] (axis cs:1.9,0) rectangle (axis cs:1.75,0.0260000005364418);
+    \draw[draw=none,fill=color2] (axis cs:2.9,0) rectangle (axis cs:2.75,0.028666665777564);
+    \draw[draw=none,fill=color2] (axis cs:3.9,0) rectangle (axis cs:3.75,0.0279999990016222);
+    \draw[draw=none,fill=color3] (axis cs:-0.275,0) rectangle (axis cs:-0.425,0.0209999997168779);
+    \addlegendimage{ybar,ybar legend,draw=none,fill=color3};
+    \addlegendentry{grid-nc h-4}
+    
+    \draw[draw=none,fill=color3] (axis cs:0.725,0) rectangle (axis cs:0.575,0.0140000004321337);
+    \draw[draw=none,fill=color3] (axis cs:1.725,0) rectangle (axis cs:1.575,0.0240000002086163);
+    \draw[draw=none,fill=color3] (axis cs:2.725,0) rectangle (axis cs:2.575,0.0189999993890524);
+    \draw[draw=none,fill=color3] (axis cs:3.725,0) rectangle (axis cs:3.575,0.0179999992251396);
+    \addplot [line width=0.28pt, color4, dashed, forget plot]
+    table {%
+    0.825 1.73472347597681e-18
+    0.825 0.0710500057786703
+    };
+    \end{axis}
+    
+    \end{tikzpicture}
+    

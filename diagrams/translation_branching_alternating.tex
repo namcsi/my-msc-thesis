@@ -1,0 +1,41 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=1.8cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+
+    \node[state,initial]  (s_0)                 {$\varphi$};
+    \node[conn]   (and) [right of=s_0]  {$\wedge$};
+    \node[conn]   (or) [right of=and]  {$\vee$};
+
+    \node[state] (s_a) [below of=and] {$a$};
+    \node (false_a) [below left of=s_a] {$\fpbf$};
+    \node (true_a) [below right of=s_a] {\tpbf};
+
+    \node (false) [below of=s_0] {$\fpbf$};
+    \node[state] (s_b) [right of=s_a] {$b$};
+    \node (false_b) [below right of=s_b] {$\fpbf$};
+
+    \node[state] (s_c) [right of=s_b] {$c$};
+    \node (true_c) [below right of=s_c] {\tpbf}; 
+
+
+    \path[->]
+    (s_0) edge[bend left=10] node[interp] {$\interp{\neg \last }$}    (and)
+    (and) edge  (s_a)
+    (and) edge[bend left=10]  (or)
+    (or) edge[bend right=10]  (s_b)
+    (or) edge[bend left=10]  (s_c)
+
+    (s_0) edge node[interp] {$\interp{\last }$}  (false)
+    
+    (s_a) edge[bend right=10] node[interp] {$\interp{\neg a }$} (false_a)
+          edge[bend left=10] node[interp] {$\interp{a }$} (true_a)
+    
+    (s_b) edge[bend right=10] node[interp] {$\interp{b }$} (true_a)
+          edge[bend left=10] node[interp] {$\interp{\neg b }$} (false_b)
+    (s_c) edge[bend right=10] node[interp] {$\interp{\neg c }$} (false_b)
+          edge[bend left=10] node[interp] {$\interp{c }$} (true_c)
+    ;
+\end{tikzpicture}

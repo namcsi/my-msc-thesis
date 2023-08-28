@@ -1,0 +1,26 @@
+\section{Introduction   }
+\label{sec:introduction}
+
+One of the key problems in AI is to represent and reason about dynamic domains. 
+Temporal logics are tailored to the description of temporal ordering of events, thus they have been adopted as a powerful tool to handle such domains where we need to capture actions and change. 
+Two of the first traditional approaches are Dynamic Logic ($\DL$) \cite{pratt76a} and Linear Temporal Logic ($\LTL$) \cite{pnueli77a}. 
+% Maybe intro to both and diferences 
+Following this formalisms, a lot of research has been directed at exploring temporal logics interpreted over infinite traces.
+It was only in the past decade that De Giacomo and Vardi argued in favor of investigating the case of finite traces \cite{giavar13a}, as this environment can be better fitted to the interest of many AI applications and constitutes a computationally more feasible version.
+They introduced $\LTLf$, which has the same syntax as $\LTL$ but is interpreted over finite traces. 
+Moreover, based on their previous restricted version of $\DL$ confined to linear models, called Linear Dynamic logic $\LDL$, they defined its finite version $\LDLf$ which is in turn an extension of $\LTLf$.
+        % computationally more feasible version based on finite linear time
+
+Along the same years, many researches were investigating formalisms to represent common sense knowledge. 
+Inspired by the idea of the \emph{closed world assumption} \cite{reiter77a}, where things which are not true in the world are assumed as false, several formalisms for non-monotonic reasoning emerged \cite{gellif88b,moore84a,mcddoy80,pearce06a}. 
+Unlike in classical logic, in non-monotonic logics conclusions can be retracted with new information, thus intending to better mimic human thinking. 
+A non-monotonic formalism of particular interest to us is Equilibrium Logic (EL)\cite{pearce06a}, as it can be used to characterize Answer Set Programming (ASP)\cite{breitr11a}. ASP is a well known paradigm, commonly used for temporal reasoning and the representation of action theories as well as other domains requiring intensive search. The combination of ASP and temporal logics has led to different extensions such as 
+Temporal Equilibrium Logic ($\TEL$) \cite{agcadipevi13a} and Dynamic Equilibrium Logic ($\DEL$) \cite{cadisc19a}. Such extensions have helped enrich the modeling power of ASP with temporal constructs yielding systems like \telingo \cite{cakamosc19a}.
+
+
+Another line of research refers to an automata-theoretic approach for checking the validity of temporal formulas, with the underlining idea of constructing an automata that accepts exactly models of the formula. 
+The earlier work in this subject \cite{varwol86a}, faced a problem in which the use of non-deterministic automata corresponded to a non-trivial translation and exponential complexity. Such limitations where addressed by M. Vardi \cite{vardi97a} by proposing the use of alternating automata instead.
+Carrying on with this motivation, he latter on exposed (along with G. De Giacomo) the relation of alternating automata not only to $\LTLf$ but also to $\LDLf$ \cite{giavar13a}.
+
+
+In this thesis, we encode the translation from $\LTLf$ and $\LDLf$ into alternating automata in order to filter plans using temporal constraints in ASP. The code with the implementation of this project is open source, available at \url{https://github.com/susuhahnml/atlingo}. The rest of the work is presented as follows. In the next section, we introduce the background concepts which start with the formalization of EL and its temporal extensions, defined using Here-and-There Logic. We continue the section with the semantics of $\LTLf$ and $\LDLf$ as well as concepts from automata theory and the translation of temporal and dynamic formulas into alternating automata. Section 3 is focused on our approach where we extend the syntax of the ASPs' system $\clingo$ with such formulas and show the encodings for handling the translation into an automaton and their computations. Section 4 presents our experiments performed in the intra-logistics domain and their results. Finally, section 5 closes the thesis with a discussion and future work.

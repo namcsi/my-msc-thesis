@@ -1,0 +1,68 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=1.7cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+
+    \node[state,initial]  (s_0)                 {$\varphi$};
+    \node[conn]   (and) [right of=s_0]  {$\wedge$};
+    \node[conn]   (or) [right of=and]  {$\vee$};
+    \node[state,fill=darkblue!20]  (s_or) [right of=or]  {$\Next b \vee \Next c$};
+    \node   (e_2) [right of=s_or]  {};
+    
+    \node[state,fill=darkblue!20]                    (s_wa) [below of=s_0]  {$\wnext a$};
+    \node[conn]   (check_l_a) [below of=s_wa]  {$?$};
+    \node (true_l_a) [below left of=check_l_a] {\tpbf};
+    \node[state] (s_a) [below right of=check_l_a] {$a$};
+    \node[conn]   (check_a) [below of=s_a]  {$?$};
+    \node (false_a) [below left of=check_a] {$\fpbf$};
+    \node (true_a) [below right of=check_a] {\tpbf};
+
+    \node[state,fill=darkblue!20]                    (s_nb) [below of=or]  {$\Next b$};
+    \node[conn]   (check_l_b) [below of=s_nb]  {$?$};
+    \node (true_l_b) [below left of=check_l_b] {$\fpbf$};
+    \node[state] (s_b) [below right of=check_l_b] {$b$};
+    \node[conn]   (check_b) [below of=s_b]  {$?$};
+    \node (false_b) [below left of=check_b] {$\fpbf$};
+    \node (true_b) [below right of=check_b] {\tpbf};
+
+    \node[state,fill=darkblue!20]                    (s_nc) [below of=e_2]  {$\Next c$};
+    \node[conn]   (check_l_c) [below of=s_nc]  {$?$};
+    \node (true_l_c) [below left of=check_l_c] {$\fpbf$};
+    \node[state] (s_c) [below right of=check_l_c] {$a$};
+    \node[conn]   (check_c) [below of=s_c]  {$?$};
+    \node (false_c) [below left of=check_c] {$\fpbf$};
+    \node (true_c) [below right of=check_c] {\tpbf};
+
+
+    \path[->]
+    (s_0) edge  (and)
+    (s_wa) edge  (check_l_a)
+    (s_nb) edge  (check_l_b)
+    (s_nc) edge  (check_l_c)
+    (and) edge  (check_l_a)
+    (and) edge  (or)
+    (s_or) edge  (or)
+    (or) edge[bend right=30]  (check_l_b)
+    (or) edge  (check_l_c)
+    (check_l_a) edge node[interp] {$\interp{ \last }$} (true_l_a)
+              edge node[interp] {$\interp{ \neg \last }$} (s_a)
+    (s_a) edge  (check_a)
+    (check_a) edge node[interp] {$\interp{ \neg a }$} (false_a)
+          edge node[interp] {$\interp{ a }$} (true_a)
+
+    (check_l_b) edge node[interp] {$\interp{ \last }$} (true_l_b)
+          edge node[interp] {$\interp{ \neg \last }$} (s_b)
+(s_b) edge  (check_b)
+(check_b) edge node[interp] {$\interp{ \neg b }$} (false_b)
+      edge node[interp] {$\interp{ b }$} (true_b)
+
+
+      (check_l_c) edge node[interp] {$\interp{ \last }$} (true_l_c)
+              edge node[interp] {$\interp{ \neg \last }$} (s_c)
+    (s_c) edge  (check_c)
+    (check_c) edge node[interp] {$\interp{ \neg c }$} (false_c)
+          edge node[interp] {$\interp{ c }$} (true_c)
+    ;
+\end{tikzpicture}

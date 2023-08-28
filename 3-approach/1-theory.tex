@@ -1,0 +1,132 @@
+\subsection{Theory enhanced ASP solving  }
+
+
+The system $\clingo$ can be extended with theory-specific reasoning enabling a complementary behavior for the desired functionality \cite{kascwa17a}. In this thesis, we do not explain the semantic principles of theory solving, but instead we focus only on how $\clingo$'s input language can be customized with theory-specific constructs as part of its underlying grounder $\gringo$. This feature allows us to include the syntax required for temporal and dynamic formulas in the modeling language. We summarize the designated characters for every operator in tables 1 and 2. Furthermore, this extension is merged into the grounding process, thus proving the means for the use of variables and generalized concepts in our formulas.
+
+\vspace{10px}
+\begin{minipage}{.40\textwidth}
+    \centering
+        \begin{tabular}{|l|l|l|}
+            \hline
+            \textbf{Operator} & \textbf{Symbol} & \textbf{\clingo} \\
+            \hline
+            Not & $\neg$ & \texttt{\textasciitilde} \\
+            Next & $\Next$ & \texttt{>} \\
+            Week Next & $\wnext$ & \texttt{>:} \\
+            And & $\wedge$ & \texttt{\&} \\
+            Or & $\vee$ & \texttt{$\|$} \\
+            Until & $\until$ & \texttt{>?} \\
+            Release & $\release$ & \texttt{>*} \\
+            \hline
+        \end{tabular}
+        \captionof{table}{Symbols incorporated to $\clingo$ for $\LTLf$.}
+\end{minipage}
+\hspace{25px}
+\begin{minipage}{.40\textwidth}
+    \centering
+
+        \begin{tabular}{|l|l|l|}
+            \hline
+            \textbf{Operator} & \textbf{Symbol} & \textbf{\clingo} \\
+            \hline
+            Not & $\neg$ & \texttt{\textasciitilde} \\
+            Test & $?$ & \texttt{?} \\
+            Star & $\ast$ & \texttt{*} \\
+            Choice & $+$ & \texttt{+} \\
+            Sequence & $;$ & \texttt{;;} \\
+            Diamond & $\langle \rangle$ & \texttt{.>?} \\
+            Box & $\dalways{ }$ & \texttt{.>*} \\
+            \hline
+        \end{tabular}
+        \captionof{table}{Symbols incorporated to $\clingo$ for $\LDLf$.}
+\end{minipage}
+\vspace{10px}
+    
+
+The theory specifications characterizing the grammars for temporal and dynamic formulas are encoded by defining a theory language. We illustrate this with the encoding for $\LTLf$ in Listing 1, similar to that of  $\LDLf$. 
+
+
+\begin{center}
+    \begin{lstlisting}[] 
+#theory tel {
+    tel_formula  {
+        &   : 7, unary;         % prefix for boolean constants
+        ~   : 5, unary;         % negation
+        >   : 5, unary;         % next
+        >:  : 5, unary;         % weak next
+        &   : 3, binary, left;  % and
+        |   : 2, binary, left;  % or
+        >?  : 4, binary, left;  % until
+        >*  : 4, binary, left   % release
+    };
+    &tel/0 : tel_formula, body
+}.
+    \end{lstlisting}
+    \captionof{lstlisting}{Theory specification for temporal formulas}
+\end{center}
+
+The theory language for characterizing a temporal formula is defined in lines 2-12, preceded by the directive \texttt{\#theory}. 
+Lines 2-11 represent a \emph{theory term definition} of the form $t \;\{D_1;...;D_n\}$, where each $D_i$ is a \emph{theory operator definition} corresponding to the operators in the grammar. Theory operators can be unary or binary, where the second type is further characterized by a right or left associativity. Finally, line 12 describes a \emph{theory atom} constructed with the theory term definition \texttt{tel\_formula}. The theory atom is only allowed to appear in the body of a rule by using the occurrence type \texttt{body}.\footnote{We only require formulas in the body since we are restricted to integrity constraints.}
+
+\begin{example}
+    The formula $\Next a \wedge (b \until a)$ from Example 6 can be encoded in an integrity constraint using the theory specification defined above. 
+    \begin{center}
+        \begin{lstlisting}[] 
+:- not &tel{ > a & (b >? a) }.
+        \end{lstlisting}
+        \captionof{lstlisting}{Example of temporal constraint}
+    \end{center}
+
+\end{example}
+
+Once the grounding process is completed, $\clingo$ represents the ground program in an intermediate language using the \emph{aspif} format \cite{kascwa17a}, where a ground logic program is mapped into a sequence of lines of aspif statements describing all rules and constructs by means of numbers. A fraction of this representation is addressed to the theory-specific part, outputting a linear representation of the abstract syntax tree for the given theory expression. Since its representation based on numbers doesn't make the output humanly readable, one of the options provided by $\gringo$ is a reified output where aspif statements are expressed in the form of facts. Using this feature, we can then represent the abstract syntax tree of the formulas described in our theory specification as a set of facts. 
+
+\begin{example}
+    Below we show the facts from the reified output corresponding to the theory expression of the previous example, namely \texttt{\&tel\{ > a \& (b >? a) \}}
+    \begin{center}
+        \begin{lstlisting}[] 
+theory_string(0,"tel").
+theory_string(3,"a").
+theory_string(2,">").
+theory_tuple(0).
+theory_tuple(0,0,3).
+theory_function(4,2,0).
+theory_string(6,"b").
+theory_string(5,">?").
+theory_tuple(1).
+theory_tuple(1,0,6).
+theory_tuple(1,1,3).
+theory_function(7,5,1).
+theory_string(1,"&").
+theory_tuple(2).
+theory_tuple(2,0,4).
+theory_tuple(2,1,7).
+theory_function(8,1,2).
+theory_tuple(3).
+theory_tuple(3,0,8).
+literal_tuple(1).
+theory_element(0,3,1).
+theory_element_tuple(0).
+theory_element_tuple(0,0).
+theory_atom(1,0,0).
+        \end{lstlisting}
+        \captionof{lstlisting}{Section of reified output of grounding Listing 1 and 2 via ‘\texttt{gringo --output=reify listing-1.lp listing-2.lp}’}
+    \end{center}
+\end{example}
+
+All the theory-specific facts we obtain with this process have as first argument an identifier, where the identifiers can't be repeated between predicates  \textit{theory\_function}, \textit{theory\_string} and \textit{theory\_number}. The rest of the arguments depend on the construct, most arguments refer to the relationship with its children in the abstract syntax tree (AST) via identifiers, while others correspond to a value in the form of string or number for \textit{theory\_string} and \textit{theory\_number} respectively. In the case of predicate \textit{theory\_tuple}, which defines tuples that are then passed to a function (with or without name), the second argument refers to the index of the tuple containing the element described by the identifier in the third argument. The association between formulas and identifiers has a one-to-one correspondence, hence a subformula $\psi$ is associated with a unique identifier which is reused in every appearance of $\psi$. 
+
+
+\begin{example}
+    Here we show the abstract syntax tree described in Listing 3 for formula $\varphi= \Next a \wedge (b \until a)$. The tree on the left side considers the ids of the \textit{theory\_string} predicates, whereas the one in the right uses the ids from \textit{theory\_function} in the nodes marked in blue. We can notice how id number $3$ is used to identify $a$ in both subtrees.
+    \begin{multicols*}{2}
+        
+    \input{diagrams/ast.tex}
+    \captionof{figure}{AST using ids for strings}
+
+    \input{diagrams/ast2.tex}
+    \captionof{figure}{AST using ids for functions}
+
+
+\end{multicols*}
+\end{example}

@@ -1,0 +1,15 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=2cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+
+    \node[state,initial]  (s_0)                 {$\dalways{\top}\bot$};
+    \node (false_l) [right of=s_0] {\fpbf};
+    \node (true_1) [right of=false_l] {\tpbf};
+    
+    \path[->]
+    (s_0) edge[bend left=10] node[interp] {$\interp{\neg last}$} (false_l)
+          edge[bend right=30] node[interp] {$\interp{last}$} (true_1);
+\end{tikzpicture}

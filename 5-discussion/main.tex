@@ -1,0 +1,36 @@
+\section{Discussion  }\label{sec:discussion}
+
+In this thesis, we provided a way to constraint planning domains by means of temporal and dynamic formulas \footnote{The source code can be found in \url{https://github.com/susuhahnml/atlingo}}.
+With ASP being one of the leading modeling languages to reason in this field, new strategies to include temporal formalisms have emerged in the past decade.
+Current extensions build on the wellknown ASP system $\clingo$ to formalize temporal reasoning in the non-monotonic context based on equilibrium logic.
+By limiting such reasoning to integrity constraints we were able to encode a translation of temporal and dynamic formulas from the monotonic formalisms $\LTLf$ and $\LDLf$ into $\AFW$, based on the work by Vardi and De Giacomo \cite{giavar15a}. 
+
+While choosing Alternating Automata instead of Nondeterministic Automata reduces the number of states from exponential to linear in the size of the formula, it also introduces conceptualization challenges. First of all, alternating automata were originally defined in the infinite context, therefore literature for finite adaptations remains scarce.
+% Furthermore, some implementation restrictions were overcomed by using an intermediate representation of the automaton, whereas other required carefully analysis and refinement.
+Secondly, even though the connection between linear temporal logic and automata theory has been explored for almost 40 years \cite{varwol86a}, this is not the case for linear dynamic logic for which there is a restricted amount of existent research. 
+Consequently, throughout this work we had to overcome several obstacles leading to multiple adjustments in the definitions for $\LDLf$. 
+During this adaptation, we found the need for future remodeling of the equivalences between alternating automata and linear dynamic logic. 
+
+
+Using the theory enhancing capabilities of clingo, we were able to extend the modeling language with these formalisms. Clingo's functionalities allowed us to keep the translation process as well as the automaton representation and computations solely declarative. 
+However, by keeping all the implementation in ASP, we faced some limitations. 
+We were not able to generate numeric identifiers for the subformulas and therefore had to construct more complex representation based on nested predicates. 
+Moreover, the absence of an external program to transform the strings obtained from the reification into predicates caused the need for an additional encoding in order to link the application domain to our approach.
+
+Unfortunately, our experiments didn't reveal clear positive results. 
+Altogether, the direct translation into ASP was more efficient, concerning memory, speed and search, compared to the use of our automaton encoding. 
+We also noticed a better performance when using $\LTLf$ instead of $\LDLf$. 
+This outcome might be influenced by the implementation differences regarding the representation of states, as well as the complexity of the specific formulas and their corresponding automata.
+Further inspection on the solving process, by analyzing choices and conflicts, showed a huge reduction in the search when the constrains were incorporated. 
+
+We believe part of the unsatisfactory results could be attributed to the application chosen for the evaluation. 
+In the reduced $\asprilo$ domain finding a valid plan is not as difficult as it is in other cases were multiple tasks and actions are considered. 
+When the complexity rises, obtaining plans without constrains becomes harder and thus temporal constraints could help to lead the solver towards the solution. 
+
+Since the presented work was only a first prototype towards the use of automata to handle temporal formulas in ASP, it opens the area for future research.
+Upcoming work could include exploiting $\clingo$'s capabilities for enhanced theory-solving even further by constructing a propagator which will outsource model checking to an automaton. 
+Moreover, integrating temporal constructs in ASP is still a promising endeavour with the potential to enrich the modeling language, thus facilitating new techniques to tackle diverse dynamic problems.
+
+\pgfplotsset{compat=newest}
+
+% \url{potassco.org}

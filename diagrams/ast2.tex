@@ -1,0 +1,22 @@
+
+    \begin{tikzpicture}[shorten >=1.5pt,node distance=1.6cm,on grid,auto]
+        \small
+        \tikzstyle{tree_node}=[rounded corners,fill={rgb:black,1;white,10},font=\small,draw=black]
+        \tikzstyle{tree_node_fun}=[rounded corners,fill={rgb:darkblue,3;white,10},font=\small,draw=black]
+        \node[tree_node_fun]  (and)                 {\textcolor{darkblue}{\scriptsize{(8)}}$\;> a \& (b >? a)$};
+        \node[tree_node_fun]  (next) [below left of =and]                {\textcolor{darkblue}{\scriptsize{(4)}}$\;> a$};
+    \node[tree_node_fun]  (until)[below right of =and]               {\textcolor{darkblue}{\scriptsize{(7)}}$\;b >? a$};
+    
+    \node[tree_node]  (a)[below left of =next]               {\textcolor{darkblue}{\scriptsize{(3)}}$\;a$};
+    
+    \node[tree_node]  (b)[below right of =until]               {\textcolor{darkblue}{\scriptsize{(6)}}$\;b$};
+    \node[tree_node]  (a_2)[below left of =until]               {\textcolor{darkblue}{\scriptsize{(3)}}$\;a$};
+    
+    \path[->,dotted]
+    (and) edge                node {}  (next) 
+     (and) edge               node {}  (until) 
+    (next) edge                node {}  (a)
+    (until) edge                node {}  (b)
+    (until) edge                node {}  (a_2);
+    
+    \end{tikzpicture}

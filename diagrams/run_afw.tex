@@ -1,0 +1,36 @@
+\begin{tikzpicture}[shorten >=1.5pt,node distance=1.5cm,on grid,auto]
+    % \tikzstyle{every state}=[fill={rgb:black,1;white,20}]
+    \tikzstyle{every pin edge}=[->,dotted,shorten <=1pt]
+    % \tikzstyle{conn}=[rectangle,draw]
+    % \tikzstyle{bool}=[rectangle,draw]
+    \node[]  (time)                 {\textcolor{darkblue}{TIME}};
+    \node[]  (r_1)[right of =time]               {\textcolor{darkblue}{$R_1$}};
+    \node[]  (r_11)[right of =r_1]               {};
+    \node[]  (r_2)[right of =r_11]               {\textcolor{darkred}{$R_2$}};
+    \node[]  (r_21)[right of =r_2]               {};
+    \node[]  (r_3)[right of =r_21]               {\textcolor{darkred}{$R_3$}};
+
+    \node[]  (t_0)[below of =time]                {0:$a$};
+    \node[]  (t_1)[below of =t_0]                 {1:$a$};
+
+    \node[]  (s_01)[right of =t_0]                 {$s_0$};
+    \node[]  (s_31)[below of =s_01, pin=below:$\tpbf$]                 {$s_3$};
+    \node[]  (s_21)[right of =s_31, pin=below:$\tpbf$]                 {$s_2$};
+    \node[]  (s_02)[below of =r_2]                 {$s_0$};
+    \node[]  (s_32)[below of =s_02, pin=below:$\tpbf$]                 {$s_3$};
+    \node[]  (s_12)[right of =s_32, pin=below:$\textcolor{darkred}{\fpbf}$]                 {$s_1$};
+    \node[]  (s_03)[below of =r_3]                 {$s_0$};
+    \node[]  (s_33)[below of =s_03, pin=below:$\tpbf$]                 {$s_3$};
+    \node[]  (s_13)[right of =s_33, pin=below:$\textcolor{darkred}{\fpbf}$]                 {$s_1$};
+    \node[]  (s_23)[right of =s_13, pin=below:$\tpbf$]                 {$s_2$};
+   
+    \path[->,dotted]
+    (s_01) edge                node {}  (s_31)
+           edge                node {}  (s_21)
+    (s_02) edge                node {}  (s_32)
+           edge                node {}  (s_12)
+    (s_03) edge                node {}  (s_33)
+           edge                node {}  (s_13)
+           edge                node {}  (s_23);
+
+\end{tikzpicture}

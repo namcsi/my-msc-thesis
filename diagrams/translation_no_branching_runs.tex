@@ -1,0 +1,18 @@
+\begin{tikzpicture}[shorten >=1.5pt,node distance=1.5cm,on grid,auto]
+    % \tikzstyle{every state}=[fill={rgb:black,1;white,20}]
+    \tikzstyle{every pin edge}=[->,dotted,shorten <=1pt]
+    % \tikzstyle{conn}=[rectangle,draw]
+    % \tikzstyle{bool}=[rectangle,draw]
+    \node[]  (time)                 {\textcolor{darkblue}{TIME}};
+    \node[]  (r_1)[right of =time]               {\textcolor{darkblue}{$R_1$}};
+
+    \node[]  (t_0)[below of =time]                {0:$\{a\}$};
+    \node[]  (t_1)[below of =t_0]                 {1:$\{a, \last\}$};
+
+    \node[]  (s_phi)[right of =t_0]                 {$\varphi$};
+    \node[]  (s_and)[below of =s_01, pin=below:\tpbf]                 {$a \wedge \neg b$};
+   
+    \path[->,dotted]
+    (s_phi) edge                node {}  (s_and);
+
+\end{tikzpicture}

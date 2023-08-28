@@ -1,0 +1,584 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                 Temporal into Automaton
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{From temporal formulas to alternating automata}
+
+%%%%%%%%%%%%%%%%% LTLf %%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{$\LTLf$ into alternating automata}
+
+
+Given a temporal formula $\varphi$ in \nnf, we can build an $\AFW$  $A_\varphi$, such that the state-size of $A_\varphi$ is linear in the size of $\varphi$, and $L(A_\varphi)$ is exactly the traces that satisfy $\varphi$. In this translation, finite traces are viewed as finite words over the alphabet of truth assignments to the atomic proposition.
+
+As a first step in the translation, the states of the automaton are constructed using the concept of the \emph{closure of a formula} $\varphi$.
+
+\begin{definition}[Closure]
+    The closure of a temporal formula $\varphi$, written as $cl(\varphi)$ is a the smallest set defined as follows:
+    \begin{itemize}
+        \item $\varphi \in cl(\varphi)$;
+        % \item $\neg \psi \in cl(\varphi)$ if $\psi \in cl(\varphi)$ and is not of the form $\neg \gamma$
+        \item if $\otimes \psi \in cl(\varphi)$ then $\psi \in cl(\varphi)$ for $\oplus \in \lbrace \Next, \wnext \rbrace$
+        \item if $\gamma \oplus \psi \in cl(\varphi)$ then both $\gamma\in cl(\varphi)$ and $\psi \in cl(\varphi)$ for $\oplus \in \lbrace \wedge, \vee, \until, \release, \rbrace$
+        %\item if $\gamma \rightarrow \psi \in cl(\varphi)$ if both $\neg \gamma, \psi \in cl(\varphi)$
+        \item if $\gamma \until \psi \in cl(\varphi)$ then $\Next\left( \gamma \until \psi\right) \in cl(\varphi)$
+        \item if $\gamma \release \psi \in cl(\varphi)$ then  $\wnext\left( \gamma \release \psi\right) \in cl(\varphi)$
+    \end{itemize}
+\end{definition}
+
+Using this definition, we consider all quoted formulas $``\psi"$ where $\psi \in cl(\varphi)$  as states\footnote{Quotes are used to better distinguish states from formulas.}.
+
+For the alphabet of the automaton, we take into account the end of the trace by including a special proposition $\last$, which is only true at the last time point of the trace. This proposition allows a case analysis in the transition of operators $\Next$ and $\wnext$ based on the interpretation in the current step of the trace. By adding it to the set of atomic propositions $\A$, we construct the alphabet $\Sigma=2^{\A \cup \{\last\}}$, thus representing a finite trace $\pi$ as a finite word $w$ over $\Sigma$, where each state of the trace is a propositional interpretation $\Pi \in \Sigma$.
+
+\begin{definition}[$\LTLf$ to $\AFW$]
+    The $\AFW$ for a temporal formula $\varphi$ in \nnf is defined as:
+    $A_\varphi =(2^{\A \cup \{\last\}},\{``\psi" \mid \psi \in cl(\varphi) \},``\varphi",\delta,\emptyset)$ where the transition function $\delta = S\times \Sigma \to B^+(S)$ from a quoted formula and an interpretation $\Pi\in\Sigma$ is defined as follows: 
+
+
+\begin{multicols}{2}
+    \begin{itemize}
+        \item $\delta(``\top",\Pi)= \mathit{\tpbf}$
+
+        \item $\delta(``a",\Pi)=\begin{cases}
+          \bm{true} & \text{if} \;a\in \Pi \\
+          \fpbf & \text{if} \;a\not\in \Pi \\
+        \end{cases}$
+        
+        \item $\delta(``\varphi_1 \vee \varphi_2",\Pi)=\delta(``\varphi_1",\Pi) \vee $\\\phantom{$\delta(``\varphi_1 \vee \varphi_2\;",\Pi)= $}$\delta(``\varphi_2",\Pi)$
+
+        
+        \item $\delta(``\Next \varphi",\Pi)=\begin{cases}
+          ``\varphi" & \text{if} \;\last\not\in \Pi \\
+          \fpbf & \text{if} \;\last\in \Pi \\
+        \end{cases}$
+        
+%%%%%%%%%
+        \item $\delta(``\bot",\Pi)= \fpbf$
+        
+
+        \item $\delta(``\neg a",\Pi)=\begin{cases}
+            \fpbf & \text{if} \;a\in \Pi \\
+            \bm{true} & \text{if} \;a\not\in \Pi \\
+          \end{cases}$
+
+                  
+        \item $\delta(``\varphi_1 \wedge \varphi_2",\Pi)=\delta(``\varphi_1",\Pi) \wedge $\\\phantom{$\delta(``\varphi_1 \wedge \varphi_2\;",\Pi)= $}$\delta(``\varphi_2",\Pi)$
+        
+        \item $\delta(``\wnext \varphi",\Pi)=\begin{cases}
+            ``\varphi" & \text{if} \;\last\not\in \Pi \\
+            \bm{true} & \text{if} \;\last\in \Pi \\
+          \end{cases}$
+        % \item $\delta(``\varphi_1 \release \varphi_2",\Pi)=\delta(``\varphi_2",\Pi) \wedge $\\$ (\delta(``\varphi_1",\Pi) \vee \delta(``\wnext \varphi_1 \release \varphi_2",\Pi))$
+      \end{itemize}
+    \end{multicols}
+
+    \begin{itemize}
+
+        \item $\delta(``\varphi_1 \until \varphi_2",\Pi)=\delta(``\varphi_2",\Pi) \vee (\delta(``\varphi_1",\Pi) \wedge \delta(``\Next \varphi_1 \until \varphi_2",\Pi))$
+    
+        \item $\delta(``\varphi_1 \release \varphi_2",\Pi)=\delta(``\varphi_2",\Pi) \wedge (\delta(``\varphi_1",\Pi) \vee \delta(``\wnext \varphi_1 \release \varphi_2",\Pi))$
+        
+        % Unfolded
+
+
+        % \item $\delta(``\varphi_1 \until \varphi_2",\Pi)=\begin{cases}
+        %     \delta(``\varphi_2",\Pi) & \text{if} \;\last\in \Pi \\
+        %     \delta(``\varphi_2",\Pi) \vee (\delta(``\varphi_1",\Pi) \wedge `` \varphi_1 \until \varphi_2") & \text{if} \;\last\not\in \Pi \\
+        %   \end{cases}$
+        % \item $\delta(``\varphi_1 \release \varphi_2",\Pi)=\begin{cases}
+        % \delta(``\varphi_2",\Pi) & \text{if} \;\last\in \Pi \\
+        % \delta(``\varphi_2",\Pi) \wedge (\delta(``\varphi_1",\Pi) \vee `` \varphi_1 \release \varphi_2") & \text{if} \;\last\not\in \Pi \\
+        % \end{cases}$
+    \end{itemize}
+
+
+\end{definition}
+
+
+We introduce a \emph{transition diagram} to represent the case analysis of function $\delta$ wrt. $\Pi$, by considering a new connective $?$ such that restrictions over the interpretation only occur after this connective and edges without label apply to any interpretation. 
+
+To simplify the notation in our examples, we use $\interp{x}$ to represent all interpretations $\Pi$ such that $x\in\Pi$ and $\interp{\neg x}$ for all $\Pi$ where $x\not\in\Pi$.
+%------------------ Example Na and b unitl a --------
+
+\begin{example}[Transition diagram]
+    Given the formula $\varphi= \Next a \wedge (b \until a)$ already in nnf. The AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,b,\last\}},S,\s{\varphi},\delta,\emptyset)$ where $S=\{\s{\varphi},\s{\Next a},\s{b \until a},\s{a},\s{b}\}$. The transition $\delta$ is represented in the following transition diagram. States marked in blue are not reachable from the initial state, however, they are still computed as part of the inductive definition.
+
+    \input{diagrams/transition.tex}
+
+
+\end{example}
+
+To compute the alternating automata we must consider restrictions on the interpretation at the beginning of the transitions in order to follow the syntax of the function $\delta$. This process is performed by expanding each case and exploiting Boolean equivalences, as shown in the following example.
+
+%------------------ Example Na and Nb or Nc --------
+\begin{example}[Translation with branching]
+    Given the formula $\varphi=\wnext a \wedge (\Next b\vee\Next c)$, already in \textit{nnf}, the AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,b,c,\last\}},S,``\varphi",\delta,\emptyset)$ where $S=\{``\varphi",``\wnext a",``(\Next b)\vee(\Next c)",`\Next b`",``\Next c",``a",``b",``c"\}$. The corresponding transition diagram is showed below. 
+
+    \vspace{5px}
+    \input{diagrams/translation_branching.tex}
+
+    The first cases of the transition function $\delta$ follow directly from the definition without further expansion. This type of base cases are considered as trivial and omitted in the following examples.
+
+    \begin{multicols}{2}
+        \small
+        \begin{itemize}
+            \item $\delta(``a",\interp{a })=\bm{true}$
+            \item $\delta(``a",\interp{\neg a })=\bm{\mathit{false}}$
+            \item $\delta(``b",\interp{b })=\bm{true}$
+            \item $\delta(``b",\interp{\neg b })=\bm{\mathit{false}}$
+            \item $\delta(``c",\interp{c })=\bm{true}$
+            \item $\delta(``c",\interp{\neg c })=\bm{\mathit{false}}$
+            \item $\delta(``\wnext a",\interp{\last })=\bm{\mathit{true}}$
+            \item $\delta(``\wnext a",\interp{\neg \last })=``a"$
+            \item $\delta(``\Next b",\interp{\last })=\bm{\mathit{false}}$
+            \item $\delta(``\Next b",\interp{\neg \last })=``b"$
+            \item $\delta(``\Next c",\interp{\last })=\bm{\mathit{false}}$
+            \item $\delta(``\Next c",\interp{\neg \last })=``c"$
+        \end{itemize}
+    \end{multicols}
+
+    To compute the transition of states $``\Next b \vee \Next c"$ and $\s{\varphi}$, we must unfold the inductive definition for different cases.
+
+
+    \begin{itemize}
+        
+        \small
+        \item $\delta(``\Next b \vee \Next c",\interp{\last})= \delta(``b",\interp{\last}) \vee \delta(``c",\interp{\last})\\
+        \phantom{\delta(``\Next b \vee \Next c",\interp{\last})} \equiv \fpbf \vee \fpbf \equiv \fpbf$
+
+        \item $\delta(``\Next b \vee \Next c",\interp{\neg \last})= \delta(``b",\interp{\neg \last}) \vee \delta(``c",\interp{\neg \last}) \equiv ``b" \vee ``c"$
+        
+        \item $\delta(``\varphi",\interp{\neg \last})= \delta(``a",\interp{\neg \last}) \wedge \delta(``\Next b \vee \Next c",\interp{\neg \last}) \equiv ``a" \wedge (``b" \vee ``c")$
+        
+        \item $\delta(``\varphi",\interp{\last})= \delta(``a",\interp{\last}) \wedge \delta(``\Next b \vee \Next c",\interp{\last})\\
+        \phantom{\delta(``\varphi",\interp{\last})} \equiv \fpbf \wedge \bm{true} \equiv \fpbf$
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton, simplifying the transition system.
+
+    \input{diagrams/translation_branching_alternating.tex}
+
+
+    The next figure shows the runs on automaton $A_{\varphi}$ for trace $\pi=\emptyset,\{a,b\}$. Only run $R_1$ is accepted, since runs $R_2$ and $R_3$ hit a false transition. The trace is therefore accepted by the automaton. 
+
+    \input{diagrams/translation_branching_run.tex}
+    
+
+\end{example}
+
+%------------------ Example not N(not a or b)--------
+
+\begin{example}[Translation without branching]
+    Given the formula $\varphi=\Next(a\wedge \neg b)$. The AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,b,\last\}},S,``\varphi",\delta,\emptyset)$ where $S=\{``\varphi",``a\wedge \neg b",``a",``\neg b", ``b"\}$. We present the transition diagram bellow. We omit the state for $b$ as it is not connected to the system.
+
+    \input{diagrams/translation_no_branching.tex}
+
+    % The next cases of the transition functions follow directly from the definition.
+
+    % \begin{multicols}{2}
+    %     \begin{itemize}
+    %         \item $\delta(``a",\interp{ a })=\bm{true}$
+    %         \item $\delta(``a",\interp{ \neg a })=\bm{\mathit{false}}$
+    %         \item $\delta(``b",\interp{ b })=\bm{true}$
+    %         \item $\delta(``b",\interp{ \neg b })=\bm{\mathit{false}}$
+    %         \item $\delta(``\neg b",\interp{ b })=\bm{\mathit{false}}$
+    %         \item $\delta(``\neg b",\interp{ \neg b })=\bm{true}$
+    %         \item $\delta(``\varphi",\interp{ \last })=\bm{\mathit{false}}$
+    %         \item $\delta(``\varphi",\interp{ \neg \last })=``a \wedge \neg b"$
+    %     \end{itemize}
+    % \end{multicols}
+
+    To compute the transition from state $``a \wedge \neg b"$ we must analyze different interpretations and use the trivial base cases previously calculated.
+
+    \begin{itemize}
+        \small
+        \item $\delta(``a \wedge \neg b",\interp{ \neg b,a })= \delta(``a",\interp{ \neg b,a }) \wedge \delta(``\neg b",\interp{ \neg b,a })\\
+        \phantom{\delta(``a \wedge \neg b",\interp{ \neg b,a })} \equiv \bm{true} \wedge \bm{true} \equiv \bm{true}$
+
+
+        \item $\delta(``a \wedge \neg b",\interp{ b })=
+        \delta(``a",\interp{ b }) \wedge \delta(``\neg b",\interp{ b })\\
+        \phantom{\delta(``a \wedge \neg b",\interp{ b })} \equiv \delta(``a",\interp{ b }) \wedge \fpbf \equiv \fpbf$
+        
+        \item $\delta(``a \wedge \neg b",\interp{ \neg a })=
+        \delta(``a",\interp{ b }) \wedge \delta(``\neg b",\interp{ \neg a })\\
+        \phantom{\delta(``a \wedge \neg b",\interp{ \neg a })} \equiv \fpbf \wedge \delta(``b",\interp{ \neg a })  \equiv \fpbf$      
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton, simplifying the transition system.
+
+    \input{diagrams/translation_no_branching_alternating.tex}
+
+
+    For the trace $\pi=\{a\},\{a,\last\}$, automaton $A_{\varphi}$ has a single run $R_1$ which is accepted.
+
+    \input{diagrams/translation_no_branching_runs.tex}
+    
+
+\end{example}
+
+%------------------ Example always A --------
+\begin{example}[Always operator]
+    Given the formula $\varphi= \bot \release a \defeq \alwaysF a$, the corresponding AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,\last\}},S,\s{\varphi},\delta,\emptyset)$ where $S=\{\s{\varphi},\s{a},\s{\bot}\}$. 
+    
+    % The next transition functions follow directly from the definition.
+
+    % \begin{multicols}{2}
+    %     \begin{itemize}
+    %         \item $\delta(``a",\interp{ a })=\bm{true}$
+    %         \item $\delta(``a",\interp{ \neg a })=\bm{\mathit{false}}$
+    %         \item $\delta(``\bot",\Pi)=\bm{\mathit{false}}$
+    %     \end{itemize}
+    % \end{multicols}
+
+    To compute the transition from state $``\bot \release a"$, we must analyze different interpretations and use the trivial base cases previously calculated.
+
+    \begin{itemize}
+        \small
+    
+        \item $\delta(``\bot \release a",\interp{ \last,a }) = \delta(``a",\interp{ \last,a }) \equiv \bm{true}$
+        
+        \item $\delta(``\bot \release a",\interp{ \last, \neg a }) = \delta(``a",\interp{ \last, \neg a }) \equiv \fpbf$
+    
+        \item $\delta(``\bot \release a",\interp{ \neg \last, \neg a }) = \delta(``a",\interp{ \neg \last, \neg a }) \wedge \\ 
+        \phantom{\delta(``\bot \release a",\interp{ \neg \last, \neg a })=}
+        (\delta(``\bot",\interp{ \neg \last, \neg a })  \vee ``\bot \release a")  \\
+        \phantom{\delta(``\bot \release a",\interp{ \neg \last, \neg a })} \equiv 
+        \fpbf \wedge (\fpbf  \vee ``\bot \release a")  \equiv $
+
+
+        \item $\delta(``\bot \release a",\interp{ \neg \last, a }) = \delta(``a",\interp{ \neg \last, a }) \wedge (\delta(``\bot",\interp{ \neg \last, a })  \vee ``\bot \release a")  \\
+        \phantom{\delta(``\bot \release a",\interp{ \neg \last, a })} \equiv 
+        \bm{true} \wedge (\fpbf  \vee ``\bot \release a") \equiv ``\bot \release a"$
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton.
+
+    \input{diagrams/translation_allways.tex}
+
+\end{example}
+
+
+
+
+%%%%%%%%%%%%%%%%% LDLf %%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{$\LDLf$ into alternating automata}
+
+We now show how we can associate a dynamic formula $\varphi$ in \nnf with an $\AFW$ $A_\varphi$, where the state-size of $A_\varphi$ is linear in the size of $\varphi$, such that $L(A_\varphi)$ is exactly the set of traces that satisfy $\varphi$. For this translation, we first extend the notion of the closure of a formula by using the Fisher-Ladner closure\footnote{We omit the case for $\deventually{p}\gamma$ with $p$ propositional as this is consider syntactic sugar in our grammar and can be expressed as $\deventually{p?;\top}\gamma$. The box operator is defined analogously to the diamond operator.} \cite{fislad79a}:
+
+\begin{definition}[Closure for $\LDLf$]
+    The closure $cl(\varphi)$ of a dynamic formula $\varphi$ is the smallest set of dynamic formulas inductively defined as follows:
+    
+    \begin{itemize}
+        \item $\varphi \in cl(\varphi)$
+        \item $\neg \psi \in cl(\varphi)$ if $\psi \in cl(\varphi)$ and  $\psi$ is not of the form $\neg \psi'$
+        \item if $\deventually{\rho}\psi \in cl(\varphi)$ then $\psi\in cl(\varphi)$ 
+        \item if $\deventually{\gamma?}\psi \in cl(\varphi)$ then $\gamma \in cl(\varphi)$
+        \item if $\deventually{\rho_1;\rho_2}\psi \in cl(\varphi)$ then $\deventually{\rho_1}\deventually{\rho_2}\psi \in cl(\varphi)$
+        \item if $\deventually{\rho_1+\rho_2}\psi \in cl(\varphi)$ then $\deventually{\rho_1}\psi \in cl(\varphi)$ and $\deventually{\rho_2}\psi \in cl(\varphi)$
+        \item if $\deventually{\rho^*}\psi \in cl(\varphi)$ then $\deventually{\rho}\deventually{\rho*}\psi \in cl(\varphi)$
+    \end{itemize}
+\end{definition}
+
+
+Based on the previous definition, we consider as states all quoted formulas $``\psi"$ where $\psi \in cl(\varphi)$. Like for $\LTLf$, we include the special proposition $\last$ and use it along with the set of atoms $\A$ to construct the alphabet $\Sigma=2^{\A \cup \{\last\}}$.
+
+\begin{definition}[$\LDLf$ to $\AFW$]
+    The $\AFW$ for a dynamic formula $\varphi$ in \nnf is defined as:
+    $A_\varphi =(2^{\A \cup \{\last\}},\{``\psi" \mid \psi \in cl(\varphi) \},``\varphi",\delta,\emptyset)$, where the transition function $\delta = S\times \Sigma \to B^+(S)$ from a quoted formula and interpretation $\Pi\in\Sigma$ is defined as follows: 
+
+
+%Cardinality linear in the size of phi
+  \begin{multicols}{2}
+    \small
+    \begin{itemize}
+ 
+      
+    \item $\delta(\s{\top},\Pi)=\tpbf$
+            
+      \item $\delta(\s{\deventually{\top}\varphi},\Pi)=\begin{cases}
+        \s{\varphi} & \text{if} \;\last\not\in \Pi \\
+        \fpbf & \text{if} \;\last\in \Pi \\
+      \end{cases}
+      $
+      
+
+      
+      \item $\delta(\s{\bot},\Pi)=\fpbf$
+      
+      \item $\delta(\s{\dalways{\top}\varphi},\Pi)=\begin{cases}
+        \varphi & \text{if} \;\last\not\in \Pi \\
+        \tpbf & \text{if} \;\last\in \Pi \\
+      \end{cases}
+      $
+
+    \end{itemize}
+  \end{multicols}
+\begin{itemize}
+
+          
+  \item $\delta(\s{\deventually{\psi ?}\varphi},\Pi)=
+  \delta(\s{\psi},\Pi) \; \wedge \delta(\s{\varphi},\Pi)
+  $
+  
+  \item $\delta(\s{\deventually{\rho_1 + \rho_2}\varphi},\Pi)=
+  \delta(\s{\deventually{\rho_1}\varphi},\Pi) \vee \; \delta(\s{\deventually{\rho_2}\varphi},\Pi)
+  $
+  
+  \item $\delta(\s{\deventually{\rho_1 ; \rho_2}\varphi},\Pi)=
+    \delta(\s{\deventually{\rho_1}\deventually{\rho_2}\varphi},\Pi)
+    $
+
+  \item $\delta(\s{\deventually{\rho^{\ast}}\varphi},\Pi)= 
+  \delta(\s{\varphi},\Pi)\; \vee \delta(\s{\deventually{\rho}\deventually{\rho^{\ast}}\varphi},\Pi)
+  $
+  
+  
+  \item $\delta(\s{\deventually{(\psi ?)^{\ast}}\varphi},\Pi)=
+  \delta(\s{\varphi},\Pi)
+  $
+      
+
+  \item $\delta(\s{\dalways{\psi ?}\varphi},\Pi)=
+  \delta(\s{\neg \psi},\Pi)\; \vee \delta(\s{\varphi},\Pi)
+  $
+  
+  \item $\delta(\s{\dalways{\rho_1 + \rho_2}\varphi},\Pi)=
+  \delta(\s{\dalways{\rho_1}\varphi},\Pi) \wedge \; \delta(\s{\dalways{\rho_2}\varphi},\Pi)
+  $
+
+              
+      
+  \item $\delta(\s{\dalways{\rho_1 ; \rho_2}\varphi},\Pi)=
+  \delta(\s{\dalways{\rho_1}\dalways{\rho_2}\varphi},\Pi)
+  $
+
+        
+  \item $\delta(\s{\dalways{\rho^{\ast}}\varphi},\Pi)=
+  \delta(\s{\varphi},\Pi)\; \wedge \delta(\s{\dalways{\rho}\dalways{\rho^{\ast}}\varphi},\Pi)
+  $
+
+
+      
+  \item $\delta(\s{\dalways{(\psi ?)^{\ast}}\varphi},\Pi)=
+  \delta(\s{\varphi},\Pi)
+  $
+
+\end{itemize}
+\end{definition}
+
+The definition for the transition brought to light the need of an additional adjustment to the syntax for dynamic formulas and to the closure. 
+Such adaptation was needed since the definition provided by De Giacomo and Vardi in \cite{giavar15a}: $\delta(\s{\dalways{\psi ?}\varphi},\Pi) = \delta(\s{\nnf(\neg \psi)},\Pi) \vee \delta(\s{\varphi},\Pi)$ does not take into account that the formulas generated by $\nnf(\neg \psi)$ should also be part of the closure.  
+
+\begin{example}[Problematic definiton for test construct]
+    Given the formula $\varphi = \dalways{(\deventually{\top}a)?}b$ where the test construct is applied to a non-propositional formula, we would calculate the set of states using the closure as $S=\{\s{\varphi}, \s{\neg \varphi} \s{b}, \s{\neg b}, \s{\deventually{\top}a}, \s{\neg \deventually{\top}a}, \s{\top}, \s{a}, \s{\neg a}, \s{\bot}\}$. Given the original definition by De Giacomo and Vardi we would have the following transition: 
+    
+    $\delta(\s{\dalways{(\deventually{\top}a)?}b},\Pi) = \delta(\s{\nnf(\neg \deventually{\top}a)},\Pi) \vee \delta(\s{b},\Pi) \\\phantom{\delta(\s{\dalways{(\deventually{\top}a)?}b},\Pi)\;} \; \equiv \delta(\s{\dalways{\top}\neg a},\Pi) \vee \delta(\s{b},\Pi)$ .
+
+    In this transition function, we are referring to state $\s{\dalways{\top}\neg a}$ which was not included as part of the closure. Even tough the equivalent formula $\neg \deventually{\top}a$ was included, the reduction into $\nnf$ as well as all subformulas that this process may convey are not considered as part of the states.
+\end{example}
+
+We tackle the problem by restricting the test construct only to propositions and by directly applying a negation instead of \nnf in the translation, as it is shown on the definition above.
+With this restriction, we only need to include the negation for propositions as part of the closure, resulting in exclusively formulas in \nnf. 
+We argue that this remodelling does not impose limitations for formulas for which the subformula inside the test construct can be redefined as a new proposition $p_{\varphi}$ where $p_\varphi \leftrightarrow \varphi$. 
+For instance, rewriting the formula $\dalways{(\neg p) ?} q$ as $\dalways{l_{\neg p} ?} q$ and including the rule $l_{\neg p} \leftarrow not \;p$ \footnote{For this formula the other side of the implication is directly given by the closed world assumption since $l_{\neg p}$ is a new proposition and therefore can only be inferred by this rule.}.
+However, when the test is applied to a more complex formula, it is not longer trivial to rewrite it without using dynamic operators. 
+Such a statement is based on the fact that we restricted dynamic formulas to integrity constraints, thus, we can't use them to generate new predicates. 
+Therefore, a complete reanalysis of the transition is required to account for the full expressiveness of this logic.
+Such analysis was outside of the scope for this thesis, leaving us with the decision to move on to the implementation using the restricted logic.
+
+
+% This remodelling does not impose limitations, since any formula $\varphi$ required in the test construct $\varphi ?$ can redefined as a proposition $p_{\varphi}$ using an additional rule $p_\varphi \leftarrow \varphi$ as part of the encoding.
+
+\newpage
+%------------------ Example always A --------
+\begin{example}[Always operator]
+    Given the formula $\varphi= \dalways{\top ^*}a \equiv \alwaysF a$, the AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,\last\}},S,\s{\varphi},\delta,\emptyset)$ where $S=\{\s{\varphi},\s{\dalways{\top}\dalways{\top ^*}a},``a"\}$. The base cases required from the transition $\delta$ are the following:
+
+    \begin{multicols}{2}
+        \small
+        \begin{itemize}
+            \item $\delta(``a",\interp{ a })=\bm{true}$
+            \item $\delta(``a",\interp{ \neg a })=\bm{\mathit{false}}$
+        \end{itemize}
+    \end{multicols}
+    \begin{itemize}
+        \small
+        \item $\delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{ \neg \last})=\tpbf$
+        \item $\delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{\last})=\s{\dalways{\top ^*}a}$
+    \end{itemize}
+
+    To compute the transition of state $\s{\dalways{\top ^*}a}$ we must analyze different interpretations and use the definitions calculated above.
+
+    \begin{itemize}
+        
+        \small
+        \item $\delta(\s{\dalways{\top ^*}a},\interp{\neg a}) = \delta(\s{a},\interp{\neg a}) \wedge \delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{\neg a}) \\\phantom{\delta(\s{\dalways{\top ^*}a},\interp{\neg a})} \equiv  \fpbf \wedge \delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{\neg a}) \equiv \fpbf$ 
+        
+        \item $\delta(\s{\dalways{\top ^*}a},\interp{a, \last}) = \delta(\s{a},\interp{a, \last}) \wedge \delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{a, \last}) \\\phantom{\delta(\s{\dalways{\top ^*}a},\interp{a, \last})} \equiv  \tpbf \wedge \tpbf \equiv \tpbf$ 
+        
+        \item $\delta(\s{\dalways{\top ^*}a},\interp{a, \neg \last}) = \delta(\s{a},\interp{a, \neg \last}) \wedge \delta(\s{\dalways{\top}\dalways{\top ^*}a},\interp{a, \neg \last}) \\\phantom{\delta(\s{\dalways{\top ^*}a},\interp{a, \neg \last})} \equiv  \tpbf \wedge \s{\dalways{\top ^*}a} \equiv \s{\dalways{\top ^*}a}$ 
+        
+        
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton, identical to the one shown in Example 9.
+    \input{diagrams/translation_del_always.tex}
+
+\end{example}
+
+
+
+%------------------ Example Final --------
+\begin{example}[Final operator]
+    Given the formula $\varphi= \dalways{\top}\bot \equiv \finally$, the AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{\last\}},S,\s{\varphi},\delta,\emptyset)$ where $S=\{\s{\varphi},\s{\bot}\}$, where the transition $\delta$ is defined as:
+
+    \begin{itemize}
+        \item $\delta(\s{\dalways{\top}\bot},\interp{\last}) = \tpbf$ 
+        \item $\delta(\s{\dalways{\top}\bot},\interp{\neg \last}) = \delta(\s{\bot}) = \fpbf$         
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton, showing the expected behavior of hitting the true transition only when \last is in the interpretation.
+
+    \input{diagrams/translation_del_final.tex}
+
+\end{example}
+
+
+%------------------ Example diamond sequence choice --------
+\begin{example}[Diamond, sequence and choice operators]
+    Given the formula $\varphi= \deventually{((a? + b?);\top);b?}\finally$, the AFW$_f$ automaton for $\varphi$ is $A_\varphi =(2^{\{a,b,\last\}},S,"\varphi",\delta,\emptyset)$ where the set of states $S$ consists of the following formulas after before quotes.
+    \begin{multicols}{3}
+        \small
+        \begin{itemize}
+        
+            \item$\varphi$
+            \item$\deventually{(a? + b?);\top}\deventually{b?}\finally$
+            \item$\deventually{(a? + b?)}\deventually{\top}\deventually{b?}\finally$
+            \item$\deventually{a?}\deventually{\top}\deventually{b?}\finally$
+            \item$\deventually{b?}\deventually{\top}\deventually{b?}\finally$
+            \item$\deventually{\top}\deventually{b?}\finally$
+            \item$\deventually{b?}\finally$ 
+            \item$\finally$ 
+            \item$\deventually{\top;b?}\finally$
+            \item$a$
+            \item$b$
+            \item$\bot$
+        \end{itemize}
+    \end{multicols}
+    
+    The transition $\delta$ is calculated below, omitting base cases and using the transitions from the last example.
+    \small
+    \begin{itemize}
+
+        \item $\delta(\s{\deventually{b?}\finally},\interp{\neg \last})=
+        \delta(\s{b},\interp{\neg \last}) \; \wedge \;
+         \delta(\s{\finally},\interp{\neg \last})\\
+        \phantom{\delta(\s{\deventually{b?}\finally},\interp{\neg \last})}\equiv
+        \delta(\s{b},\interp{\neg \last})\;\wedge\;\fpbf \equiv \fpbf
+        $
+
+        \item $\delta(\s{\deventually{b?}\finally},\interp{\last,b})=
+        \delta(\s{b},\interp{\last,b}) \; \wedge \;
+         \delta(\s{\finally},\interp{\last,b})\\
+        \phantom{\delta(\s{\deventually{b?}\finally},\interp{\last,b})}\equiv
+        \tpbf\;\wedge\;\tpbf \equiv \tpbf
+        $
+
+        \item $\delta(\s{\deventually{b?}\finally},\interp{\last,\neg b})=
+        \delta(\s{b},\interp{\last,\neg b}) \; \wedge \;
+         \delta(\s{\finally},\interp{\last,\neg b})\\
+        \phantom{\delta(\s{\deventually{b?}\finally},\interp{\last,\neg b})}\equiv
+        \fpbf\;\wedge\;\tpbf \equiv \fpbf
+        $
+        
+
+        \item $\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})=
+        \delta(\s{b},\interp{\last}) \; \wedge \;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\last})\\
+        \phantom{\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})}\equiv
+        \delta(\s{b},\interp{\last})\;\wedge\;\fpbf \equiv \fpbf
+        $
+
+
+        \item $\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,b})=
+        \delta(\s{b},\interp{\neg \last,b}) \; \wedge\;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,b})\\
+        \phantom{\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,b})}\equiv
+        \tpbf \wedge \s{\deventually{b?}\finally} \equiv \s{\deventually{b?}\finally}\\
+        $
+
+        \item $\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg b})=
+        \delta(\s{b},\interp{\neg \last, \neg b}) \; \wedge\;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg b})\\
+        \phantom{\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg b})}\equiv
+        \fpbf \wedge \s{\deventually{b?}\finally} \equiv \fpbf\\
+        $
+
+        \item $\delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\last})=
+        \delta(\s{a},\interp{\last}) \; \wedge \;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\last})\\
+        \phantom{\delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\last})}\equiv
+        \delta(\s{a},\interp{\last})\;\wedge\;\fpbf \equiv \fpbf
+        $
+
+
+        \item $\delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a})=
+        \delta(\s{a},\interp{\neg \last,a}) \; \wedge\;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a})\\
+        \phantom{\delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a})}\equiv
+        \tpbf \wedge \s{\deventually{b?}\finally} \equiv \s{\deventually{b?}\finally}\\
+        $
+
+        \item $\delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg a})=
+        \delta(\s{a},\interp{\neg \last, \neg a}) \; \wedge\;
+         \delta(\s{\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg a})\\
+        \phantom{\delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last, \neg a})}\equiv
+        \fpbf \wedge \s{\deventually{b?}\finally} \equiv \fpbf\\
+        $
+
+        \item $\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})=
+        \delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\last}) \; \vee\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})=}
+        \delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\last})}\equiv
+        \fpbf \wedge \fpbf \equiv \fpbf\\
+        $
+
+        \item $\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a,b})=
+        \delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a,b}) \; \vee\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a,b})=}
+        \delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a,b})\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,a,b})}\equiv
+        \s{\deventually{b?}\finally} \vee \s{\deventually{b?}\finally} \equiv \s{\deventually{b?}\finally}\\
+        $
+
+        \item $\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,b})=
+        \delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,b}) \; \vee\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,b})=}
+        \delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,b})\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,b})}\equiv
+        \fpbf \vee \s{\deventually{b?}\finally} \equiv \s{\deventually{b?}\finally}\\
+        $
+
+        \item $\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,\neg b})=
+        \delta(\s{\deventually{a?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,\neg b}) \; \vee\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,\neg b})=}
+        \delta(\s{\deventually{b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,\neg b})\\
+        \phantom{\delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},\interp{\neg \last,\neg a,\neg b})}\equiv
+        \fpbf \vee \fpbf \equiv \fpbf\\
+        $
+
+        \item $\delta(\varphi,\Pi) = \delta(\s{\deventually{a?+b?}\deventually{\top}\deventually{b?}\finally},
+        \Pi)
+        $
+
+    \end{itemize}
+
+    These definitions lead to the following alternating automaton.
+
+    \input{diagrams/translation_del_diamond.tex}
+
+    Traces $\pi_1=\{a\},\{b,\last\}$, $\pi_2=\{b\},\{b,\last\}$, and $\pi_3=\{b,a\},\{b,\last\}$ are all accepted by the automaton generating the accepted run $R_1$. On the other hand, traces such as $\pi_4=\{a,\last\}$ and $\pi_5=\{b\},\{b\},\{a,\last\}$ are not accepted yielding the runs $R_2$ and $R_3$ respectively.
+
+    \input{diagrams/translation_del_diamond_runs.tex}
+
+\end{example}

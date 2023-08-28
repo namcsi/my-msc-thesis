@@ -1,0 +1,56 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=1.7cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+    
+    \node[state,initial]  (s_0)                 {$\varphi$};
+    \node[conn]                    (and_1) [right of=s_0]  {$\wedge$};
+    \node[conn]                    (check_1) [below left of=and_1]  {$?$};
+    \node[conn]                    (or_1) [below right of=and_1]  {$\vee$};
+
+    \node (false_1) [below left of=check_1] {\fpbf};
+    \node[state,fill=darkblue!20]                    (next_a) [left of=check_1]  {$\Next a$};
+    \node[state]                    (s_a) [below right of=check_1]  {$a$};
+    \node[state,fill=darkblue!20] (s_b) [right of=s_a] {$b$};
+
+    \node[conn]                    (and_2) [right of=s_b]  {$\wedge$};
+
+    \node[conn]                    (check_a) [below of=s_a]  {$?$};
+    \node[conn]                    (check_b) [below of=s_b]  {$?$};
+    \node[conn]                    (check_l) [below right of=and_2]  {$?$};
+
+    \node (true_b) [below right of=check_a] {\tpbf};
+
+    \node (false_b) [below right of=check_b] {\fpbf};
+    \node (false_a) [below left of=check_a] {\fpbf};
+    \node (false_l) [below of=check_l] {\fpbf};
+
+    \node[state] (s_until) [above of=or_1] {$a \until b$};
+    
+
+
+  
+    \path[->]
+    (s_0) edge  (and_1)
+    (and_1) edge (check_1)
+    (next_a) edge (check_1)
+    (and_1) edge (or_1)
+    (check_1) edge node[interp] {$\interp{\last}$} (false_1)
+    (check_1) edge node[interp] {$\interp{\neg \last}$} (s_a)
+    (or_1) edge (check_a)
+    (or_1) edge (and_2)
+    (s_a) edge (check_a)
+    (s_b) edge (check_b)
+    (check_a) edge node[interp] {$\interp{\neg a}$} (false_a)
+    (check_a) edge node[interp] {$\interp{a}$} (true_b)
+    (check_b) edge node[interp] {$\interp{b}$} (true_b)
+    (check_b) edge node[interp] {$\interp{\neg b}$} (false_b)
+    (and_2) edge (check_l)
+    (and_2) edge (check_b)
+    (check_l) edge node[interp] {$\interp{\last}$}(false_l)
+    (check_l) edge[bend right=50]  node[interp] {$\interp{ \neg \last}$} (s_until)       
+    (s_until) edge (or_1)
+    ;
+\end{tikzpicture}

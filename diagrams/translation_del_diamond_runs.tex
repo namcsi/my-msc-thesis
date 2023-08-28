@@ -1,0 +1,41 @@
+\begin{tikzpicture}[shorten >=1.5pt,node distance=1.5cm,on grid,auto]
+    % \tikzstyle{every state}=[fill={rgb:black,1;white,20}]
+    \tikzstyle{every pin edge}=[->,dotted,shorten <=1pt]
+    % \tikzstyle{conn}=[rectangle,draw]
+    % \tikzstyle{bool}=[rectangle,draw]
+    \node[]  (time)                 {\textcolor{darkblue}{TIME}};
+    \node[]  (r_1)[right of =time]               {\textcolor{darkblue}{$R_1$}};
+    \node[]  (r_1_e)[right of =r_1]               {};
+
+    \node[]  (t_0)[below of =time]                {0};
+    \node[]  (t_1)[below of =t_0]                 {1};
+
+    \node[]  (s_phi)[right of =t_0]                 {$\varphi$};
+    \node[]  (s_and)[below of =s_phi, pin=below:\tpbf]                 {$\deventually{b?}\finally$};
+   
+    \path[->,dotted]
+    (s_phi) edge                node {}  (s_and);
+
+
+    \node[]  (time_2)[right of =r_1_e]                 {\textcolor{darkblue}{TIME}};
+    \node[]  (r_2)[right of =time_2]               {\textcolor{darkred}{$R_2$}};
+    \node[]  (r_2_e)[right of =r_2]               {};
+
+    \node[]  (t_0_1)[below of =time_2]                {0:$\{a,\last\}$};
+
+    \node[]  (s_phi_2)[right of =t_0_1, pin=below:\fpbf]                 {$\varphi$};
+   
+
+    \node[]  (time_3)[right of =r_2_e]                 {\textcolor{darkblue}{TIME}};
+    \node[]  (r_1)[right of =time_3]               {\textcolor{darkred}{$R_3$}};
+
+    \node[]  (t_0_3)[below of =time_3]                {0:$\{b\}$};
+    \node[]  (t_1_3)[below of =t_0_3]                 {1:$\{b\}$};
+
+    \node[]  (s_phi_3)[right of =t_0_3]                 {$\varphi$};
+    \node[]  (s_and_3)[below of =s_phi_3, pin=below:\fpbf]                 {$\deventually{b?}\finally$};
+   
+    \path[->,dotted]
+    (s_phi_3) edge                node {}  (s_and_3);
+
+\end{tikzpicture}

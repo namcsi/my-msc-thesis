@@ -1,0 +1,37 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=1.7cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+
+    \node[state,initial]  (s_0)                 {$\varphi$};
+    \node[conn]                    (check_l) [right of=s_0]  {$?$};
+    \node[state]                    (s_and) [below of=check_l]  {$a \wedge \neg b$};
+    \node[conn]                    (and) [right of=s_and]  {$\wedge$};
+    \node[conn]                    (check_a) [below left of=and]  {$?$};
+    \node[conn]                    (check_b) [below right of=and]  {$?$};
+    \node (false_l) [right of=check_l] {\fpbf};
+    \node (true_a) [below left of=check_a] {\tpbf};
+    \node (false_a) [below right of=check_a] {\fpbf};
+    \node (true_b) [below right of=check_b] {\tpbf};
+
+    \node[state,fill=darkblue!20]                    (s_a) [left of=check_a]  {$a$};
+    \node[state,fill=darkblue!20]                    (s_b) [right of=check_b]  {$\neg b$};
+
+  
+    \path[->]
+    (s_0) edge  (check_l)
+    (check_l) edge node[interp] {$\interp{\last }$} (false_l)
+              edge node[interp] {$\interp{\neg \last }$} (s_and)
+    (s_and) edge (and)
+    (and) edge (check_a)          
+          edge (check_b)
+    (check_a) edge node[interp] {$\interp{a }$} (true_a)
+              edge node[interp] {$\interp{\neg a }$} (false_a)          
+    (check_b) edge node[interp] {$\interp{\neg b }$} (true_b)
+              edge node[interp] {$\interp{b }$} (false_a) 
+    (s_a) edge (check_a)
+    (s_b) edge (check_b)         
+    ;
+\end{tikzpicture}

@@ -1,0 +1,21 @@
+\begin{tikzpicture}[shorten >=1.5pt,node distance=1.6cm,on grid,auto]
+    \small
+    \tikzstyle{tree_node}=[rounded corners,fill={rgb:black,1;white,20},font=\small,draw=black]
+    \node[tree_node]  (and)                 {\textcolor{darkblue}{\scriptsize{(1)}}$\;\&$};
+    \node[tree_node]  (next) [below left of =and]                {\textcolor{darkblue}{\scriptsize{(2)}}$\;>$};
+    \node[tree_node]  (until)[below right of =and]               {\textcolor{darkblue}{\scriptsize{(5)}}$\;>?$};
+    
+    \node[tree_node]  (a)[below left of =next]               {\textcolor{darkblue}{\scriptsize{(3)}}$\;a$};
+    
+
+\node[tree_node]  (b)[below right of =until]               {\textcolor{darkblue}{\scriptsize{(6)}}$\;b$};
+\node[tree_node]  (a_2)[below left of =until]               {\textcolor{darkblue}{\scriptsize{(3)}}$\;a$};
+
+\path[->,dotted]
+(and) edge                node {}  (next) 
+(and) edge               node {}  (until) 
+(next) edge                node {}  (a)
+(until) edge                node {}  (b)
+(until) edge                node {}  (a_2);
+
+\end{tikzpicture}

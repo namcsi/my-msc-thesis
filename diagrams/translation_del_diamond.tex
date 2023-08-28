@@ -1,0 +1,21 @@
+\begin{tikzpicture}[shorten >=1pt,node distance=2cm,on grid,auto]
+    \tikzstyle{every state}=[fill={rgb:black,1;white,20},font=\small]
+    \tikzstyle{every pin edge}=[->,shorten <=1pt]
+    \tikzstyle{interp}=[font=\footnotesize]
+    \tikzstyle{conn}=[rectangle,draw,font=\small]
+    \tikzstyle{bool}=[draw,font=\small]
+    \node[state,initial]  (s_0)                 {$\varphi$};
+    \node (s_0_e) [right of=s_0] {};
+    \node (false_0) [below of=s_0] {\fpbf};
+    \node[state]  (s_f) [right of =s_0_e]                {$\deventually{b?}\finally$};
+    \node (s_f_e) [right of=s_f] {};
+    \node (true_1) [below of=s_f] {\tpbf};
+    \node (false_1) [right of=s_f_e] {\fpbf};
+    
+    \path[->]
+    (s_0) edge[bend right=20] node[interp] {$\interp{\last},\interp{\neg \last, \neg a, \neg b}$} (false_0)
+            edge[bend left=30] node[interp] {$\interp{\neg \last, a},\interp{\neg \last, b}$} (s_f)
+
+    (s_f) edge[bend right=30] node[interp] {$\;\;\interp{\last, b}$} (true_1)
+    edge[bend left=10] node[interp] {$\interp{\neg \last},\interp{\neg b}$} (false_1);
+\end{tikzpicture}

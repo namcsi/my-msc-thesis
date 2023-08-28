@@ -1,0 +1,67 @@
+
+\section{\\Negation under $\DHT$ evaluated as $\LDL$}
+
+
+  \begin{definition}[\DHT{} satisfaction]\label{def:dhtsat}
+    %\comment{T: unify $\mathbb{N}$ with $\omega$}
+    An \HT{} trace $\thandt $ \emph{satisfies} an dynamic formula $\varphi$ at time point $k \in \mathbb{N}$, written $\thandt ,k \models \varphi$, if the following conditions hold:
+    \begin{enumerate}
+      \item $\thandt ,k \models \top$ and  $\thandt ,k \not\models \bot$
+      \item $\thandt ,k \models a$ if $a \in H(k)$ for any atom $a \in \PV$
+      \item $\thandt , k \models \deventually{\rho} \varphi$
+        if $\thandt ,i \models \varphi$ \\
+        for some $i$ with $(k,i) \in \Rel{\rho}{\thandt }$
+      \item \label{def:dhtsat.3} $\thandt , k \models \dalways{\rho} \varphi$
+        if $\langle \
+        H', T \rangle,i \models \varphi$ \\
+        for all $i$ with $(k,i) \in \Rel{\rho}{\langle \
+        H', T \rangle}$ and all $\
+        H' \in \{ \
+        H, T \}$
+    \end{enumerate}
+    where, for any \HT{} trace $\M$, $\Rel{\rho}{\M} \subseteq \mathbb{N}^2$ is a relation on pairs of time points inductively defined as follows.
+    \begin{enumerate}[itemsep=5pt]
+    \setcounter{enumi}{4}
+    \item $\Rel{\top}{\M} \ \eqdef \ \{\ (i,i+1) \ \mid i \in \mathbb{N}\ \}$
+    \item $\Rel{\varphi?}{\M}  \ \eqdef \ \{\ (i,i) \mid \M,i \models \varphi\ \}$
+    \item $\Rel{\rho_1{+}\rho_2}{\M}  \ \eqdef \ \Rel{\rho_2}{\M} \cup \Rel{\rho_2}{\M}$
+    \item
+    \(
+    \begin{array}[t]{@{}r@{\,}c@{\,}l@{\;}c@{\;}l}
+    \Rel{\rho_1{\,;\,}\rho_2}{\M} & \eqdef & \{\ (i,j) & \mid & (i,k) \in \, \Rel{\rho_1}{\M} \ \text{and}\\
+                            &        &           &      & (k,j) \in \, \Rel{\rho_2}{\M} \ \text{for some } k \ \}
+    \end{array}
+    \)
+    \item $\Rel{\rho^*}{\M} \ \eqdef \ \bigcup_{n\geq 0} \Rel{\rho^*}{\M}_n$ \ where
+    \[
+    \!\!
+    \begin{array}{l@{\,}c@{\,}l@{\,}c@{\,}l}
+    \Rel{\rho^*}{\M}_0     & \eqdef & \{\ (i,i)         & \mid & i \in \mathbb{N}\ \}\\[5pt]
+    \Rel{\rho^*}{\M}_{n+1} & \eqdef &\Rel{\rho^*}{\M}_n & \cup & \\
+                           &        & \{\ (i,j)         & \mid & (i,k) \in \, \Rel{\rho}{\M}    \ \text{ and}\\
+                           &        &                   &      & (k,j) \in \, \Rel{\rho^*}{\M}_n  \text{ for some } k \}
+    \qed
+    \end{array}
+    \]
+    \end{enumerate}
+    \end{definition}
+
+\begin{lemma}[Persistence $\DHT$ \cite{bocadisc18a}]
+    For a dynamic formula $\varphi$, a HT-trace $\thandt  $ and $i\geq 0$.
+
+    1. $\ttandt, i \models \varphi$ iff $\bm{T},i \models \varphi$ in $\LDL$
+    
+    2. $\thandt  , i \models \varphi$ implies $\ttandt, i \models \varphi$. \emph{(Persistence)}
+\end{lemma}
+
+\begin{lemma}[$\DHT$ and \LDL]
+    For a dynamic formula $\varphi$, a HT-trace $\thandt  $ and $i\geq 0$, it holds that $\thandt  , i\models \neg \varphi$ in $\DHT$ iff $\bm{T},i \not \models \varphi$ in $\LDL$.
+
+\textbf{\emph{Proof.}}\footnote{Note that negation is considered syntactic sugar for dynamic formulas. This is addressed in more detail in the following subsection.}.
+
+$\Rightarrow$) $\thandt  , i\models \neg \varphi$ implies $\ttandt, i\models \neg \varphi$ based on Lemma 3.2. Which in turn implies $\bm{T},i \models \neg \varphi$ in $\LDL$ from Lemma 3.1. Using the semantics of $\LDL$ we get $\bm{T},i \not\models \varphi$ in $\LDL$.
+
+$\Leftarrow$) $\bm{T},i \not\models \varphi$ in $\LDL$ implies $\ttandt, i \not\models \varphi$ based on Lemma 4.1. Using the contrapositive the persistence property in Lemma 3.2, then $\thandt  , i \not\models \varphi$. With the semantics for $\DHT$ \cite{bocadisc18a} we can conclude $\thandt  , i \models  \neg \varphi$.
+\end{lemma}
+
+The previous lemmas also hold for $\THT$ and $\LTL$ \cite{agcadipevi13a}, but we won't make them explicit since all formulas in $\THT$ can be encoded in $\DHT$, $\THT \subset \DHT$ \cite{bocadisc18a}.
