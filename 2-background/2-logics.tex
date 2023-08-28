@@ -25,7 +25,8 @@ Given a set of atoms $\A$, a \emph{temporal formula} $\varphi$ is defined by the
 
 where we consider $a\in\A$ as atoms, Boolean constants $\top$ and $\bot$ and Boolean connectives $\vee$ and $\wedge$, well as the temporal connectives: $\Next$(next), $\wnext$(weak next), $\until$(until) and $\release$(release).
 
-We adapt the syntax of \cite{cabsch19b} to work under the assumption that all formulas are in \nnf by including the operators $\wnext$ and $\top$ as well the negation before atoms. 
+We adapt the syntax of \cite{cabsch19b} to work under the assumption that all formulas are in \nnf by
+including the operators $\wnext$ and $\top$ as well the negation before atoms. 
 Furthermore, we do not consider past operators as they impose implementation challenges. If such elements were required, any formula with past operators can be transformed into a (potentially more complex) formula using only future operators based on a separation property of temporal languages \cite{gabbay87a}.
 
 Using the above grammar, we can derive other known operators such as:

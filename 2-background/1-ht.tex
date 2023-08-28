@@ -12,7 +12,11 @@ Given a set of atoms $\A$, a formula $\varphi$ in the logic of HT is constructed
         \varphi \vee \varphi \mid
         \varphi \to \varphi 
 \end{align*}
-where $a\in \A$ is an atom. As usual, we define a \emph{theory} as a set of formulas, and consider the abbreviations $\neg \varphi \defeq \varphi \to \bot$ and $\top \defeq \bot \to \bot$. An interpretation over $\A$ is a pair $\handt$ where $H\subseteq T \subseteq \A$. We refer to the set $H$ as the ``here'' world and $T$ as the ``there'' world. Intuitively, we can think that atoms in $H$ are \emph{true} while atoms in $T$ are \emph{potentially true}. Based on this observation HT can be used as a tree-valued logic where atoms in $A$ are \emph{true}, those in $\A \backslash T$ are \emph{false} and atoms in $T \backslash H$ are \emph{unknown}. 
+where $a\in \A$ is an atom.
+As usual, we define a \emph{theory} as a set of formulas, and consider the abbreviations $\neg \varphi \defeq \varphi \to \bot$ and $\top \defeq \bot \to \bot$.
+An interpretation over $\A$ is a pair $\handt$ where $H\subseteq T \subseteq \A$. We refer to the set $H$ as the ``here'' world and $T$ as the ``there'' world.
+Intuitively, we can think that atoms in $H$ are \emph{true} while atoms in $T$ are \emph{potentially true}.
+Based on this observation HT can be used as a tree-valued logic where atoms in $A$ are \emph{true}, those in $\A \backslash T$ are \emph{false} and atoms in $T \backslash H$ are \emph{unknown}. 
 
 \begin{definition}[Semantics]
     An interpretation $\handt$ satisfies a formula $\varphi$, written $\handt \models \varphi$, according to the following definition:
