@@ -1,78 +1,8 @@
-\subsection{Equilibrium logic and stable model semantics  }
+\subsection{Disjunctive Logic Programs and Equilibrium Logic}
 
-\subsubsection{Here-and-There Logic}
+Given a set of atoms \mathcal{A}, a disjunctive logic program is a set of rules of the form:
 
-The logic of here-and-there (HT) first introduced by \cite{heyting30a} is a propositional monotonic logic that can be used for representing and analyzing logic programs under stable model semantics \cite{pearce96a,ferlif05a}. This section introduces the basics of this logic as well as its connection with Answer Set Programming (ASP).
-
-
-Given a set of atoms $\A$, a formula $\varphi$ in the logic of HT is constructed with the grammar:
 \begin{align*}
-    \varphi ::= &\; a \mid \bot \mid
-        \varphi \wedge \varphi \mid 
-        \varphi \vee \varphi \mid
-        \varphi \to \varphi 
+    a_1 \vee \cdots \vee a_{k-1} \leftarrow a_{k} \wedge \cdots \wedge a_{l-1} \wedge \lnot \; a_{l} \wedge \cdots \wedge \lnot \; a_{n}
 \end{align*}
-where $a\in \A$ is an atom.
-As usual, we define a \emph{theory} as a set of formulas, and consider the abbreviations $\neg \varphi \defeq \varphi \to \bot$ and $\top \defeq \bot \to \bot$.
-An interpretation over $\A$ is a pair $\handt$ where $H\subseteq T \subseteq \A$. We refer to the set $H$ as the ``here'' world and $T$ as the ``there'' world.
-Intuitively, we can think that atoms in $H$ are \emph{true} while atoms in $T$ are \emph{potentially true}.
-Based on this observation HT can be used as a tree-valued logic where atoms in $A$ are \emph{true}, those in $\A \backslash T$ are \emph{false} and atoms in $T \backslash H$ are \emph{unknown}. 
-
-\begin{definition}[Semantics]
-    An interpretation $\handt$ satisfies a formula $\varphi$, written $\handt \models \varphi$, according to the following definition:
-    \begin{itemize}
-        \item $\handt \not \models \bot$
-        \item $\handt \models a$ iff $a\in H$
-        \item $\handt \models \varphi_1 \wedge \varphi_2$ iff $\handt \models \varphi_1$ and  $\handt \models \varphi_2$
-        \item $\handt \models \varphi_1 \vee \varphi_2$ iff $\handt \models \varphi_1$ or  $\handt \models \varphi_2$
-        \item $\handt \models \varphi_1 \to \varphi_2$ iff $\langle w,T \rangle \not \models \varphi_1$ or  $\langle w,T \rangle \models \varphi_2\;$ for all 
-        $w \in \{H,T\}$
-    \end{itemize}
-\end{definition}
-
-Let us recall some characteristic properties of HT.
-\begin{lemma}[Persistence HT \cite{pearce96a}]
-    For HT-interpretations $\handt$ and $\tandt$ and formula $\varphi$ over $\A$, $\handt \models \varphi$ implies $\tandt \models \varphi$.
-\end{lemma}
-
-\begin{lemma}[Negation \cite{heyting30a}]
-    For HT-interpretations $\handt$ and $\tandt$ and formula $\varphi$ over $\A$, $\handt \models \varphi \to \bot$ iff $\tandt \not \models \varphi$.
-\end{lemma}
-
-\subsubsection{Equilibrium Logic}
-
-An interpretation $\handt$ is called \emph{total} when $H = T$. 
-This type of interpretations enforce classical entitlement, meaning that $\langle T,T \rangle \models \varphi$ can be treated as in classical logic where $T\models \varphi$. 
-\begin{definition}[Equilibrium model]
-    A total interpretation $\langle T,T\rangle$ is an \emph{equilibrium model} of a theory $\Gamma$ if $\langle T,T\rangle$ is a model of $\Gamma$ and there is no other model $\langle H,T\rangle$ of $\Gamma$ with $H \subset T$.
-\end{definition}
-
-The resulting logic is called Equilibrium Logic (EL) \cite{pearce06a}. Such a formalism can be used to represent stable models, so that $T$ is a \emph{stable model} of a theory $\Gamma$ whenever $\langle T,T\rangle$ is an \emph{equilibrium model} of $\Gamma$. 
-This characterization of stable models is equivalent to the original one of Gelfond and Lifschitz \cite{gellif88b}. The declarative paradigm of ASP is based on stable models semantics, and thus can be described using EL. 
-
-These formalisms provide a nonmonotonic form of inference that allow us to consider negation as failure, used in the construction of general logic programs \cite{gerosc91a}. 
-Negation as failure \cite{clark78a}, written as $\mathit{not}\;a$ , also known as default negation or weak negation, is used to state that $a$ could not be proven. 
-% This pseudo-operator can not be directly interpreted, but it needs to be ruled out by a particular syntactic transformation \cite{cabalar01a}. 
-
-\subsubsection{General logic programs}
-
-A general logic program is defined as a set of rules of the form:
-\begin{align*}
-    \underbrace{a_1 \vee \cdots \vee a_k}_{\mathit{head}} \leftarrow \underbrace{b_{1} \wedge \cdots \wedge b_{m} \wedge \mathit{not}\; c_{1} \wedge \cdots \wedge \mathit{not}\; c_{n}}_{\mathit{body}} 
-\end{align*}
-
-\begin{flushleft}
-where ${a_i}_{i=1}^k$, ${b_i}_{i=1}^m$ and ${c_i}_{i=1}^n$ are atoms. In practice, the left arrow $\leftarrow$ is represented by the symbol $\texttt{:-}$ and all rules are delimited by a dot. When the body of the rule is empty, meaning $m=0$ and $n=0$, we call it a \emph{fact}. Rules with $k=1$ are called \emph{normal} and with $k=0$ are named \emph{integrity constraints}. 
-Integrity constraints have a special behavior under the HT semantics. 
-Lets consider the integrity constraint $\leftarrow \mathit{body}$ with $\mathit{body}=l_1 \wedge \cdots \wedge l_m$ where ${l_i}_{i=1}^m$ are \emph{literals} constructed by either atoms or negated atoms. We can rewrite the constraint as $\mathit{body} \to \bot$ and analyze its semantics in HT employing the negation property from Lemma 2. Since $\mathit{body}$ is only checked in $\tandt$, this allows us to conclude that the body of an integrity constraint can be treated as in classical logic. 
-\end{flushleft}
-
-\subsubsection{Temporal Here-and-There}
-
-
-The equilibrium models of $\HT$ can also be extended to deal with dynamic scenarios. Work in this area includes (Linear) Temporal Here-and-There (\THT) \cite{agcadipevi13a} and (Linear) Dynamic logic of Here-and-There (\DHT) \cite{bocadisc18a} as well as their non-monotonic counterpart for temporal stable models Temporal Equilibrium Logic (\TEL) \cite{agcadipevi13a} and Dynamic Equilibrium Logic (\DEL) \cite{cadisc19a}. These logics build upon the logic of HT together with $\LTL$ \cite{pnueli77a} and $\LDL$\cite{giavar13a}, respectively. The idea behind these temporal formalisms is to capture time as sequences of HT-interpretations, called HT-traces \thandt, where their satisfisability is based on the HT-trace for a specific time point $i$, written as $\thandt, i\models \varphi$. Correspondingly, they also fulfill the properties of persistence and negation, described in this case for HT-traces.
-
-While these extensions are able to handle temporal and dynamic formulas with the non-monotonicity from the stable model semantics, we can go back to their classical interpretation by limiting their appearance in logic programs to the body of integrity constraints. 
-Similarly to the argument made before for $\HT$, formulas under negation in both $\TEL$ and $\DEL$ can be evaluated in their classical counterpart (For details refer to Appendix A).
-Therefore, an integrity constraint $\bot \leftarrow \varphi \equiv \neg \varphi$, appearing in an ASP program, where $\varphi$ is a temporal/dynamic formula, only needs to check the entitlement of $\varphi$ under $\LTL$ (respectively $\LDL$) semantics. 
-With this observations we now proceed to formally introduce the logics of $\LTL$ and $\LDL$ for finite traces expressed as $\LTLf$ and $\LDLf$, treating them in the classical setting, thus leaving the HT logic behind. 
+where $a_{i}$ are atoms for $i\in[1\dots n]$.
