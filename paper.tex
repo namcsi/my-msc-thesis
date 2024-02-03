@@ -12,6 +12,7 @@
 \input{include/asp-macros/systems}
 \input{include/asp-macros/ht}
 \input{include/asp-macros/automata}
+\input{include/asp-macros/outline}
 \input{local-macros}
 % \usepackage{include/comments/comments}
 \usepackage{xcolor}
@@ -74,13 +75,14 @@
 {} % Body font
 {} % Indent amount
 {\bfseries} % Theorem head font
-{.} % Punctuation after theorem head
-{.5em} % Space after theorem head
+{} % Punctuation after theorem head
+{\newline} % Space after theorem head: \newline = linebreak
 {\thmname{#1}\thmnumber{ #2} \thmnote{(\emph{#3})}}%                                     % Theorem head spec (can be left empty, meaning `normal')
 
 \theoremstyle{exampstyle}
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
 \newcounter{example}
 \newenvironment{example}[1][]{\refstepcounter{example}\par\medskip
@@ -96,8 +98,9 @@
  ]}
 {\end{mdframed}}
 
-\bibliography{include/bibliography/krr,include/bibliography/procs}
-\bibliography{local-bib}
+\bibliography{include/bibliography/krr.bib}
+\bibliography{include/bibliography/procs.bib}
+\bibliography{local-bib.bib}
 
 \begin{document}
 
@@ -112,14 +115,10 @@
 \pagebreak
 \tableofcontents
 \pagebreak
-\input{1-introduction/main.tex}
 \input{2-background/main.tex}
-\input{3-approach/main.tex}
-\input{4-experiments/main.tex}
-\input{5-discussion/main.tex}
 
 \begin{appendices}
-\input{appendixA.tex}
+
 \end{appendices}
 
 \input{statement.tex}

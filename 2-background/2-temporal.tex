@@ -1,1 +1,24 @@
-\subsection{Temporal Logics}
+\subsection{THT and TEL}
+
+Linear time temporal logic (LTL) enhances propositional logic with a
+linear sequence of worlds and temporal modal operators which allows us
+to express temporal conditions over these sequence of worlds, such as
+a formula holding in all future time points, or a formula eventually
+holding in some future time point. To define a non-monotonic version
+of LTL, we take similar approach as in propositional logic, defining
+first a monotonic Here-and-There variant, among which we define models
+which are in equilibrium via a totality and minimality condition
+\cite{agcadipescscvi20a}.
+
+A temporal formula over a set of atoms $\A$ is defined by the
+following grammar:
+
+\begin{align*}
+    \varphi ::= &\; a \mid \bot \mid
+                  \varphi_1 \otimes \varphi_2 \mid
+                  \previous \varphi \mid \varphi_1 \since \varphi_2 \mid \varphi_1 \trigger \varphi_2 \mid
+                  \Next \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2 \mid                  
+\end{align*}
+where $\otimes \in \{ \wedge, \vee, \to \}$ is a binary Boolean
+connective. A a
+

@@ -1,8 +1,162 @@
-\subsection{Disjunctive Logic Programs and Equilibrium Logic}
+\subsection{HT and Equilibrium Logic}
 
-Given a set of atoms \mathcal{A}, a disjunctive logic program is a set of rules of the form:
+The logic of Here-and-There forms the monotonic basis for defining
+it's non-monotonic counterpart, equilibrium logic, which can in turn
+be used to give a purely logical semantics for Answer Set Programming
+(ASP) \cite{pearce06a}. In this subsection, we present the standard
+definitions of these logics, and in the following subsection extend
+them in the standard way into the temporal setting.
+
+A formula over a set of atoms $\A$ is defined by the grammar:
 
 \begin{align*}
-    a_1 \vee \cdots \vee a_{k-1} \leftarrow a_{k} \wedge \cdots \wedge a_{l-1} \wedge \lnot \; a_{l} \wedge \cdots \wedge \lnot \; a_{n}
+    \varphi ::= &\; a \mid \bot \mid
+                  \varphi_1 \wedge \varphi_2 \mid
+                  \varphi_1 \vee \varphi_1 \mid
+                  \varphi_1 \to \varphi_1 \mid
 \end{align*}
-where $a_{i}$ are atoms for $i\in[1\dots n]$.
+
+We refer to the set of all possible formulas built from the grammar above as the \textit{language} $\mathcal{L}_A$ over \textit{A}, and a finite subset of $\mathcal{L}_A$ as a \textit{theory}.
+We also define as shorthands $\neg \varphi \defeq \varphi \to \bot$ and
+$\top \defeq \bot \to \bot$.
+
+An HT interpretation over $\A$ is an ordered pair of sets of atoms
+$\handt$, where $H \subseteq T \subseteq \A$. Intuitively, the set of
+atoms in $H$ and $T$ describe what is true in worlds ``here'' and
+``there'', respectively. The satisfaction relation for formulas is
+defined as follows:
+
+\begin{definition}[HT satisfaction]
+    An interpretation $\handt$ satisfies a formula $\varphi$, written $\handt \models \varphi$, according to the following definition:
+    \begin{description}
+        \item $\handt \not \models \bot$
+        \item $\handt \models a$ iff $a\in H$
+        \item $\handt \models \varphi_1 \wedge \varphi_2$ iff $\handt \models \varphi_1$ and  $\handt \models \varphi_2$
+        \item $\handt \models \varphi_1 \vee \varphi_2$ iff $\handt \models \varphi_1$ or  $\handt \models \varphi_2$
+        \item $\handt \models \varphi_1 \to \varphi_2$ iff $\langle w,T \rangle \not \models \varphi_1$ or  $\langle w,T \rangle \models \varphi_2\;$ for all 
+        $w \in \{H,T\}$
+    \end{description}
+\end{definition}
+
+We say that an interpretation $\handt$ is an HT model of theory
+$\Gamma$ iff $\handt \models \varphi$ for all $\varphi \in \Gamma$. A
+formula $\varphi$ is a \textit{tautology}, denoted as
+$\models \varphi$, if $\handt \models \varphi$ for any HT
+interpretation. We call the logic induced by the set of all
+tautologies the logic of Here-and-There (HT for short). Two formulas
+$\varphi$ and $\psi$ are said to be HT equivalent, denoted as
+$\varphi \equiv \psi$, iff $\models \varphi \leftrightarrow \psi$.
+
+A characteristic property of HT, \textit{persistence}, can be proven
+via structural induction.
+
+\begin{proposition}[Persistence]
+  For any HT interpretation $\handt$, if $\handt \models \varphi$,
+  then $\tandt \models \varphi$.
+\end{proposition}
+
+HT can also be defined as a 3-valued logic, known commonly as
+Gödel's 3-valued logic, where we represent HT interpretations as a 3
+valued interpretation $I$ \cite{capeva05a}. Given an HT interpretation
+$\handt$, $I$ assigns to every atom $a\in A$ a value from
+$\textbf{3}=\{ 0, 1, 2 \}$ as follows: $I(a)=2$ iff $a \in H$,
+$I(a)=1$ iff $a \in T \setminus H$ and $I(a)=0$ iff $a \not\in T$. The
+interpretation $I$ is then extended to $\mathcal{L}_A$ inductively using the
+following rules:
+
+\begin{align*}
+&I(\varphi \wedge \psi) = min(I(\varphi) I(\psi)) 
+&&I(\varphi \vee \varphi) = max(I(\varphi),I(\psi)) \\
+&I(\varphi \rightarrow \psi) = 
+\begin{cases}
+  2 & \text { if } I(\varphi) \leq I(\psi) \\
+  I(\psi) & \text { otherwise }
+\end{cases}.
+&&I(\neg \varphi) = \begin{cases}2 
+  & \text { if } I(\varphi)=0 \\ 
+  0 & \text { otherwise }\end{cases} 
+\end{align*}
+
+One way of conceptualizing the three values is to view the atoms in $H$,
+$T$ and $\A \setminus T$ as being \textit{proved to be true},
+\textit{assumed to be true} and \textit{false}, respectively
+\cite{agcadipescscvi20a}.
+
+Using 3-valued interpretations instead of HT traces can be beneficial
+when one wishes to check satisfaction or equivalence of formulas, as
+these can be reduced to a simple calculation of truth values using the
+rules above.
+
+\begin{proposition}[3-valued properties\cite{capeva05a}]
+For any 3-valued interpretation $I$ and formulas $\varphi$, $\psi$:
+\begin{description}
+  \item $I \models \varphi$ iff $I(\varphi) = 2$
+  \item $I \models \varphi \leftrightarrow \psi$ iff $I(\varphi) = I(\psi)$
+\end{description}
+\end{proposition}
+
+We call an HT interpretation $\handt$ total if $H=T$. Following the
+previous analogy, in total interpretations all our of assumptions must
+be proven to be true. By imposing an additional minimality condition
+on total interpretations, we arrive at the concept of an \textit{equilibrium
+model}, and of a \textit{stable model}.
+
+\begin{definition}[Equilibrium model]
+  A total interpretation $\langle T,T\rangle$ is an \emph{equilibrium
+    model} of a theory $\Gamma$ iff $\langle T,T\rangle$ is a model of
+  $\Gamma$ and there is no HT model $\langle H,T\rangle$ of $\Gamma$
+  with $H \subset T$.
+\end{definition}
+
+\begin{definition}[Stable model]
+  A set of atoms $T$ is a stable model of a theory $\Gamma$ iff
+  $\langle T,T\rangle$ is an equilibrium model of $\Gamma$.
+\end{definition}
+
+It is worth noting that this definition of a stable model above is
+equivalent to the original reduct-based characterization
+\cite{lipeva01a}, though we will not be making use of the reduct in
+our discussion. We would like to characterize the necessary and
+sufficient conditions when two theories have the same answer sets.
+
+\begin{definition}[Strong equivalence \cite{lipeva01a}]
+  Two theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent iff for
+  any theory $\Gamma$, $\Gamma_1 \cup \Gamma$ and
+  $\Gamma_2 \cup \Gamma$ have the same answer sets.
+\end{definition}
+
+Requiring the classical notion of equivalence of theories in
+equilibrium logic, i.e. that $\Gamma_1$ and $\Gamma_2$ possess the same
+equilibrium models, is not sufficient to guarantee strong equivalence
+due to the non-monotonic nature of equilibrium logic \cite{lipeva01a}.
+However, equivalence in the non-monotonic basis HT is sufficient, and in
+fact also necessary.
+
+\begin{proposition}[Strong equivalence \cite{lipeva01a}]
+  Two theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent
+  iff $\Gamma_1 \equiv \Gamma_2$
+\end{proposition}
+
+HT equivalence also satisfies a similar \textit{replacement property}
+to the one known in classical logic.
+
+\begin{proposition}[Replacement property \cite{petowo09a} \cite{agcadipescscvi20a}]
+  Let $\gamma[\varphi]$ denote a formula with some occurrence of
+  subformula $\varphi$ and let $\gamma[\psi]$ the formula resulting
+  from replacing said occurrence of $\varphi$ with $\psi$. If
+  $\varphi \equiv \psi$, then $\gamma[\varphi] \equiv \gamma[\psi]$.
+\end{proposition}
+
+A specific syntactic subset of formulas of a particular form are of
+greater interest to us due to their relevance to logic programming.
+We define the set of all literals over $\A$ as  $\textit{Lit}(\A) = \{ a, \lnot a\ |\ a \in A \}$.
+
+\begin{definition}[Disjunctive rule]
+    We call formulas of the following form disjunctive rules, or rules for short:
+\begin{align*}
+    a_1 \vee \cdots \vee a_{n} \leftarrow l_{1} \wedge \cdots \wedge l_{m}
+\end{align*}
+where $a_{i}\in \A$ for $i \in [1,n]$ and $l_{j} \in \textit{Lit}(\A)$ for $j \in [1,m]$.
+\end{definition}
+
+We call a theory $P$ containing only rules a \textit{program}.
