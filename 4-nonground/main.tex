@@ -1,0 +1,27 @@
+\section{Solving Non-Ground Temporal Programs}
+
+To capture the semantics of temporal rules with free variables, we need to raise
+our discussion from the propositional to the first order level. For HT
+the corresponding first order logics are the logic of Quantified
+Here-and-There, and Quantified Equilibrium Logic, both of which are
+well studied in the literature \cite{peaval06a} \cite{peaval08a}. The
+discussion of a first order variant of THT, however, is somewhat less
+exhaustive. Descriptions of the semantics of the telingo temporal
+answer set solver remain on the propositional level. A paper where the
+first order case is considered is \cite{agcapevidi17a}, where the
+authors define the logic of Quantified Here-and-There with static
+domains for operators $\Next$, $\alwaysF$ and $\eventuallyF$. They
+consider a syntactic fragment of first order temporal formulas called
+\emph{splittable temporal formulas} over possibly infinite traces,
+define a safety condition for such programs, and discuss a solver for
+such programs, STeLP. In this section, we will extend the definitions
+of this paper to all the temporal operators in the language discussed
+in this thesis, and extend the discussion to temporal programs, over which define a
+much more permissive, but similarly powerful safety
+criterion. Finally, we provide a grounding procedure that we prove to
+be semantics-preserving, allowing us to reify and solve the resulting
+propositional temporal program using our meta-telingo encoding.
+
+\input{4-nonground/qtht.tex}
+\input{4-nonground/transform.tex}
+

@@ -7,7 +7,8 @@ a formula holding in all future time points, or a formula eventually
 holding in some future time point. To define a non-monotonic version
 of LTL, we take similar approach as in propositional logic, defining
 first a monotonic Here-and-There variant, among which we define models
-which are in equilibrium via a totality and minimality condition
+which are in equilibrium via a totality and minimality condition. The
+definitions and propositions of this section are taken from
 \cite{agcadipescscvi20a}.
 
 A temporal formula over a set of atoms $\A$ is defined by the
@@ -20,5 +21,179 @@ following grammar:
                   \Next \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2 \mid                  
 \end{align*}
 where $\otimes \in \{ \wedge, \vee, \to \}$ is a binary Boolean
-connective. A a
+connective. We denote set of all temporal formulas as the language
+$\mathcal{L}_{A}^{T}$, and a subset of $\mathcal{L}_{A}^{T}$ as a
+temporal theory. We sometimes drop the temporal adjective from the
+definitions of this subsection when it is clear from context that we
+are talking about the temporal setting. The temporal operators
+$\previous, \since, \trigger, \Next, \until$ and $\release$ are read as
+previous, since, trigger, next, until and release,
+respectively. Additionally, we define following derived temporal
+operators.
 
+\[
+\begin{array}{l l l l l l l l}
+\alwaysP \varphi & \defeq & \bot \trigger \varphi & \text{\emph{always before}} &
+\alwaysF \varphi & \defeq & \bot \release \varphi & \text{\emph{always after}} \\
+\eventuallyP \varphi & \defeq & \top \since \varphi & \text{\emph{eventually before}} &
+\eventuallyF \varphi & \defeq & \top \until \varphi & \text{\emph{eventually after}} \\
+\initially & \defeq & \lnot \previous \top & \text{\emph{initial}} &
+\finally & \defeq & \lnot \Next \top & \text{\emph{final}} \\
+\wprevious & \defeq & \Next \varphi \vee \initially & \text{\emph{weak previous}} &
+\wnext & \defeq & \Next \varphi \vee \finally & \text{\emph{weak next}}
+\end{array}
+\]
+
+The temporal above can be split into groups based on whether they act
+on past or future time points, and can be distinguished visually; past
+operators $\previous, \since, \trigger$ are filled, while future
+operators $\Next, \until, \release$ are outlined.
+
+To give an informal summary of the semantics of the operators, the
+formulas $\previous \varphi$/$\Next \varphi$ say that $\varphi$ is
+true at previous/next time point, respectively.  $\varphi \since \psi$
+says that $\varphi$ has been true since some time point in the past
+where $\psi$ was true, while $\varphi \until \psi$ says that $\varphi$
+must be true until some time point in the future where $\psi$ is true.
+The meaning of trigger and release are somewhat less
+intuitive. $\varphi \trigger \psi$ mean that $\psi$ has been true
+either for all time steps in the past, or since some time point in the
+past when $\varphi$ and $\psi$ were both true. $\varphi \release \psi$
+in turn means that $\psi$ will be true either for all time steps in
+the future, or until some time point in the future when $\varphi$ and
+$\psi$ will both be true.
+
+To formalize the notion of a time point, let us first fix some
+terminology and notation. We define the extended natural numbers
+$\mathbb{N}^\infty$ to be the set of natural numbers $\mathbb{N}$
+extended with a maximum element $\infty$, i.e.
+$\mathbb{N}^\infty = \mathbb{N} \cup \{ \infty \}$. For any
+$a,b \in \mathbb{N}^\infty$, we define the following integer intervals
+as the sets $\intervcc{a}{b}=\{ i \in \mathbb{N} \mid a \leq i \leq b \}$,
+$\intervco{a}{b}=\{ i \in \mathbb{N} \mid a \leq i < b \}$. A trace of length
+$\bm{T}$ over signature $\A$ of length
+$\lambda \in \mathbb{N}^\infty$ is then defined as a (possibly
+infinite) sequence of sets of atoms $\bm{T} = (T_i)_{\rangeco{i}{0}{\lambda}}$
+where $T_i \subseteq \A$.
+
+If for each time point we consider two worlds, a "here" and a "there",
+instead of a single world, we arrive at the notion of an HT
+trace. Formally, an HT trace $\thandt$ of length $\lambda$ is an
+ordered pair of traces, where for each $\rangeco{i}{0}{\lambda}$
+$H_i \subseteq T_i$. An $HT$ trace is total iff $\bm{H} = \bm{T}$. We
+are now ready to extend the logic of HT with the temporal operators
+defined above, resulting in the logic of Temporal Here-And-There, or
+THT for short.
+
+\begin{definition}[THT satisfaction \cite{agcadipescscvi20a}]
+  An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
+  satisfies a temporal formula $\varphi$ at time point
+  $\rangeco{k}{0}{\lambda}$, written as $\thandt,k \models \varphi$ if
+  the following condition holds, where we use the shorthand
+  $\bf{M} =$ $\thandt$.
+\begin{description}
+  \item $\bf{M},k \models \top$ and $\bf{M}, k \not \models \perp$
+  \item $\bf{M},k \models a$ if $a \in H_{k}$ for any atom $a \in \mathcal{A}$
+  \item $\bf{M},k \models \varphi \wedge \psi$ iff $\bf{M}, k \models \varphi$ and $\bf{M}, k \models \psi$
+  \item $\bf{M},k \models \varphi \vee \psi$ iff $\bf{M}, k \models \varphi$ or $\bf{M}, k \models \psi$
+  \item $\bf{M},k \models \varphi \rightarrow \psi$ iff 
+    $\langle \bm{H}^{\prime},\bm{T} \rangle, k \not \models \varphi$ 
+    or $\langle \bm{H}^{\prime},\bm{T} \rangle, k \models \psi$, 
+    for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
+  \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
+  \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $i \in(j . . k]$
+  \item $\bf{M},k=\varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $i \in(j . . k]$
+  \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
+  \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $i \in[k . . j)$
+  \item $\bf{M}, k=\varphi \release \psi$ iff for all $j \in[k
+    . . \lambda)$, we have $\bf{M}, j \models \psi$ or $\bf{M},
+    i=\varphi$ for some $i \in[k . . j)$
+\end{description}
+\end{definition}
+
+The satisfaction conditions for derived temporal operators can be
+inferred from the above definitions; for more details we refer the
+reader to \cite{agcadipescscvi20a}.
+
+We say that an HT-trace $\thandt$ is a THT model of a temporal theory
+$\Gamma$ iff $\thandt,0 \models \varphi$ for all $\varphi \in
+\Gamma$. A formula $\varphi$ is a THT tautology, written as
+$\models \varphi$, if $\handt,k \models \varphi$ for any HT-trace
+$\thandt$ and $\rangeco{k}{0}{\lambda}$. We call the logic induced by
+the set of all tautologies the logic of Temporal Here-and-There (THT
+for short). Two formulas $\varphi$ and $\psi$ are said to be THT
+equivalent, denoted as $\varphi \equivtht \psi$, iff
+$\models \varphi \leftrightarrow \psi$. Note that while THT models are
+only required to satisfy a formula at the initial time step, to verify
+that a formula is a tautology, one must check not only for any
+HT-trace, but also any time point that the equivalence holds; this
+applies to strong equivalence as well, as it is defined in terms of
+tautology.
+
+THT, similarly to HT, can also be characterized via a 3-valued THT
+interpretation $m$. In the case of THT though, the interpretation is
+also parameterized by the time point. For any time point $\kinlambda$,
+$m(k,a)=2$ iff $a \in H_k$, $m(k,a)=1$ iff $a \in T_k \setminus H_k$
+and $m(k,a)=0$ iff $a \not\in T_i$. The interpretation can be extended
+to arbitrary temporal formulas using the rules below
+\cite{agcadipescscvi20a}, where $\operatorname{imp}(x,y)=2$ if
+$x \leq y$, otherwise $\operatorname{imp}(x,y)=y$.
+
+\begin{align*}
+  m(k, \perp) &\defeq 0 \\
+  m(k, \varphi \wedge \psi) &\defeq \min (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \vee \psi) &\defeq \max (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \rightarrow \psi) &\defeq \operatorname{imp}(m(k, \varphi), m(k, \psi)) \\
+  m(k, \previous \varphi) &\defeq \begin{cases}
+    0 & \text { if } k=0 \\
+    m(k-1, \varphi) & \text { if } k>0
+  \end{cases} \\
+ m(k, \varphi \since \psi) &\defeq \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+ m(k, \varphi \trigger \psi) &\defeq \min \{\max (m(j, \psi), \max \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+ m(k, \Next \varphi) &\defeq \begin{cases}0 & \text { if } k+1=\lambda(\neq \omega) \\
+m(k+1, \varphi) & \text { if } k+1<\lambda\end{cases} \\
+ m(k, \varphi \until \psi) &\defeq \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid k \leq i<j\}) \mid k \leq j<\lambda\} \\
+ m(k, \varphi \release \psi) &\defeq \min \{\max (m(j, \psi), \max \{m(i, \varphi) \mid k \leq i<j\}) \mid k \leq j<\lambda\}
+\end{align*}
+
+The 3-valued THT interpretation satisfies similar properties as the
+3-valued HT interpretation discussed in the previous section.
+
+\begin{proposition}[\cite{capeva05a}]
+  For any 3-valued THT interpretation $m$, $\kinlambda$ and temporal
+  formulas $\varphi$, $\psi$:
+\begin{description}
+  \item $\thandt,k \models \varphi$ iff $m(k,\varphi) = 2$
+  \item $\ttandt,k \models \varphi$ iff $(\varphi) \neq 0$
+  \item $\thandt,k \models \varphi \leftrightarrow \psi$ iff $m(k,\varphi) = m(k,\psi)$
+\end{description}
+\end{proposition}
+
+We write $m \models \varphi$ iff $m(0,\varphi)=2$.
+
+Temporal equilibrium models and temporal stable models are defined
+similarly as in the HT case.
+
+\begin{definition}[Temporal Equilibrium Model/Temporal Stable Model \cite{agcadipescscvi20a}]
+  A total HT-trace $\ttandt$ is said to be a temporal equilibrium
+  model of a temporal theory $\Gamma$ iff $\ttandt \models \Gamma$,
+  and there is no HT-trace $\thandt$ such that $\thandt \models \Gamma$ and
+  $\bm{H} \subset \bm{T}$. A trace $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$ iff
+  $\tandt$ is a temporal equilibrium model of $\Gamma$.
+\end{definition}
+
+Furthermore, similarly to HT, strong equivalence of two formulas in
+THT allows us to replace one formula with another within a theory
+without affecting the temporal stable models of the theory as a whole
+
+\begin{proposition}[Strong Equivalence and THT Equivalence \cite{agcadipescscvi20a}]
+  Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent
+  iff $\Gamma_1 \equivtht \Gamma_2$
+\end{proposition}
+
+\begin{proposition}[Replacement property \cite{agcadipescscvi20a}]
+  Let $\gamma[\varphi]$ denote a temporal formula with some occurrence of a
+  subformula $\varphi$ and let $\gamma[\psi]$ be the temporal formula resulting
+  from replacing said occurrence of $\varphi$ with $\psi$. If
+  $\varphi \equivtht \psi$, then $\gamma[\varphi] \equivtht \gamma[\psi]$.
+\end{proposition}

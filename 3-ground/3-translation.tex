@@ -1,0 +1,217 @@
+\subsection{Translating Temporal Theories}
+
+Before we present our translation, we show that when we restrict
+ourselves to finite traces, the $\release/\trigger$ operator can be
+defined in terms of the $\until/\since$ operator, respectively
+(J. Romero, personal communication 2023). This fact is relevant to our
+discussion, as it allows us to simplify the translation to be
+presented shortly by using the replacement property, and allows us to
+later avoid having to implement the (arguably) less straightforward
+semantics of $\release/\trigger$.
+
+\begin{proposition}[Definability of $\release/\trigger$ via $\until/\since$]
+
+If $\lambda \neq \infty$ then:
+\begin{align*}
+\varphi \release \psi &\equivtht \psi \until (\psi \wedge (\varphi \vee \finally)) \\
+\varphi \trigger \psi &\equivtht \psi \since (\psi \wedge (\varphi \vee \initially))
+\end{align*}
+\end{proposition}
+\begin{proof}
+  We will show the first equivalence, as the second can be proven
+  similarly. To prove strong equivalence in THT, we need to show that
+  any $\kinlambda$ and HT trace $\thandt$,
+  $\thandt,k \models \varphi \release \psi$ iff
+  $\thandt,k \models \psi \until (\psi \wedge (\varphi \vee
+  \finally)).$
+
+  For the left to right direction assume that
+  $\thandt,k \models \varphi \release \psi$. Then, per the definition
+  of the operator, either $\thandt,k \models \psi$ for all
+  $\rangeco{j}{k}{\lambda}$, or there exists some
+  $\rangeco{j}{k}{\lambda}$ such that $\handt,j \models \psi$ and
+  $\handt,i \models \varphi$ for any $i \in \rangeco{i}{k}{j}$. In
+  both cases,
+  $\handt \models \until (\psi \wedge (\varphi \vee \finally))$, with
+  the time point required by the until being $\lambda-1$ in the first
+  case, and $j$ in the second. For the right to left direction, a
+  similar argument can be made.
+\end{proof}
+
+Note that in the infinite case, the first equivalence does not hold as
+in the infinite setting $\models \neg \finally$. In fact, it was show
+by \cite{babodife20a} that $\release$ is not definable in terms of a
+$\release$-free formula in the infinite case; though the argument
+made in \cite[p. 20]{agcadipescscvi20a} to extend the result to the
+finite case does not hold, as shown by the proposition above.
+
+We now present the translation from temporal theories to logic
+programs. The formalization of this translation is inspired by
+\cite[p. 9]{capeva05a}, where the authors define a translation from
+arbitrary propositional theories to logic programs; the proof of our
+upcoming theorem will follow the same logical structure as that of
+Theorem 2. in the aforementioned paper.
+
+
+Given a temporal theory $\Gamma$ over signature \A, we
+define a new signature $\A_L$ as:
+$$
+\A_L = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in
+\mathcal{L}_\A\setminus \{ \bot, \top \} \}
+$$
+
+For any time point $\kinlambda$ and any non-atomic formula $\gamma \in \mathcal{L}_A^T$ the \emph{definition} of $\gamma$ at time point $k$, written as $df^k(\gamma) \in \mathcal{L}_{A_L}$, corresponds to:
+
+\begin{align*}
+df^k(\gamma) \defeq \begin{cases}
+  L^k_{\gamma} \leftrightarrow L_{\varphi}^k \otimes L_{\psi}^k 
+  &\text{ if } \gamma = \varphi \otimes \psi, \otimes \in \{ \vee, \wedge, \rightarrow \}\\[2ex]
+  L^k_\gamma \leftrightarrow \begin{cases} 
+    L^{k+1}_{\varphi} &\text{ when } k < \lambda - 1\\
+    \bot &\text{ when } k = \lambda - 1
+    \end{cases}
+  &\text{ if } \gamma = \Next \varphi \\[2ex]
+  L^k_{\gamma} \leftrightarrow \begin{cases} 
+    L^{k-1}_{\varphi} &\text{ when } 0 < k\\
+    \bot &\text{ when } k = 0
+    \end{cases}
+  &\text{ if } \gamma = \previous \varphi \\[2ex]
+  L^k_{\gamma} \leftrightarrow \bigvee_{j=k}^{\lambda-1}(L_\psi^j \wedge \bigwedge_{i=k+1}^{j}L_{\varphi}^i)
+  &\text{ if } \gamma = \varphi \until \psi \\[2ex]
+  L^k_{\gamma} \leftrightarrow \bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
+  &\text{ if } \gamma = \varphi \since \psi \\[2ex]
+\end{cases}
+\end{align*}
+
+Note that this implicitly also defines $df^k$ for all of our derived
+operators. The definitions above, in essence, are a translation of the
+satisfaction relations for THT, as described in the meta-language of
+this text, into a concrete representation using propositional
+connectives.
+
+Given a temporal theory $\Gamma$, let $subf(\Gamma)$ denote all
+subformulas occurring in $\Gamma$.  We can now define the translation
+of $\Gamma$ as:
+$$
+\chi(\Gamma) = \{ L_\varphi^0 \mid \varphi \in \Gamma \} 
+\cup \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda \}
+$$
+
+The first element of the union adds literals $L_\varphi^0$ who's
+intended meaning is that $\varphi$ must hold at time point $0$ for any
+$\varphi \in \Gamma$. The second element of the union realizes this
+intention by recursively adding the definitions of all subformulas of
+$\Gamma$ for all time points $\kinlambda$.
+
+We would like to use the stable models this translated theory to find
+the temporal stable models of the input theory. It stands to reason
+then, that some correspondence between the two must be proven. To this
+end, let us define for any 3-valued interpretation $I$ over $\A_L$ a
+corresponding 3-valued interpretation $m_I$ over $\A$ as
+$m_I(k,a) \defeq I(L_a^k)$ for any $a \in A$. Recall from Proposition
+\ref{prop:3-valued-ht} that $I \models \varphi \leftrightarrow \psi$
+iff $I(\varphi) = I(\psi)$.
+
+\begin{theorem}\label{theorem:translation}
+For any temporal theory $\Gamma$ over $\A$: \quad
+$\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
+\end{theorem}
+\begin{proof}
+  $\subseteq$: Let $m$ be such that $m \models \Gamma$. We define a
+  corresponding interpretation $I$ as
+  $I(L^k_\varphi) \defeq m(k,\varphi)$ for any formula
+  $\varphi \in \mathcal{L}_\A$. Then, per definition of the
+  interpretation, we have $m_I=m$, so we have succeeded if we prove
+  that $I \models \chi(\Gamma)$. To this end, note that
+  $I \models L^0_\gamma$ for any $\gamma \in \Gamma$, as
+  $m \models \Gamma$. All we need to show then, is that
+  $I \models \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
+  \}$. For a binary propositional connective
+  $\otimes \in \{ \vee, \wedge, \rightarrow \}$ let $f_{\otimes}$,
+  $f_{\otimes}^k$ denote it's associated 3 valued evaluation functions
+  in the non-temporal and temporal setting, respectively. Then, we
+  have
+  $I \models L^k_{\varphi \otimes \psi} \leftrightarrow L^k_\varphi
+  \otimes L^k_\psi$, as:
+  $$
+  I(L^k_{\varphi \otimes \psi}) \defeq m(k,\varphi \otimes \psi) 
+  = f_{\otimes}^k(m(k,\varphi),m(k,\psi)) = f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) = I(L^k_{\varphi} \otimes L^k_{\psi})
+  $$
+  For $\gamma=\previous \varphi$, we have
+  $$
+  I(L^k_{\previous \varphi}) \defeq m(k,\previous \varphi) = \begin{cases}
+    m(k-1,\varphi)=I(L^{k-1}_\varphi)=I(L^{k-1}_\varphi) &\text{ if } k > 0\\
+    0=I(\bot) &\text{ if } k = 0
+    \end{cases}
+  $$
+  and for $\gamma=\varphi \since \psi$ we have
+  \begin{align*}
+  I(L^k_{\varphi \since \psi}) \defeq m(k,\varphi \since \psi) &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+    &= I(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i))
+  \end{align*}
+  A similar argument can also be made for the definitions next and
+  until, which concludes the proof of this direction.
+
+  $\supseteq:$ To prove this direction, we must show that for any
+  interpretation $I$, if $I \models \chi(\Gamma)$, then
+  $m_I \models \Gamma$. We will show by structural induction that if
+  $\gamma \in subf(\Gamma)$, then $m_I(k,\gamma) = I(L^k_\gamma)$.
+  Given this result, we will be able to conclude that
+  $m_I \models \Gamma$, as by our initial assumption $I(L^0_\gamma)=2$
+  for any $\gamma \in \Gamma$, and thus $m_I(0,\gamma)=I(L^0_\gamma)=2$.
+
+  To prove the structural induction, note that for any atomic formula
+  $\gamma \in \A \cup \{ \bot, \top \}$,
+  $m_I(k,\gamma) = I(L^k_\gamma)$ does indeed hold per definition of
+  $m_I$. Then, the following equalities prove the inductional step
+  (again omitting future operators for brevity):
+  \begin{align*}
+  I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi})
+  =  f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) 
+  \stackrel{**}{=} f_{\otimes}^k(m(k,\varphi),m(k,\psi)) =  m_I(k,\varphi \otimes \psi)\\
+  % I(L^k_{\previous \varphi}) &\stackrel{*}{=} \[ \left. \begin{cases}
+  %   I(L^{k-1}_\varphi)  \stackrel{**}{=} m(k-1,\varphi) &&\text{ if } k > 0\\
+  %   0 &&\text{ if } k = 0
+  %   \end{cases} \right\} \] = m_I(k,\previous \varphi) \\
+  % I(L^k_{\varphi \since \psi}) 
+  %   & \stackrel{*}{=}  I(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)) \\
+  %   & \stackrel{**}{=} \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} =  m(k,\varphi \since \psi)
+  \end{align*}
+
+  where in equalities $\stackrel{*}{=}$ we use th fact that $I \models
+  \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
+  \}$ and in equalities
+  $\stackrel{**}{=}$ we use the induction hypothesis.
+\end{proof}
+
+\begin{corollary}\label{cor:bijection-of-sm}
+  Let $\Gamma$ be a temporal theory and $\chi(\Gamma)$ it's
+  translation. For any set of atoms $T \subset \A_L$ define the
+  trace $\tau(T)=(T_k)_{\kinlambda}$, where
+  $T_k = \{ a \in A \mid L_a^k \in X \}$. Then, $T$ is a stable model of
+  $\chi(\Gamma)$ iff $\tau(T)$ is a temporal stable model of
+  $\Gamma$.
+\end{corollary}
+
+Corollary \ref{cor:bijection-of-sm} thus establishes a method of
+finding temporal stable models of a temporal theory by translating it
+to a regular theory and finding their stable models. However, most
+commonly used answer set solvers do not accept arbitrary theories as
+input, but instead restrict the input to logic programs. We can,
+however apply the set of strongly equivalent vocabulary-preserving
+transformations described in \cite{capeva05a} to reduce the theory to
+a logic program. It is also worthwhile in one case to apply the
+non-vocabulary preserving transformation described in
+\cite{capeva05a}. To to avoid the blowup in the number of rules
+generated when unfolding the definitions of $\until$ and $\since$ via
+the vocabulary-preserving transformation, we introduce auxiliary atoms
+$L_{\gamma,j}^k$:
+\begin{align*}
+df^k(\gamma) \defeq \begin{cases}
+  L^k_{\gamma} \leftrightarrow \bigvee_{j=k}^{\lambda-1}L_{\gamma,j}^k \wedge L_{\gamma,j}^k \leftrightarrow 
+(L_\psi^j \wedge \bigwedge_{i=k+1}^{j}L_{\varphi}^i)
+  &\text{ if } \gamma = \varphi \until \psi \\[2ex]
+  L^k_{\gamma} \leftrightarrow  \bigvee_{j=0}^{k} L_{\gamma,j}^k \wedge L_{\gamma,j}^k \leftrightarrow (L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
+  &\text{ if } \gamma = \varphi \since \psi \\[2ex]
+\end{cases}
+\end{align*}

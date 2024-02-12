@@ -1,0 +1,298 @@
+\subsection{Metaprogramming Implementation}
+
+\subsubsection{Input language}
+
+We now define types of temporal theories we will constitute the input
+language of meta-telingo.
+
+\begin{definition}[Temporal Always Rule, Temporal Always Program]
+  We call a temporal formula a temporal rule, iff it is of the form:
+  $$
+  \alwaysF(B \rightarrow H)
+  $$
+  where $B$ and $H$ are temporal formulas that do not contain any
+  implications, apart from negation. We call a set of always temporal
+  rules a temporal program.
+\end{definition}
+
+The concrete input language for meta-telingo is disjunctive logic
+programs in the language of the ASP grounder gringo
+\cite{PotasscoUserGuide19} \cite{gescth07a}. All rules are implicitly
+considered to be in the scope of an $\alwaysF$ operator. Temporal
+operators are represented via prefix notation as symbolic
+functions. To be considered a temporal operator, the names and arities
+of such functions must match the written name of the given operator,
+and their arity; the written names of the connectives
+$\vee, \wedge, \neg$ are considered to be \emph{or, and, neg},
+respectively. Note that when we say symbolic function, we refer only
+to a syntactic form, and also consider symbolic atoms to be symbolic
+functions, as these are syntactically identical in the gringo
+language.
+
+Let us consider as an example the following temporal rule:
+$$
+\alwaysF(shoot \wedge unloaded \since \previous shoot \rightarrow \eventuallyF fail \wedge forgetful \since \previous shoot)
+$$
+which states that if a gun is shot that has remained unloaded since
+it's last shot, then the the gun will eventually fail, and we have
+determined the shooter to have been forgetful in the intervening time
+period. This example illustrates an upside of meta-telingo over it's
+namesake, the temporal ASP system telingo\cite{cakamosc19a}
+\cite{agcadipescscvi20a}. Unlike telingo, meta-telingo does not
+restrict the input language to \emph{past-future} rules
+\cite{agcadipescscvi20a} where the body of a rule must not contain
+future operators, and the head of a rule must not contain past
+operators. This advantage stems from the fact that telingo solves for
+traces of incrementally increasing length, while in meta-telingo have
+have a fixed trace length. Returning to our example, the formula above
+can be represented in the meta-telingo input language as the
+rule:
+\begin{center}
+    \begin{lstlisting}[numbers=none]
+and(eventually_after(fail),
+    since(forgetful,prev(shoot))) 
+  :- shoot, since(unloaded,prev(shoot)).
+    \end{lstlisting}
+\end{center}
+
+\subsubsection{meta-telingo.lp}
+
+Metaprogramming is a generic technique in programming languages, where
+an input program is translated, or \emph{reified} into some primitive
+datatype of the language. This reified representation then serve as
+input to a meta program, which in turn may reinterpret the semantics
+of the reified program. The complexity of this translation varies
+based on the complexity of the language's syntax. Lisp may serve as a
+gold standard here, where reification is simply done by quotation;
+reification is also quite simple in Prolog, as evidenced by the
+abundance of meta-interpreters for the language. 
+
+The ASP grounder gringo offers native support for meta-programming by
+first grounding the input program, and then serializing a
+representation of the ground program's much simpler syntax tree as a
+set of facts \cite{karoscwa21a}. This set of facts can then be fed as
+input to a \emph{meta-encoding}, which can reinterpret the semantics
+of the ground language constructs.
+
+We will not detail the reification format in this thesis. For a
+description of the format, and some examples of simpler
+meta-encodings, we refer the reader to \cite{karoscwa21a}.
+
+Before commencing the description of the meta-encoding, we first
+present a slight modification of the translation $\chi$,
+$sigma^{\prime}$ which is the translation that our meta-encoding will
+be implementing. When $\Gamma$ is an temporal program, we define the modified
+translation as:
+\begin{align*}
+\chi^{\prime}(\Gamma) & = \{ \bigwedge_{k=0}^{\lambda} L_B^k
+\rightarrow L_H^k \mid \alwaysF(B \rightarrow H) \in \Gamma \} \\
+& \cup \{ df^k(\gamma) \mid \gamma \in subf(B) \cup subf(H), \kinlambda \}
+\end{align*}
+This translation is essentially the same as $\chi$, with the
+exception that it does not introduce the auxiliary variables and their
+definitions for the outermost $\alwaysF$ and $\rightarrow$, and
+instead immediately substitutes in place of their auxiliary literal
+the right hand sides of their definitions, starting off the
+translation $\chi$ from the head and the body of the temporal rule. A similar
+result to Theorem \ref{theorem:translation} can be proven for this
+translation.
+
+We can now begin describing our meta-encoding. The encoding, referred
+to as meta-telingo.lp is spilt into three parts for readability. Given
+an input temporal program, referred to as tap.lp we can obtain it's temporal stable
+models by executing the command:
+
+\begin{lstlisting}[language=bash,numbers=none]
+clingo tap.lp --output=reify \| clingo
+\end{lstlisting}
+
+ We begin the description of meta-telingo with the first part,
+ depicted in Listing 1.
+
+ In the first two lines we define the constant lambda, and designate
+ the time points of the trace we are solving for via the predicate
+ time/1. Lines 4-6 then implement the usual semantics of implication
+ as in \cite{karoscwa21a}, but parameterized by an additional time
+ point $T$, in effect, this results in
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[language=clingo, label={meta-telingo-one}]
+#const lambda = 1.
+time(0..lambda-1).
+
+conjunction(B,T) :- literal_tuple(B), time(T),
+        hold(L,T) : literal_tuple(B, L), L > 0;
+    not hold(L,T) : literal_tuple(B,-L), L > 0.
+
+body(normal(B),T) 
+  :- rule(_,normal(B)), conjunction(B,T), time(T).
+
+hold(A,T) : atom_tuple(H,A)   
+  :- rule(disjunction(H),B), body(B,T), time(T).
+
+true(O,T) :- hold(L,T), output(O,B), literal_tuple(B,L).
+hold(L,T) :- true(O,T), output(O,B), literal_tuple(B,L).
+true(O,T) :- time(T), output(O,B), not literal_tuple(B,_).
+
+formula(O) :- output(O,_).
+formula(F;G) :- formula(and(F,G);or(F,G);until(F,G);since(F,G)).
+formula(F) :- formula(neg(F);next(F);prev(F)).
+
+not_atom(X)
+  :- formula(X), 
+     X=(true;false;initial;final;neg(_);next(_);prev(_);
+        weak_prev(_);weak_next(_);eventually_after(_);
+        eventually_before(_);always_after(_);always_before(_);
+        and(_,_);or(_,_);until(_,_);since(_,_);release(_,_);
+        trigger(_,_)).
+
+#show.
+#show (F,T) : formula(F), not not_atom(F), true(F,T), 
+              not output(show,_).
+#show (S,T) : output(show(S),_), true(S,T), output(show,_).
+\end{lstlisting}
+\captionof{lstlisting}{meta-telingo.lp - part 1}
+\end{minipage}
+\end{center}
+
+\textbf{DESCRIPTION of part 2}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+  \begin{lstlisting}[]
+true(true,T) :- formula(true), time(T).
+:- formula(false), time(T), true(false,T).
+
+true(and(F,G),T) :- formula(and(F,G)), true(F,T), true(G,T).
+true((F;G),T) :- formula(and(F,G)), true(and(F,G),T).
+
+true(or(F,G),T) :- formula(or(F,G)), true((F;G),T).
+true(F,T);true(G,T) :- formula(or(F,G)), true(or(F,G),T).
+
+true(neg(F),T) :- formula(neg(F)), time(T), not true(F,T).
+not true(F,T) :- formula(neg(F)), true(neg(F),T).
+
+formula(F2) :- define(F1,F2), formula(F1).
+true(F2,T) :- define(F1,F2), true(F1,T).
+true(F1,T) :- define(F1,F2), true(F2,T).
+
+true(F,T+1): time(T+1) :- formula(next(F)), true(next(F),T).
+true(next(F),T) :- true(F,T+1), formula(next(F)), time(T).
+
+true(F,T-1): time(T-1) :- formula(prev(F)), true(prev(F),T).
+true(prev(F),T) :- true(F,T-1), formula(prev(F)), time(T).
+
+define(weak_prev(F),or(prev(F),initial))
+  :- formula(weak_prev(F)).
+define(weak_next(F),or(next(F),final)) :- formula(weak_next(F)).
+define(initial,neg(prev(true))) :- formula(initial).
+define(final,neg(next(true))) :- formula(final).
+\end{lstlisting}
+\captionof{lstlisting}{meta-telingo.lp - part 2}
+\end{minipage}
+\end{center}
+
+\textbf{DESCRIPTION of part 3}
+
+\begin{center}
+\begin{minipage}{\linewidth}
+  \begin{lstlisting}[]
+true(until(L,R),(T,J)): T<=J, time(J)
+  :- formula(until(L,R)), true(until(L,R),T), time(T).
+true(until(L,R),T)
+  :- formula(until(L,R)), true(until(L,R),(T,_)).
+
+true(L,K) :- true(until(L,R),(T,J)), K=T..J-1.
+true(R,J) :- true(until(L,R),(T,J)).
+true(until(L,R),(T,J))
+  :- formula(until(L,R)), time(T), time(J), T<=J, true(R,J), 
+     true(L,K) : K=T..J-1.
+
+true(since(L,R),(T,J)): J<=T, time(J)
+  :- formula(since(L,R)), true(since(L,R),T), time(T).
+true(since(L,R),T)
+  :- formula(since(L,R)), true(since(L,R),(T,_)).
+
+true(L,K) :- true(since(L,R),(T,J)), K=J+1..T.
+true(R,J) :- true(since(L,R),(T,J)).
+true(since(L,R),(T,J))
+  :- formula(since(L,R)), time(T), time(J), J<=T, true(R,J), 
+     true(L,K) : K=J+1..T.
+
+define(eventually_after(F),until(true,F)) 
+  :- formula(eventually_after(F)).
+define(eventually_before(F),since(true,F)) 
+  :- formula(eventually_before(F)).
+define(release(L,R),until(R,and(R,or(L,final)))) 
+  :- formula(release(L,R)).
+define(always_after(F),release(false,F))
+  :- formula(always_after(F)).
+define(trigger(L,R),since(R,and(R,or(L,initial))))
+  :- formula(trigger(L,R)).
+define(always_before(F),trigger(false,F)) 
+  :- formula(always_before(F)).
+\end{lstlisting}
+\captionof{lstlisting}{meta-telingo.lp - part 3}
+\end{minipage}
+\end{center}
+
+One limitation of meta-telingo that must be mentioned is introduced by
+gringo during the initial grounding and reification of the input
+program. As a highly optimized grounder, gringo performs some
+simplifications of the input program during grounding. Namely, if
+during grounding time it is determined that an atom has no way of
+being derived, then all rules with that atom occurring positively in
+their bodies are discarded, and all negative occurrences of that atom
+in the body of any rule are removed. Furthermore, if an atom is
+determined during grounding to hold in all answer sets, and rules with
+a negative occurrence of the atom in their body are discarded \cite{gekakasc12a}.
+
+These simplifications preserve the stable models of the input program,
+and therefore do not cause any issues outside of reification. However,
+these simplifications may not be equivalent according to the semantic
+implemented by our meta-encoding, as gringo has no knowledge of these
+semantics when performing the aforementioned simplifications. Indeed,
+this is the case for meta-telingo as well; for example take the
+following ATR:
+
+\begin{lstlisting}[language=clingo]
+a :- prev(b).
+b :- initially.
+next(c) :- initially.
+d :- c.
+\end{lstlisting}
+
+Setting $\lambda=2$ the expected temporal answer set for this program
+would be the trace $\bm{T}=(\{ b \},\{ a, c, d \})$. However, during
+grounding all of the rules of the program would be discarded as
+\verb|initially| does not occur in any rule head, and so we would get
+an empty trace as the temporal answer set.
+
+Atoms can be guarded from simplification by using clingo's external
+statements \cite{PotasscoUserGuide19}, so adding the following
+additional statement should help.
+
+\begin{lstlisting}[language=clingo,numbers=none]
+#external initially.
+\end{lstlisting}
+
+But alas, the temporal answer set is still just
+$\bm{T}=(\{ b \},\{ c \})$. This is due to the fact that gringo during
+grounding does not understand the semantic connections between
+\verb|next(c)| and \verb|c| or \verb|prev(b)| and \verb|b|, and
+therefore concludes the program has no way to derive \verb|prev(b)| or
+\verb|c|, and as result discards the rules on lines 1 and 4. Adding
+two more external statements finally gets us the expected result.
+
+\begin{lstlisting}[language=clingo,numbers=none]
+#external prev(b).
+#external c.
+\end{lstlisting}
+
+Having to reason through gringo's simplifications and manually add
+external statements is hardly a good user experience for our
+system. Fortunately, this issue is addressed and resolved in the next
+section, where we tackle the extension of meta-telingo to temporal rules with
+free variables, and present a system for applying metaprogramming to
+non-ground ASP programs.

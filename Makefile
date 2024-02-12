@@ -1,5 +1,5 @@
 all: init
-	latexmk paper.tex -pdf
+	latexmk paper.tex -pdf --synctex=1
 
 watch: init
 	latexmk paper.tex -pdf -pvc
