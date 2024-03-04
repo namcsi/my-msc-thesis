@@ -39,11 +39,11 @@ If $\lambda \neq \infty$ then:
 \end{proof}
 
 Note that in the infinite case, the first equivalence does not hold as
-in the infinite setting $\models \neg \finally$. In fact, it was show
-by \cite{babodife20a} that $\release$ is not definable in terms of a
-$\release$-free formula in the infinite case; though the argument
-made in \cite[p. 20]{agcadipescscvi20a} to extend the result to the
-finite case does not hold, as shown by the proposition above.
+in the infinite setting we have $\models \neg \finally$. In fact, it
+was show by \cite{babodife20a} that $\release$ is not definable in
+terms of a $\release$-free formula in the infinite case; though the
+argument made in \cite[p. 20]{agcadipescscvi20a} to extend the result
+to the finite case does not hold, as shown by the proposition above.
 
 We now present the translation from temporal theories to logic
 programs. The formalization of this translation is inspired by
@@ -90,7 +90,7 @@ this text, into a concrete representation using propositional
 connectives.
 
 Given a temporal theory $\Gamma$, let $subf(\Gamma)$ denote all
-subformulas occurring in $\Gamma$.  We can now define the translation
+subformulas occurring in $\Gamma$. We can now define the translation
 of $\Gamma$ as:
 $$
 \chi(\Gamma) = \{ L_\varphi^0 \mid \varphi \in \Gamma \} 
@@ -103,11 +103,11 @@ $\varphi \in \Gamma$. The second element of the union realizes this
 intention by recursively adding the definitions of all subformulas of
 $\Gamma$ for all time points $\kinlambda$.
 
-We would like to use the stable models this translated theory to find
-the temporal stable models of the input theory. It stands to reason
-then, that some correspondence between the two must be proven. To this
-end, let us define for any 3-valued interpretation $I$ over $\A_L$ a
-corresponding 3-valued interpretation $m_I$ over $\A$ as
+We would like to use the stable models of this translated theory to
+find the temporal stable models of the input theory. It stands to
+reason then, that some correspondence between the two must be
+proven. To this end, let us define for any 3-valued interpretation $I$
+over $\A_L$ a corresponding 3-valued interpretation $m_I$ over $\A$ as
 $m_I(k,a) \defeq I(L_a^k)$ for any $a \in A$. Recall from Proposition
 \ref{prop:3-valued-ht} that $I \models \varphi \leftrightarrow \psi$
 iff $I(\varphi) = I(\psi)$.
@@ -117,16 +117,20 @@ For any temporal theory $\Gamma$ over $\A$: \quad
 $\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
 \end{theorem}
 \begin{proof}
-  $\subseteq$: Let $m$ be such that $m \models \Gamma$. We define a
-  corresponding interpretation $I$ as
-  $I(L^k_\varphi) \defeq m(k,\varphi)$ for any formula
-  $\varphi \in \mathcal{L}_\A$. Then, per definition of the
-  interpretation, we have $m_I=m$, so we have succeeded if we prove
-  that $I \models \chi(\Gamma)$. To this end, note that
+  $\subseteq$: Let $m$ be a 3-valued interpretation such that
+  $m \models \Gamma$. We define a corresponding 2-valued
+  interpretation $I$ as $I(L^k_\varphi) \defeq m(k,\varphi)$ for any
+  formula $\varphi \in \mathcal{L}_\A$. Then, for this particular
+  2-valued interpretation we have $m_I=I(L_a^k)=m$, so we have
+  succeeded if we prove that $I \models \chi(\Gamma)$. Given that
   $I \models L^0_\gamma$ for any $\gamma \in \Gamma$, as
-  $m \models \Gamma$. All we need to show then, is that
+  $m \models \Gamma$, we have reduced the problem to showing that
   $I \models \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
-  \}$. For a binary propositional connective
+  \}$.
+
+  Recall from Proposition \ref{prop:3-valued-ht} that
+  $I \models \varphi \leftrightarrow \psi$ iff $I(\varphi) =
+  I(\psi)$. For a binary propositional connective
   $\otimes \in \{ \vee, \wedge, \rightarrow \}$ let $f_{\otimes}$,
   $f_{\otimes}^k$ denote it's associated 3 valued evaluation functions
   in the non-temporal and temporal setting, respectively. Then, we
@@ -152,13 +156,14 @@ $\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
   A similar argument can also be made for the definitions next and
   until, which concludes the proof of this direction.
 
-  $\supseteq:$ To prove this direction, we must show that for any
-  interpretation $I$, if $I \models \chi(\Gamma)$, then
+  $\supseteq:$ To prove this direction, it suffices to show that for
+  any interpretation $I$, if $I \models \chi(\Gamma)$, then
   $m_I \models \Gamma$. We will show by structural induction that if
   $\gamma \in subf(\Gamma)$, then $m_I(k,\gamma) = I(L^k_\gamma)$.
   Given this result, we will be able to conclude that
   $m_I \models \Gamma$, as by our initial assumption $I(L^0_\gamma)=2$
-  for any $\gamma \in \Gamma$, and thus $m_I(0,\gamma)=I(L^0_\gamma)=2$.
+  for any $\gamma \in \Gamma$, and thus
+  $m_I(0,\gamma)=I(L^0_\gamma)=2$.
 
   To prove the structural induction, note that for any atomic formula
   $\gamma \in \A \cup \{ \bot, \top \}$,
@@ -167,15 +172,16 @@ $\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
   (again omitting future operators for brevity):
   \begin{align*}
   I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi})
-  =  f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) 
-  \stackrel{**}{=} f_{\otimes}^k(m(k,\varphi),m(k,\psi)) =  m_I(k,\varphi \otimes \psi)\\
-  % I(L^k_{\previous \varphi}) &\stackrel{*}{=} \[ \left. \begin{cases}
-  %   I(L^{k-1}_\varphi)  \stackrel{**}{=} m(k-1,\varphi) &&\text{ if } k > 0\\
-  %   0 &&\text{ if } k = 0
-  %   \end{cases} \right\} \] = m_I(k,\previous \varphi) \\
-  % I(L^k_{\varphi \since \psi}) 
-  %   & \stackrel{*}{=}  I(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)) \\
-  %   & \stackrel{**}{=} \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} =  m(k,\varphi \since \psi)
+  =  f_{\otimes}(I(L^k_\varphi),I(L^k_\psi))\\
+  &\stackrel{**}{=} f_{\otimes}^k(m(k,\varphi),m(k,\psi)) =  m_I(k,\varphi \otimes \psi)\\
+  I(L^k_{\previous \varphi}) &\stackrel{*}{=} \left. \begin{cases}
+    I(L^{k-1}_\varphi)  \stackrel{**}{=} m(k-1,\varphi) \text{ if } k > 0\\
+    0 \text{ if } k = 0
+    \end{cases} \right\} = m_I(k,\previous \varphi)\\
+  I(L^k_{\varphi \since \psi}) 
+    & \stackrel{*}{=}  I(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)) \\
+    & \stackrel{**}{=} \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+    & =  m(k,\varphi \since \psi)
   \end{align*}
 
   where in equalities $\stackrel{*}{=}$ we use th fact that $I \models
@@ -197,14 +203,15 @@ Corollary \ref{cor:bijection-of-sm} thus establishes a method of
 finding temporal stable models of a temporal theory by translating it
 to a regular theory and finding their stable models. However, most
 commonly used answer set solvers do not accept arbitrary theories as
-input, but instead restrict the input to logic programs. We can,
-however apply the set of strongly equivalent vocabulary-preserving
+input, but instead restrict the input to logic programs. Fortunately,
+we can apply a set of strongly equivalent vocabulary-preserving
 transformations described in \cite{capeva05a} to reduce the theory to
 a logic program. It is also worthwhile in one case to apply the
 non-vocabulary preserving transformation described in
 \cite{capeva05a}. To to avoid the blowup in the number of rules
 generated when unfolding the definitions of $\until$ and $\since$ via
-the vocabulary-preserving transformation, we introduce auxiliary atoms
+the vocabulary-preserving transformation, we introduce auxiliary
+atoms, and modify the definition of the operators to the following:
 $L_{\gamma,j}^k$:
 \begin{align*}
 df^k(\gamma) \defeq \begin{cases}

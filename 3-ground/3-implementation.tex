@@ -5,14 +5,17 @@
 We now define types of temporal theories we will constitute the input
 language of meta-telingo.
 
-\begin{definition}[Temporal Always Rule, Temporal Always Program]
+\begin{definition}[Simple Temporal Formula, Temporal Rule, Temporal Program]
+  We call a temporal formula $\varphi$ a \emph{simple temporal
+    formula} iff $\varphi$ contains no implications (with the
+  exception of negation).
+  
   We call a temporal formula a temporal rule, iff it is of the form:
   $$
   \alwaysF(B \rightarrow H)
   $$
-  where $B$ and $H$ are temporal formulas that do not contain any
-  implications, apart from negation. We call a set of always temporal
-  rules a temporal program.
+  where $B$ and $H$ are simple temporal formulas. We call a set of
+  temporal rules a temporal program.
 \end{definition}
 
 The concrete input language for meta-telingo is disjunctive logic
@@ -30,20 +33,21 @@ functions, as these are syntactically identical in the gringo
 language.
 
 Let us consider as an example the following temporal rule:
-$$
-\alwaysF(shoot \wedge unloaded \since \previous shoot \rightarrow \eventuallyF fail \wedge forgetful \since \previous shoot)
-$$
+\begin{equation*}
+\alwaysF(\textit{shoot} \wedge \textit{unloaded} \since \previous \textit{shoot} 
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful} \since \previous \textit{shoot})
+\end{equation*}
 which states that if a gun is shot that has remained unloaded since
 it's last shot, then the the gun will eventually fail, and we have
 determined the shooter to have been forgetful in the intervening time
-period. This example illustrates an upside of meta-telingo over it's
+period \textbf{this is an incorrect description, as the since in the head could "choose" a different time point}. This example illustrates an upside of meta-telingo over it's
 namesake, the temporal ASP system telingo\cite{cakamosc19a}
 \cite{agcadipescscvi20a}. Unlike telingo, meta-telingo does not
 restrict the input language to \emph{past-future} rules
 \cite{agcadipescscvi20a} where the body of a rule must not contain
 future operators, and the head of a rule must not contain past
 operators. This advantage stems from the fact that telingo solves for
-traces of incrementally increasing length, while in meta-telingo have
+traces of incrementally increasing length, while in meta-telingo we
 have a fixed trace length. Returning to our example, the formula above
 can be represented in the meta-telingo input language as the
 rule:

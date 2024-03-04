@@ -2,7 +2,7 @@ all: init
 	latexmk paper.tex -pdf --synctex=1
 
 watch: init
-	latexmk paper.tex -pdf -pvc
+	latexmk paper.tex -pdf -pvc --synctex=1
 
 clean:
 	latexmk paper.tex -pdf -C

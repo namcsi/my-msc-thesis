@@ -8,7 +8,7 @@ holding in some future time point. To define a non-monotonic version
 of LTL, we take similar approach as in propositional logic, defining
 first a monotonic Here-and-There variant, among which we define models
 which are in equilibrium via a totality and minimality condition. The
-definitions and propositions of this section are taken from
+definitions and propositions of this section follow those of
 \cite{agcadipescscvi20a}.
 
 A temporal formula over a set of atoms $\A$ is defined by the
@@ -64,17 +64,17 @@ the future, or until some time point in the future when $\varphi$ and
 $\psi$ will both be true.
 
 To formalize the notion of a time point, let us first fix some
-terminology and notation. We define the extended natural numbers
-$\mathbb{N}^\infty$ to be the set of natural numbers $\mathbb{N}$
-extended with a maximum element $\infty$, i.e.
-$\mathbb{N}^\infty = \mathbb{N} \cup \{ \infty \}$. For any
-$a,b \in \mathbb{N}^\infty$, we define the following integer intervals
-as the sets $\intervcc{a}{b}=\{ i \in \mathbb{N} \mid a \leq i \leq b \}$,
-$\intervco{a}{b}=\{ i \in \mathbb{N} \mid a \leq i < b \}$. A trace of length
-$\bm{T}$ over signature $\A$ of length
-$\lambda \in \mathbb{N}^\infty$ is then defined as a (possibly
-infinite) sequence of sets of atoms $\bm{T} = (T_i)_{\rangeco{i}{0}{\lambda}}$
-where $T_i \subseteq \A$.
+terminology and notation. Let $\omega$ denote the first infinite Von
+Neumann ordinal. For any $a,b \in \omega + 1$, we introduce the
+notation
+$\intervcc{a}{b} \defeq \{ i \in \omega \mid a \leq i \leq b \}$. A
+trace of length $\bm{T}$ over signature $\A$ of length
+$\lambda \in \omega + 1$ is then defined as a (possibly infinite)
+sequence of sets of atoms $\bm{T} \in \A^{\intervcc{0}{\lambda}}$. We
+denote by $T_i$ the $i$-th element of a trace, where
+$\rangecc{i}{0}{\lambda}$; the range of $i$ is left implicit when
+obvious in the rest of this thesis. For two traces $\bm{H}$ and
+$\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$.
 
 If for each time point we consider two worlds, a "here" and a "there",
 instead of a single world, we arrive at the notion of an HT
@@ -102,10 +102,10 @@ THT for short.
     for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
   \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
   \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $i \in(j . . k]$
-  \item $\bf{M},k=\varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $i \in(j . . k]$
+  \item $\bf{M},k \models \varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $i \in(j . . k]$
   \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
   \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $i \in[k . . j)$
-  \item $\bf{M}, k=\varphi \release \psi$ iff for all $j \in[k
+  \item $\bf{M}, k \models \varphi \release \psi$ iff for all $j \in[k
     . . \lambda)$, we have $\bf{M}, j \models \psi$ or $\bf{M},
     i=\varphi$ for some $i \in[k . . j)$
 \end{description}
@@ -179,12 +179,12 @@ similarly as in the HT case.
   model of a temporal theory $\Gamma$ iff $\ttandt \models \Gamma$,
   and there is no HT-trace $\thandt$ such that $\thandt \models \Gamma$ and
   $\bm{H} \subset \bm{T}$. A trace $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$ iff
-  $\tandt$ is a temporal equilibrium model of $\Gamma$.
+  $\ttandt$ is a temporal equilibrium model of $\Gamma$.
 \end{definition}
 
-Furthermore, similarly to HT, strong equivalence of two formulas in
-THT allows us to replace one formula with another within a theory
-without affecting the temporal stable models of the theory as a whole
+Strong equivalence of two formulas in THT, as in HT, allows us to
+replace one formula with another within a theory without affecting the
+temporal stable models of the theory as a whole.
 
 \begin{proposition}[Strong Equivalence and THT Equivalence \cite{agcadipescscvi20a}]
   Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent

@@ -2,20 +2,36 @@
 
 \renewcommand{\wnext}{\ensuremath{\widehat{\Next}}}
 
-\newcommand{\eqdef}{\ensuremath{=^{def}}}
+\newcommand*{\eqdef}{\ensuremath{=^{def}}}
 
-\newcommand{\equivht}{\stackrel{\normalfont\mbox{\tiny HT}}{\equiv}}
-\newcommand{\equivtht}{\stackrel{\normalfont\mbox{\tiny THT}}{\equiv}}
+\newcommand*{\equivht}{\stackrel{\normalfont\mbox{\tiny HT}}{\equiv}}
+\newcommand*{\equivtht}{\stackrel{\normalfont\mbox{\tiny THT}}{\equiv}}
+\newcommand{\kinlambda}{\rangecc{k}{0}{\lambda}}
+% \renewcommand{\until}{\ensuremath{\mathbin{\mbox{\outline{$\bm{\mathsf{U}}$}}}}}
+% \renewcommand{\release}{\ensuremath{\mathbin{\mbox{\outline{$\bm{\mathsf{R}}$}}}}}
+% \renewcommand{\finally}{\ensuremath{\mbox{\outline{$\bm{\mathsf{F}}$}}}}
+
+% QTHT macros
+\newcommand*{\dsigma}{\ensuremath{\langle D, \sigma \rangle}}
+\newcommand*{\qthandt}{\ensuremath{\langle \dsigma, \bm{H},\bm{T} \rangle}}
+\newcommand*{\qttandt}{\ensuremath{\langle \dsigma, \bm{T},\bm{T} \rangle}}
+\newcommand*{\qttcandt}{\ensuremath{\langle \dsigma, \bm{T}_{|C},\bm{T} \rangle}}
 
 
-% temporal formalities
 
-\newcommand{\s}[1]{\ensuremath{``#1"\,}}
+% Misc. macros
 
-\newcommand{\nnf}{\ensuremath{\mathit{nnf}\,}}
-\newcommand{\AFW}{\ensuremath{\mathrm{AFW}}}
+\newcommand*{\s}[1]{\ensuremath{``#1"\,}}
 
-\newcommand{\PV}{\ensuremath{\mathcal{P}}}
-\newcommand{\Rel}[2]{\parallel\!#1\!\parallel^{#2}}
+\newcommand*{\nnf}{\ensuremath{\mathit{nnf}\,}}
+\newcommand*{\AFW}{\ensuremath{\mathrm{AFW}}}
+
+\newcommand*{\PV}{\ensuremath{\mathcal{P}}}
+\newcommand*{\Rel}[2]{\parallel\!#1\!\parallel^{#2}}
 
 \newcommand*{\defeq}{\stackrel{\text{def}}{=}}
+
+\newcommand*{\safe}[1]{\textit{safe}(#1)}
+\newcommand*{\forallx}{\ensuremath{\forall x_1 \forall x_2 \dots \forall x_n}}
+
+\newcommand*{\ground}[2]{\ensuremath{\operatorname{Gr}_{#1}(#2)}}

@@ -1,24 +1,27 @@
 \subsection{QTHT}
 
+
+
 \subsubsection{Foundations}
 
 The building blocks of the syntax of our language will be that of
 function-free first order languages, where we have a set of constant
 symbols $C$, an infinite set of variables
-$X=\{x_i \mid i\in \mathbb{N} \}$ and a set of predicate symbols $P$
-with associated arity. Atoms are built using predicates, constants and
-variables, like $p(t_1,\dots, t_n)$ where $p\in P$ is of arity $n$, and
-$t_i \in X \cup C$ for $\rangecc{i}{1}{n}$ is a \emph{term}. A first
-order temporal formula is then built from atoms using the same grammar
-as for propositional temporal formulas, along with the additional
-production rules:
+$X=\{x_i \mid i\in \mathbb{N} \}$, and a set of predicate symbols $P$
+with associated arity. We call the union of the set of constants and
+variables the set of \emph{terms} $T = C \cup X$. Atoms are built
+using predicates, constants and variables, like $p(t_1,\dots, t_n)$
+where $p\in P$ is of arity $n$, and $t_i \in T$ for
+$\rangecc{i}{1}{n}$. A first order temporal formula is then built from
+atoms using the same grammar as for propositional temporal formulas,
+along with the additional production rules:
 
 $$
 \varphi ::= \forall x \varphi(x) \mid \exists x \varphi(x)
 $$
 
 We denote the set of all such formulas as the language
-$\mathcal{L_{C,P}}$, which we sometimes abbreviate as $\mathcal{L}$
+$\mathcal{L}_{T,P}^{\mathcal{T}}$, which we sometimes abbreviate as $\mathcal{L}$
 when this does not lead to confusion.
 
 Let $D$ be a non-empty set, called a \emph{domain}. We let $\A(D,P)$
@@ -28,7 +31,11 @@ $D$ as a function
 $$
 \sigma: C \cup D \rightarrow D
 $$
-such that $\sigma(d) = d$ for all $d \in D$.
+such that $\sigma(d) = d$ for all $d \in D$. We call a variable
+assignment $\mu$ in $\dsigma$ a mapping from the set of variables $X$ to
+$D$, i.e. $\mu \in D^X$. If $\varphi$ has free variables, let $\varphi^\mu$ be the formula
+obtained by replacing every free variable $x$ by $\mu(x)$
+\cite{agcapevidi17a}.
 
 \begin{definition}[TQHT-structure \cite{agcapevidi17a}]
   A THT $\mathcal{L}$ structure with static domains, or TQHT-structure
@@ -37,6 +44,7 @@ such that $\sigma(d) = d$ for all $d \in D$.
 
   We call a TQHT structure total iff $\bm{H}=\bm{T}$
 \end{definition}
+
 
 The satisfaction relation for TQHT structures is almost completely the
 same as that the of THT satisfaction relation defined in section 2, if
@@ -47,7 +55,7 @@ below, as stated in \cite{agcapevidi17a}.
 
 \begin{description}
   \item $\bm{M},k \models p(t_1, \dots, t_n) \in \A(C \cup D,P)$ iff $p(\sigma(t_1), \dots, \sigma(t_n))\in H_k$
-  \item $\bm{M},k \models t = s$ for any $t,s \in C \cup D$ iff $\sigma(t) = sigma(s)$
+  \item $\bm{M},k \models t = s$ for any $t,s \in C \cup D$ iff $\sigma(t) = \sigma(s)$
   \item $\qthandt \models \forall x \phi(x)$ iff $\qthandt \models \phi(d)$ for any $d \in D$ and for all $w \in \{\bm{H}, \bm{T}\}$ 
   \item $\bm{M} \models \exists k \phi(x)$ iff $\bm{M} \models \varphi(d)$ for some $d \in D$
 \end{description}
@@ -59,7 +67,8 @@ domain, or QTHT for short.
 Persistence can be proven to hold in TQHT as well.
 
 \begin{proposition}[QTHT Persistence \cite{agcapevidi17a}]
-For any formula $\varphi$, if $\qthandt \models \varphi$, then $qttandt \models \varphi$.
+  For any formula $\varphi$, if $\qthandt \models \varphi$, then
+  $\qttandt \models \varphi$.
 \end{proposition}
 
 First order temporal equilibrium models can be defined in the usual way.
@@ -91,92 +100,134 @@ state the results in their general form.
 
 The usual non-temporal definition of safety requires that each
 variable occurring in a rule also occur in a positive literal of the
-body of the rule. This syntactic constraint is imposed to guarantee
-that a program of such rules will be \emph{domain independent}, and
-that it will not contain any \emph{unnamed individuals}
-\cite{capeva09b}. Domain independence states that the answer sets of
-the program do not change if they are ground using a superset of the
-program's constants. This is important, as otherwise, adding a new
-rule that one would expect to have no affect on the answer sets of the
-program, can still change the answer sets simply by the virtue of
-introducing a new constant symbol. \cite{agcapevidi17a} extended this
-safety definition to the temporal setting by allowing atoms in the
-scope of a singe $\Next$ to provide safety, and proved that this
-extended definition satisfied domain independence, and ensured that
-here are no unnamed individuals in the answer sets of a program. In
-this section, we will relax the safety condition even further, and
-prove that these desirable properties still hold, by retracing the
-steps of the proof from \cite{agcapevidi17a}. In the following, the
-term subformula is considered to be reflexive, i.e. $\varphi$ is a
-subformula of $\varphi$.
+body of the rule \cite{gekakasc12a}. This safety definition is
+extended to a syntactic fragment of temporal formulas in
+\cite{agcapevidi17a} by allowing atoms in the scope of a singe $\Next$
+to provide safety, and proved that this extended definition satisfied
+two key properties that safety guarantees in the non-temporal setting;
+namely, the extended definition ensures \emph{domain independence},
+and ensures that there are no \emph{unnamed individuals} in the answer
+sets of a program \cite{capeva09a} \cite{capeva09b}. Domain
+independence states that the answer sets of the program do not change
+if they are ground using a superset of the program's constants. This
+is important, as otherwise, adding a new rule that one would expect to
+have no affect on the answer sets of the program, can still change the
+answer sets simply by the virtue of introducing a new constant symbol.
+
+To formalize the second property, given an interpretation $\sigma$, we
+call an element of the domain $d \in D$ an \emph{unnamed individual},
+iff $d \not\in Im(\sigma\vert_{C})$, i.e. if no constant is mapped to
+it by $\sigma$. Now, given a trace $\bm{T}$, we define the restriction
+of the trace to the images of the constants in $C$ as
+$\bm{T}\vert _C$; that is
+$T\vert_{Ci} \defeq T_i \cap At(\sigma(C),P)$. A answer set $\bm{T}$
+is then said to contain no unnamed individuals iff
+$\bm{T} \vert_{C} = \bm{T}$. This property is desirable, as in most
+logic programming settings, one would not want arbitrary elements of
+the domain to appear in the solutions to a program.
+
+In what follows, we will relax the safety condition even further than
+in \cite{agcapevidi17a}, and prove that these desirable properties
+still hold, by retracing the steps of the proof the aforementioned
+paper. First, we define this extended notion of safety; note that the
+subformula relation is considered to be reflexive, i.e. $\varphi$ is a
+subformula of $\varphi$ for any formula $\varphi$.
 
 \begin{definition}[Safety]
-  Given a formula $\varphi$, we say that a subformula $\gamma$ of
-  $\varphi$ is unsafe in $\varphi$, iff it is the operand of
-  $\neg/\wprevious/\wnext$ or either operand of $\vee$ or if it the
-  left operand of $\since/\until/\trigger/\release$ in $\varphi$.
+  Given a simple temporal formula $\varphi$, we say a subformula
+  $\gamma \in subf(\varphi)$ is in an unsafe position in $\varphi$, if
+  it is the immediate subformula of a formula
+  $\psi \in subf(\varphi)$, where $\psi$ is of the following form:
+  $\psi = \neg \gamma \mid \gamma \vee \xi \mid \xi \vee \gamma \mid
+  \gamma \since \xi \mid \gamma \until \xi \mid \gamma \trigger \xi \mid
+  \gamma \release \xi$. We furthermore consider any subformulas of
+  such a $\gamma$ to be in an unsafe position in $\varphi$. Any
+  subformula of $\varphi$ that is not in an unsafe position in
+  $\varphi$ is said to be in a \textit{safe position} in $\varphi$. We
+  denote the set of such subformulas as $\safe{\varphi}$.
 
-  We say that an atomic subformula occurs in a safe position in a formula
-  $\varphi$ iff it is a subformula of $\varphi$, and it is not the
-  subformula of a subformula of $\varphi$ that is unsafe in B.
-
-  Then, given a Utemporal rule
-  $\psi=\forall x_1, \dots, x_n \alwaysF(B \rightarrow H)$, We say
-  that an atomic subformula is in a safe position in $\psi$ iff it is
-  a subformula of $B$, and it is not the subformula of a subformula of
-  B that is unsafe in B.
-
-  Finally, we say that a Utemporal rule $\psi$ is safe iff. all of it's variables are safe.
+  We call a temporal rule $\varphi = \alwaysF(B \rightarrow H)$
+  \emph{safe}, iff each variable $x$ in $\varphi$ occurs in an atom
+  that is in a safe position in $B$. We call a universal temporal rule
+  $\forallx \psi$ safe iff $\psi$ is safe. We call a program safe, if
+  all of it's rules are safe.
 \end{definition}
 
-Under this expanded definition of safety, the following program would
-also be considered safe:
+As an example, under this expanded definition of safety, the following
+rule would also be considered safe:
 
 \begin{center}
     \begin{lstlisting}[numbers=none]
-should_not_shoot(X)  :- since(not(loaded(X)),prev(shoot(X))).
+should_not_shoot(X)  :- since(unloaded(X),prev(shoot(X))).
     \end{lstlisting}
 \end{center}
 
+The rule is safe, as \verb|shoot(X)| is an atom which is in a safe
+position w.r.t. of the body of the rule, and can thus provide safety
+for the single (implicitly) universally quantified the variable $X$
+occurring in the rule.
+
 We will now embark on the path towards proving the two desirable
-properties of the new safety definition.
+properties of the new safety definition. We first prove some
+properties of simple temporal formulas.
 
 \begin{lemma}\label{lemma1}
-  Let $\varphi$ be a temporal formula without variables, and let
-  $p_1,\dots,p_n$ be the atomic subformulas occurring in a safe
-  position in $\psi$, if any. It follows that if
-  $\qthandt,j \models F$, then for all $p_i \in \rangecc{i}{0}{n}$,
-  there exists a $\kinlambda$, such that $\qthandt,k \models p_i$
+  Let $\varphi$ be a simple temporal formula. If
+  $\qthandt,j \models \varphi$, then for all atoms $p$ with
+  $p \in \safe{\varphi}$, there exists a $\kinlambda$, such that
+  $\qthandt,k \models p$.
 \end{lemma}
 \begin{proof}
-The property can be shown to by structural induction on $\varphi$.
+  In the following, let $M=\qttandt$. The property can be shown to by
+  structural induction on $\varphi$. Clearly, the property holds form
+  atoms, $\top$ and $\bot$.
+
+To make the inductive step, let us first consider propositional
+connectives. If $\varphi = \psi \wedge \xi$, and $M,j \models
+\varphi$, then $M,j \models \psi$ and $M,j \models \xi$. Then applying
+the induction hypothesis, for any atoms $p \in \safe{\psi}$ and $q \in
+\safe{\xi}$ we must have some $k,l \in \intervcc{0}{\lambda}$ such
+that $M,k \models \psi$ and $M,l \models \xi$. We can make the
+inductive step by noting that $\safe{\psi \wedge \xi} = \safe{\psi}
+\cup \safe{\xi}.$ In cases when $\varphi = \psi \vee \xi$ or $\varphi
+= \neg \psi$, the property holds trivially, as $\safe{\varphi} =
+\emptyset$.
+
+We will now consider past operators; the same argument can be applied
+to the dual future versions of these operators. If
+$M,j \models \varphi = \previous \psi$, then $M,j-1 \models \psi$, so
+we can make the inductive step by applying the induction hypothesis
+and noting that $\safe{\previous \psi} = \safe{\psi}$. For the cases
+where $\varphi = \psi \since \xi \mid \psi \trigger \xi$, by
+inspecting the satisfaction relation for respective the operators, one
+can conclude that if $M,j \models \varphi$, then it must be the case
+that $M,k \models \xi$ for some $\kinlambda$. Then, applying the
+induction hypothesis, and noting that $\safe{\varphi} = \safe{\xi}$
+makes the inductive step, and concludes the proof.
+  
 \end{proof}
 
 \begin{lemma}\label{lemma2}
-  Let $\varphi$ be a temporal formula without variables. Then, if
-  $\qttandt \models \varphi$ and $\qttandt \not\models \varphi$, it
+  Let $\varphi$ be a simple temporal formula. Then, if
+  $\qttandt \models \varphi$ and $\qthandt \not\models \varphi$, it
   follow that there is a $\kinlambda$ and an atomic subformula $p$ in
   $F$, such that $\qttandt \models p$ and
-  $\qttandt \not\models \varphi$.
+  $\qthandt \not\models p$.
 \end{lemma}
 \begin{proof}
-  The property can be shown to by structural induction on
-  $\varphi$. The only inductive step that does not follow immediately
-  is that of $\neg \varphi$. Note that in case if
-  $\qttandt \models \neg \varphi$, then by persistence we must have
-  $\qthandt \models \neg \varphi$, so the property holds.
+  The property can easily be shown by structural induction on
+  $\varphi$. The only step of note is that of $\varphi = \neg \psi$;
+  in this case case if $\qttandt \models \neg \psi$, then by
+  persistence we must have $\qthandt \models \neg \psi$, so the
+  property holds trivially.
 \end{proof}
 
-We call a variable assignment $\mu$ in $\dsigma$ a mapping from the
-set of variables to $D$. If $\varphi$ has free variables, let
-$\varphi^\mu$ be the formula obtained by replacing every free variable
-$x$ by $\mu(x)$. Let $\bm{T}_{|C} \defeq \bm{T}\cap \sigma(C)$
-\cite{agcapevidi17a}.
+
 
 \begin{lemma}
-  Let $\varphi=\alwaysF (B \rightarrow H)=\alwaysF \psi$ be a temporal rule, and
-  $\mu$ a variable assignment in $\dsigma$. If $\varphi$ is safe, then
-  $\qttandt,k \models \varphi^\mu$ implies
+  Let $\varphi=\alwaysF (B \rightarrow H)=\alwaysF \psi$ be a temporal
+  rule, and $\mu$ a variable assignment in $\dsigma$. If $\varphi$ is
+  safe, then $\qttandt,k \models \varphi^\mu$ implies
   $\qttcandt,k \models \varphi^\mu$
 \end{lemma}
 \begin{proof}
@@ -187,24 +238,54 @@ $x$ by $\mu(x)$. Let $\bm{T}_{|C} \defeq \bm{T}\cap \sigma(C)$
   $k\leq i$, such that $M,i \models \psi^\mu$ and
   $M_C,i \not \models \psi^\mu$, which must mean that
   $M_C,i \models B^\mu$ and $M_C,i \not \models H^\mu$. By
-  persistence, we then have $M,i \models B^\mu$, which we must also have $M,i \models H^\mu$, as we know that $M,k \models \alwaysF(B^\mu \rightarrow H^\mu)$. Now, we have found that $M,i \models H^\mu$ and $M_C,i \not \models H^\mu$. By applying Lemma \ref{lemma2}, we derive that there is some atomic subformula $q$ occurring in $H$, and a $\rangeco{j}{0}{\infty}$, such that $M,j \models q^\mu$ and $M_C,j \not \models q^\mu$. Therefore, we must have a variable $x$ in $q$, with $\mu(x) \not \in \sigma(C)$. As $x$ is safe, there must be an occurrence of $x$ in an atomic formula $p$ in a safe position of $B$. Furthermore, as $\mu(x) \not \in \sigma(C)$, we also have $M_C,l \not \models p^\mu$ for any $\rangeco{l}{0}{\lambda}$. Having determined this fact, we can now apply the contraposition of Lemma \ref{lemma1} show that $M_C,i \not \models B^\mu$, a contradiction that concludes the proof.
+  persistence, we then have $M,i \models B^\mu$, which means we must
+  also have $M,i \models H^\mu$, as we know that
+  $M,k \models \alwaysF(B^\mu \rightarrow H^\mu)$. Now, we have found
+  that $M,i \models H^\mu$ and $M_C,i \not \models H^\mu$. By applying
+  Lemma \ref{lemma2}, we derive that there is some atomic subformula
+  $q$ occurring in $H$, and a $\rangecc{j}{0}{\lambda}$, such that
+  $M,j \models q^\mu$ and $M_C,j \not \models q^\mu$. Therefore, we
+  must have a variable $x$ in $q$, with $\mu(x) \not \in
+  \sigma(C)$. As $x$ is safe, there must be an occurrence of $x$ in an
+  atomic formula $p$ in a safe position of $B$. Furthermore, as
+  $\mu(x) \not \in \sigma(C)$, we also have $M_C,l \not \models p^\mu$
+  for any $\rangeco{l}{0}{\lambda}$. Having determined this fact, we
+  can now apply the contraposition of Lemma \ref{lemma1} show that
+  $M_C,i \not \models B^\mu$, a contradiction that concludes the
+  proof.
 \end{proof}
 
 From here, we can follow the proof of Proposition 5 and Theorem 2 from \cite{agcapevidi17a} more
 or less verbatim, to show the following result.
 
+\begin{proposition}
+  For any safe universal temporal rule $\varphi = \forallx \psi$
+  \begin{equation*} \qttandt \models \varphi \text{ iff } \qttcandt \models \varphi. \end{equation*}
+\end{proposition}
+
 \begin{theorem}[No Unnamed Individuals]
-  If $\varphi$ is a safe Utemporal rule, and $\qttandt$ is a temporal equilibrium
-  model of $\varphi$, then $\bm{T}_{|C}=T$ and $T_i \subseteq \A(\sigma(C),P)$ for and $0 \leq i$.
+  If $\varphi$ is a safe universal temporal rule, and $\qttandt$ is a temporal equilibrium
+  model of $\varphi$, then $\bm{T}\vert_{C}=\bm{T}$.
 \end{theorem}
 
 Let $(D,\sigma)$ be a domain and $D'\subseteq D$ a finite subset. The
 grounding over $D'$ of a sentence $\varphi$, is denoted as
-$Gr_{D'}(\phi)$. The grounding assigns to each atom itself, expands
-universal/existential quantification conjunctively/disjunctively over
-each possible replacement of the quantified variable by a domain
-value, and propagates through all other connectives
-\cite{agcapevidi17a}. 
+$Gr_{D'}(\phi)$. Grounding is defined to assign each atom itself,
+expand universal/existential quantification
+conjunctively/disjunctively over each possible replacement of the
+quantified variable by a domain value, and to be operation preserving
+w.r.t. all binary and unary logical and temporal
+connectives. \cite{agcapevidi17a}. Formally $\ground{D^{\prime}}{\varphi}$ is defined inductively as follows:
+
+\begin{align*}
+\ground{D^{\prime}}{p} & \defeq p, \text { where } p \text { is an atom } \\
+\ground{D^{\prime}}{\varphi_1 \odot \varphi_2} & \defeq \ground{D^{\prime}}{\varphi_1} \odot \ground{D^{\prime}}{\varphi_2}, \\
+\ground{D^{\prime}}{\forall x \varphi(x)} & \defeq \bigwedge_{d \in D^{\prime}} \ground{D^{\prime}}{\varphi(d)} \\
+\ground{D^{\prime}}{\exists x \varphi(x)} & \defeq \bigvee_{d \in D^{\prime}} \ground{D^{\prime}}{\varphi(d)} \\
+\operatorname{Gr}_{D^{\prime}}(\bigcirc \varphi) & \stackrel{\text { def }}{=} \bigcirc \operatorname{Gr}_{D^{\prime}}(\varphi) \\
+\operatorname{Gr}_{D^{\prime}}(\square \varphi) & \stackrel{\text { def }}{=} \square \operatorname{Gr}_{D^{\prime}}(\varphi) \\
+\operatorname{Gr}_{D^{\prime}}(\diamond \varphi) & \stackrel{\text { def }}{=} \diamond \operatorname{Gr}_{D^{\prime}}(\varphi)
+\end{align*}
 
 The following result, stating domain independence, can also be proved
 by applying Lemma 1 and Lemma 2 to reproduce Lemma 2 from
@@ -213,17 +294,23 @@ to derive the result under our expanded definition of programs and
 safety.
 
 \begin{theorem}
-Let $\varphi$ be a safe Utemporal rule. Suppose we expand the language $\mathcal{L}$ by considering a set of constants $C \subseteq C'$. A total QTHT model $\qttandt$ is a temporal equilibrium model of $Gr_{C'}(\varphi)$ iff it is a temporal equilibrium model of $Gr_{C'}(\varphi)$.
+  Let $\varphi$ be a safe universal temporal rule. Suppose we expand
+  the language $\mathcal{L}$ by considering a set of constants
+  $C \subseteq C'$. A total QTHT model $\qttandt$ is a temporal
+  equilibrium model of $Gr_{C'}(\varphi)$ iff it is a temporal
+  equilibrium model of $Gr_{C'}(\varphi)$.
 \end{theorem}
 
 \subsubsection{Grounding}
 
-Obtaining a ground instantiation of a universal temporal program is, as demonstrated at the
-end of the previous section, is not as straightforward as one might
-hope, as the grounding procedure of gringo is not QTHT model
-preserving due to the simplifications it applies. We will therefore
-instead construct a much simpler positive normal temporal program, and
-retrieve the ground instances of our original program from there.
+Obtaining a ground instantiation of a universal temporal program is,
+as demonstrated at the end of the previous section, not as
+straightforward as one might hope, as the grounding procedure of
+gringo is not QTHT model preserving due to the simplifications it
+applies. We will therefore instead construct a much simpler positive
+normal temporal program, and retrieve the ground instances of our
+original program from the temporal stable models of this simplified
+program.
 
 Formally, given a universal temporal rule
 $r=\forall x_1 \dots x_n \alwaysF(B \rightarrow H)$, let $p_1, p_n$ be

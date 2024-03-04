@@ -71,14 +71,14 @@ structural induction.
   then $\tandt \models \varphi$.
 \end{proposition}
 
-HT can also be defined as a 3-valued logic, known commonly as
-Gödel's 3-valued logic, where we represent HT interpretations as a 3
-valued interpretation $I$ \cite{capeva05a}. Given an HT interpretation
+HT can also be defined as a 3-valued logic, known commonly as Gödel's
+3-valued logic, where we represent HT interpretations as a 3 valued
+interpretation $I$ \cite{capeva05a}. Given an HT interpretation
 $\handt$, $I$ assigns to every atom $a\in A$ a value from
 $\textbf{3}=\{ 0, 1, 2 \}$ as follows: $I(a)=2$ iff $a \in H$,
-$I(a)=1$ iff $a \in T \setminus H$ and $I(a)=0$ iff $a \not\in T$. The 3-valued HT
-interpretation $I$ is then extended to $\mathcal{L}_A$ inductively using the
-following rules:
+$I(a)=1$ iff $a \in T \setminus H$ and $I(a)=0$ iff $a \not\in T$. The
+3-valued HT interpretation $I$ is then extended to $\mathcal{L}_A$
+inductively using the following rules:
 
 \begin{align*}
 &I(\varphi \wedge \psi) = min(I(\varphi) I(\psi)) 
@@ -93,15 +93,13 @@ following rules:
   0 & \text { otherwise }\end{cases} 
 \end{align*}
 
-One way of conceptualizing the three values is to view the atoms in $H$,
-$T$ and $\A \setminus T$ as being proved to be true,
-assumed to be true and false, respectively
-\cite{agcadipescscvi20a}.
-
-Using 3-valued interpretations instead of HT traces can be beneficial
-when one wishes to check satisfaction or equivalence of formulas, as
-these can be reduced to a simple calculation of truth values using the
-rules above.
+One way of conceptualizing the three values is to view the atoms in
+$H$, $T$ and $\A \setminus T$ as being proved to be true, assumed to
+be true and false, respectively \cite{agcadipescscvi20a}. Using
+3-valued interpretations instead of HT traces can be beneficial when
+one wishes to check satisfaction or equivalence of formulas, as these
+can be reduced to a simple calculation of truth values using the rules
+above.
 
 \begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht}
 For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
@@ -112,13 +110,17 @@ For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
 \end{description}
 \end{proposition}
 
-We write $I \models \varphi$ iff $I(\varphi)=2$.
+As a consequence of Proposition \ref{prop:3-valued-ht}, we can
+equivalently define satisfaction of formula, using only the 3-valued
+interpretation, as $I \models \varphi$ iff $I(\varphi)=2$.
 
 We call an HT interpretation $\handt$ total if $H=T$. Following the
-previous analogy, in total interpretations all our of assumptions must
-be proven to be true. By imposing an additional minimality condition
-on total interpretations, we arrive at the concept of an equilibrium
-model, and of a stable model.
+previous analogy of the meaning of the values assigned in a 3-valued
+interpretation, we can conceptualize total interpretations and
+interpretations in which all our of assumptions must be proven to be
+true. By imposing an additional minimality condition on total
+interpretations, we arrive at the concept of an equilibrium model, and
+of a stable model.
 
 \begin{definition}[Equilibrium Model/Stable model \cite{lipeva01a} \cite{pearce06a}]
   A total HT interpretation $\tandt$ is said to be an equilibrium
