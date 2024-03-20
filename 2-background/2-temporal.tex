@@ -18,11 +18,11 @@ following grammar:
     \varphi ::= &\; a \mid \bot \mid
                   \varphi_1 \otimes \varphi_2 \mid
                   \previous \varphi \mid \varphi_1 \since \varphi_2 \mid \varphi_1 \trigger \varphi_2 \mid
-                  \Next \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2 \mid                  
+                  \Next \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2             
 \end{align*}
 where $\otimes \in \{ \wedge, \vee, \to \}$ is a binary Boolean
 connective. We denote set of all temporal formulas as the language
-$\mathcal{L}_{A}^{T}$, and a subset of $\mathcal{L}_{A}^{T}$ as a
+$\mathcal{L}_{\A}^{T}$, and a subset of $\mathcal{L}_{\A}^{T}$ as a
 temporal theory. We sometimes drop the temporal adjective from the
 definitions of this subsection when it is clear from context that we
 are talking about the temporal setting. The temporal operators
@@ -74,7 +74,7 @@ sequence of sets of atoms $\bm{T} \in \A^{\intervcc{0}{\lambda}}$. We
 denote by $T_i$ the $i$-th element of a trace, where
 $\rangecc{i}{0}{\lambda}$; the range of $i$ is left implicit when
 obvious in the rest of this thesis. For two traces $\bm{H}$ and
-$\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$.
+$\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$ for any $i$.
 
 If for each time point we consider two worlds, a "here" and a "there",
 instead of a single world, we arrive at the notion of an HT
@@ -88,7 +88,7 @@ THT for short.
 \begin{definition}[THT satisfaction \cite{agcadipescscvi20a}]
   An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
   satisfies a temporal formula $\varphi$ at time point
-  $\rangeco{k}{0}{\lambda}$, written as $\thandt,k \models \varphi$ if
+  $\kinlambda$, written as $\thandt,k \models \varphi$ if
   the following condition holds, where we use the shorthand
   $\bf{M} =$ $\thandt$.
 \begin{description}
@@ -105,8 +105,7 @@ THT for short.
   \item $\bf{M},k \models \varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $i \in(j . . k]$
   \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
   \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $i \in[k . . j)$
-  \item $\bf{M}, k \models \varphi \release \psi$ iff for all $j \in[k
-    . . \lambda)$, we have $\bf{M}, j \models \psi$ or $\bf{M},
+  \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangecc{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
     i=\varphi$ for some $i \in[k . . j)$
 \end{description}
 \end{definition}
@@ -119,7 +118,7 @@ We say that an HT-trace $\thandt$ is a THT model of a temporal theory
 $\Gamma$ iff $\thandt,0 \models \varphi$ for all $\varphi \in
 \Gamma$. A formula $\varphi$ is a THT tautology, written as
 $\models \varphi$, if $\handt,k \models \varphi$ for any HT-trace
-$\thandt$ and $\rangeco{k}{0}{\lambda}$. We call the logic induced by
+$\thandt$ and $\kinlambda$. We call the logic induced by
 the set of all tautologies the logic of Temporal Here-and-There (THT
 for short). Two formulas $\varphi$ and $\psi$ are said to be THT
 equivalent, denoted as $\varphi \equivtht \psi$, iff

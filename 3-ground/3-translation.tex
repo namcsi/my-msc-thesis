@@ -5,9 +5,9 @@ ourselves to finite traces, the $\release/\trigger$ operator can be
 defined in terms of the $\until/\since$ operator, respectively
 (J. Romero, personal communication 2023). This fact is relevant to our
 discussion, as it allows us to simplify the translation to be
-presented shortly by using the replacement property, and allows us to
-later avoid having to implement the (arguably) less straightforward
-semantics of $\release/\trigger$.
+presented shortly by using the replacement property, thereby
+simplifying the metaprogramming implementation $\release/\trigger$ by
+reducing it to the $\until/\since$ operator.
 
 \begin{proposition}[Definability of $\release/\trigger$ via $\until/\since$]
 
@@ -60,7 +60,7 @@ $$
 \mathcal{L}_\A\setminus \{ \bot, \top \} \}
 $$
 
-For any time point $\kinlambda$ and any non-atomic formula $\gamma \in \mathcal{L}_A^T$ the \emph{definition} of $\gamma$ at time point $k$, written as $df^k(\gamma) \in \mathcal{L}_{A_L}$, corresponds to:
+For any time point $\kinlambda$ and any non-atomic formula $\gamma \in \mathcal{L}_\A^T$ the \emph{definition} of $\gamma$ at time point $k$, written as $df^k(\gamma) \in \mathcal{L}_{\A_L}$, corresponds to:
 
 \begin{align*}
 df^k(\gamma) \defeq \begin{cases}
@@ -112,7 +112,7 @@ $m_I(k,a) \defeq I(L_a^k)$ for any $a \in A$. Recall from Proposition
 \ref{prop:3-valued-ht} that $I \models \varphi \leftrightarrow \psi$
 iff $I(\varphi) = I(\psi)$.
 
-\begin{theorem}\label{theorem:translation}
+\begin{theorem}[Translation Correspondence]\label{theorem:translation}
 For any temporal theory $\Gamma$ over $\A$: \quad
 $\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
 \end{theorem}
