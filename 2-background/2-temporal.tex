@@ -72,7 +72,7 @@ trace of length $\bm{T}$ over signature $\A$ of length
 $\lambda \in \omega + 1$ is then defined as a (possibly infinite)
 sequence of sets of atoms $\bm{T} \in \A^{\intervcc{0}{\lambda}}$. We
 denote by $T_i$ the $i$-th element of a trace, where
-$\rangecc{i}{0}{\lambda}$; the range of $i$ is left implicit when
+$\rangeco{i}{0}{\lambda}$; the range of $i$ is left implicit when
 obvious in the rest of this thesis. For two traces $\bm{H}$ and
 $\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$ for any $i$.
 
@@ -105,7 +105,7 @@ THT for short.
   \item $\bf{M},k \models \varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $i \in(j . . k]$
   \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
   \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $i \in[k . . j)$
-  \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangecc{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
+  \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangeco{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
     i=\varphi$ for some $i \in[k . . j)$
 \end{description}
 \end{definition}
@@ -163,7 +163,7 @@ The 3-valued THT interpretation satisfies similar properties as the
   formulas $\varphi$, $\psi$:
 \begin{description}
   \item $\thandt,k \models \varphi$ iff $m(k,\varphi) = 2$
-  \item $\ttandt,k \models \varphi$ iff $(\varphi) \neq 0$
+  \item $\ttandt,k \models \varphi$ iff $m(k,\varphi) \neq 0$
   \item $\thandt,k \models \varphi \leftrightarrow \psi$ iff $m(k,\varphi) = m(k,\psi)$
 \end{description}
 \end{proposition}

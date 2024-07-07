@@ -3,11 +3,12 @@
 Before we present our translation, we show that when we restrict
 ourselves to finite traces, the $\release/\trigger$ operator can be
 defined in terms of the $\until/\since$ operator, respectively
-(J. Romero, personal communication 2023). This fact is relevant to our
-discussion, as it allows us to simplify the translation to be
+(J. Romero, personal communication 2023).  This fact is relevant to
+our discussion, as it allows us to simplify the translation to be
 presented shortly by using the replacement property, thereby
-simplifying the metaprogramming implementation $\release/\trigger$ by
-reducing it to the $\until/\since$ operator.
+simplifying the metaprogramming implementation of the
+$\release/\trigger$ operators by reducing it to the $\until/\since$
+operator.
 
 \begin{proposition}[Definability of $\release/\trigger$ via $\until/\since$]
 
@@ -19,8 +20,8 @@ If $\lambda \neq \infty$ then:
 \end{proposition}
 \begin{proof}
   We will show the first equivalence, as the second can be proven
-  similarly. To prove strong equivalence in THT, we need to show that
-  any $\kinlambda$ and HT trace $\thandt$,
+  similarly.  To prove strong equivalence in THT, we need to show that
+  for any $\kinlambda$ and any HT trace $\thandt$,
   $\thandt,k \models \varphi \release \psi$ iff
   $\thandt,k \models \psi \until (\psi \wedge (\varphi \vee
   \finally)).$
@@ -45,27 +46,29 @@ terms of a $\release$-free formula in the infinite case; though the
 argument made in \cite[p. 20]{agcadipescscvi20a} to extend the result
 to the finite case does not hold, as shown by the proposition above.
 
-We now present the translation from temporal theories to logic
-programs. The formalization of this translation is inspired by
+We now present the translation from temporal theories to propositional
+rules. The formalization of this translation is inspired by
 \cite[p. 9]{capeva05a}, where the authors define a translation from
-arbitrary propositional theories to logic programs; the proof of our
-upcoming theorem will follow the same logical structure as that of
-Theorem 2. in the aforementioned paper.
+arbitrary propositional theories to rules; the proof of our upcoming
+theorem will follow the same logical structure as that of Theorem
+2. in the aforementioned paper. As a first step, we will translate
+temporal theories to propositional formulas; following that, we shall
+translate these propositional formulas to rules.
 
-
-Given a temporal theory $\Gamma$ over signature \A, we
-define a new signature $\A_L$ as:
+Given a temporal theory $\Gamma$, let $subf(\Gamma)$ denote all
+subformulas occurring in $\Gamma$. For a temporal theory $\Gamma$ over
+signature \A, we define a new signature $\A_{\Gamma}$ as:
 $$
-\A_L = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in
-\mathcal{L}_\A\setminus \{ \bot, \top \} \}
+\A_{\Gamma} = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in subf(\Gamma)
+\setminus \{ \bot, \top \} \}
 $$
 
-For any time point $\kinlambda$ and any non-atomic formula $\gamma \in \mathcal{L}_\A^T$ the \emph{definition} of $\gamma$ at time point $k$, written as $df^k(\gamma) \in \mathcal{L}_{\A_L}$, corresponds to:
+For any time point $\kinlambda$ and any non-atomic formula $\gamma \in \mathcal{L}_\A^T$ the \emph{definition} of $\gamma$ at time point $k$, written as $df^k(\gamma) \in \mathcal{L}_{\A_{\Gamma}}$, corresponds to:
 
 \begin{align*}
 df^k(\gamma) \defeq \begin{cases}
   L^k_{\gamma} \leftrightarrow L_{\varphi}^k \otimes L_{\psi}^k 
-  &\text{ if } \gamma = \varphi \otimes \psi, \otimes \in \{ \vee, \wedge, \rightarrow \}\\[2ex]
+  &\text{ if } \gamma = \varphi \otimes \psi \text{ and } \otimes \in \{ \vee, \wedge, \rightarrow \}\\[2ex]
   L^k_\gamma \leftrightarrow \begin{cases} 
     L^{k+1}_{\varphi} &\text{ when } k < \lambda - 1\\
     \bot &\text{ when } k = \lambda - 1
@@ -89,8 +92,7 @@ satisfaction relations for THT, as described in the meta-language of
 this text, into a concrete representation using propositional
 connectives.
 
-Given a temporal theory $\Gamma$, let $subf(\Gamma)$ denote all
-subformulas occurring in $\Gamma$. We can now define the translation
+We can now define the translation
 of $\Gamma$ as:
 $$
 \chi(\Gamma) = \{ L_\varphi^0 \mid \varphi \in \Gamma \} 
@@ -107,8 +109,8 @@ We would like to use the stable models of this translated theory to
 find the temporal stable models of the input theory. It stands to
 reason then, that some correspondence between the two must be
 proven. To this end, let us define for any 3-valued interpretation $I$
-over $\A_L$ a corresponding 3-valued interpretation $m_I$ over $\A$ as
-$m_I(k,a) \defeq I(L_a^k)$ for any $a \in A$. Recall from Proposition
+over $\A_{\Gamma}$ a corresponding 3-valued interpretation $m_I$ over $\A$ as
+$m_I(k,\varphi) \defeq I(L_{\varphi}^k)$ for any $\varphi \in subf(\Gamma)$. Recall from Proposition
 \ref{prop:3-valued-ht} that $I \models \varphi \leftrightarrow \psi$
 iff $I(\varphi) = I(\psi)$.
 
@@ -116,13 +118,16 @@ iff $I(\varphi) = I(\psi)$.
 For any temporal theory $\Gamma$ over $\A$: \quad
 $\{ m \mid m \models \Gamma \} = \{ m_I \mid I \models \chi(\Gamma) \}$
 \end{theorem}
+
 \begin{proof}
-  $\subseteq$: Let $m$ be a 3-valued interpretation such that
-  $m \models \Gamma$. We define a corresponding 2-valued
-  interpretation $I$ as $I(L^k_\varphi) \defeq m(k,\varphi)$ for any
-  formula $\varphi \in \mathcal{L}_\A$. Then, for this particular
-  2-valued interpretation we have $m_I=I(L_a^k)=m$, so we have
-  succeeded if we prove that $I \models \chi(\Gamma)$. Given that
+  $\subseteq$: Let $m$ be a 3-valued interpretation over $\A$ such
+  that $m \models \Gamma$. We define a corresponding 3-valued
+  interpretation $I$ over $\A_{\Gamma}$ as
+  $I(L^k_\varphi) \defeq m(k,\varphi)$ for any formula
+  $\varphi \in subf(\Gamma)$. Then, for this particular 3-valued
+  interpretation $I$, for any $\varphi \in subf(\Gamma)$ we have
+  $m_I(k,\varphi)=I(L_a^k)=m(k,\varphi)$, so we have succeeded if we
+  prove that $I \models \chi(\Gamma)$. Given that
   $I \models L^0_\gamma$ for any $\gamma \in \Gamma$, as
   $m \models \Gamma$, we have reduced the problem to showing that
   $I \models \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
