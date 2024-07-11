@@ -64,17 +64,18 @@ the future, or until some time point in the future when $\varphi$ and
 $\psi$ will both be true.
 
 To formalize the notion of a time point, let us first fix some
-terminology and notation. Let $\omega$ denote the first infinite Von
-Neumann ordinal. For any $a,b \in \omega + 1$, we introduce the
-notation
-$\intervcc{a}{b} \defeq \{ i \in \omega \mid a \leq i \leq b \}$. A
-trace of length $\bm{T}$ over signature $\A$ of length
-$\lambda \in \omega + 1$ is then defined as a (possibly infinite)
-sequence of sets of atoms $\bm{T} \in \A^{\intervcc{0}{\lambda}}$. We
-denote by $T_i$ the $i$-th element of a trace, where
-$\rangeco{i}{0}{\lambda}$; the range of $i$ is left implicit when
-obvious in the rest of this thesis. For two traces $\bm{H}$ and
-$\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$ for any $i$.
+terminology and notation. Let $\omega$ denote the first infinite
+ordinal. For any $a \in \mathbb{N}$ and
+$b \in \mathbb{N} \cup {\omega}$, we introduce the notation
+$\intervcc{a}{b} \defeq \{ i \in \mathbb{N} \mid a \leq i \leq b \}$
+and $\intervco{a}{b} \defeq \{ i \in \mathbb{N} \mid a \leq i < b
+\}$. A trace $\bm{T}$ of length $\lambda$ over signature $\A$ is then
+defined as a (possibly infinite) sequence of sets of atoms
+$\bm{T} \in \A^{\intervco{0}{\lambda}}$. We denote by $T_i$ the $i$-th
+element of a trace, where $\rangeco{i}{0}{\lambda}$; the range of $i$
+is left implicit when obvious in the rest of this thesis. For two
+traces $\bm{H}$ and $\bm{T}$, we write $\bm{H < T}$ iff
+$H_i \subset T_i$ for any $i$.
 
 If for each time point we consider two worlds, a "here" and a "there",
 instead of a single world, we arrive at the notion of an HT
@@ -116,27 +117,37 @@ reader to \cite{agcadipescscvi20a}.
 
 We say that an HT-trace $\thandt$ is a THT model of a temporal theory
 $\Gamma$ iff $\thandt,0 \models \varphi$ for all $\varphi \in
-\Gamma$. A formula $\varphi$ is a THT tautology, written as
-$\models \varphi$, if $\handt,k \models \varphi$ for any HT-trace
-$\thandt$ and $\kinlambda$. We call the logic induced by
-the set of all tautologies the logic of Temporal Here-and-There (THT
-for short). Two formulas $\varphi$ and $\psi$ are said to be THT
-equivalent, denoted as $\varphi \equivtht \psi$, iff
-$\models \varphi \leftrightarrow \psi$. Note that while THT models are
-only required to satisfy a formula at the initial time step, to verify
-that a formula is a tautology, one must check not only for any
-HT-trace, but also any time point that the equivalence holds; this
-applies to strong equivalence as well, as it is defined in terms of
-tautology.
+\Gamma$. We denote the set of all THT models of a theory $\Gamma$ of
+length $\lambda$ as $\text{THT}(\Gamma,\lambda)$. A formula $\varphi$
+is a THT tautology, written as $\models \varphi$, if
+$\handt,k \models \varphi$ for any HT-trace $\thandt$ and
+$\kinlambda$. We call the logic induced by the set of all tautologies
+the logic of Temporal Here-and-There (THT for short). Two formulas
+$\varphi$ and $\psi$ are said to be THT equivalent, denoted as
+$\varphi \equivtht \psi$, iff $\models \varphi \leftrightarrow
+\psi$. Note that while THT models are only required to satisfy a
+formula at the initial time step, to verify that a formula is a
+tautology, one must check not only for any HT-trace, but also any time
+point that the equivalence holds; this applies to strong equivalence
+as well, as it is defined in terms of tautology.
 
 THT, similarly to HT, can also be characterized via a 3-valued THT
 interpretation $m$. In the case of THT though, the interpretation is
-also parameterized by the time point. For any time point $\kinlambda$,
-$m(k,a)=2$ iff $a \in H_k$, $m(k,a)=1$ iff $a \in T_k \setminus H_k$
-and $m(k,a)=0$ iff $a \not\in T_i$. The interpretation can be extended
-to arbitrary temporal formulas using the rules below
-\cite{agcadipescscvi20a}, where $\operatorname{imp}(x,y)=2$ if
-$x \leq y$, otherwise $\operatorname{imp}(x,y)=y$.
+also parameterized by the time point. A 3-valued (temporal)
+interpretation is a mapping
+$m: \intervco{0}{\lambda} \times \A \rightarrow \textbf{3}$. Similarly
+to the non-temporal case, there is a one-to-one correspondence; for
+any HT trace $\thandt$, we define a mapping to 3-valued interpretation
+$m_{\thandt}$ as $m_{\thandt}(k,a)=2$ iff $a \in H_k$,
+$m_{\thandt}(k,a)=1$ iff $a \in T_k \setminus H_k$ and
+$m_{\thandt}(k,a)=0$ iff $a \not\in T_i$. Given a 3-valued
+interpretation $m$, the corresponding HT trace $\thandt$ given by the
+inverse of this mapping as $\thandt_m$.
+
+A 3-valued interpretation can be extended to arbitrary temporal
+formulas using the rules below \cite{agcadipescscvi20a}, where
+$\operatorname{imp}(x,y)=2$ if $x \leq y$, otherwise
+$\operatorname{imp}(x,y)=y$.
 
 \begin{align*}
   m(k, \perp) &\defeq 0 \\
@@ -162,13 +173,15 @@ The 3-valued THT interpretation satisfies similar properties as the
   For any 3-valued THT interpretation $m$, $\kinlambda$ and temporal
   formulas $\varphi$, $\psi$:
 \begin{description}
-  \item $\thandt,k \models \varphi$ iff $m(k,\varphi) = 2$
-  \item $\ttandt,k \models \varphi$ iff $m(k,\varphi) \neq 0$
-  \item $\thandt,k \models \varphi \leftrightarrow \psi$ iff $m(k,\varphi) = m(k,\psi)$
+  \item $\thandt,k \models \varphi$ iff $m_{\thandt}(k,\varphi) = 2$
+  \item $\ttandt,k \models \varphi$ iff $m_{\ttandt}(k,\varphi) \neq 0$
+  \item $\thandt,k \models \varphi \leftrightarrow \psi$ iff $m_{\thandt}(k,\varphi) = m_{\thandt}(k,\psi)$
 \end{description}
 \end{proposition}
 
-We write $m \models \varphi$ iff $m(0,\varphi)=2$.
+We write $m \models \varphi$ iff $m(0,\varphi)=2$. Similarly to the
+non-temporal setting, we will use HT traces and their corresponding
+3-valued interpretation interchangeably.
 
 Temporal equilibrium models and temporal stable models are defined
 similarly as in the HT case.
@@ -176,9 +189,12 @@ similarly as in the HT case.
 \begin{definition}[Temporal Equilibrium Model/Temporal Stable Model \cite{agcadipescscvi20a}]
   A total HT-trace $\ttandt$ is said to be a temporal equilibrium
   model of a temporal theory $\Gamma$ iff $\ttandt \models \Gamma$,
-  and there is no HT-trace $\thandt$ such that $\thandt \models \Gamma$ and
-  $\bm{H} \subset \bm{T}$. A trace $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$ iff
-  $\ttandt$ is a temporal equilibrium model of $\Gamma$.
+  and there is no HT-trace $\thandt$ such that
+  $\thandt \models \Gamma$ and $\bm{H} \subset \bm{T}$. A trace
+  $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$
+  iff $\ttandt$ is a temporal equilibrium model of $\Gamma$. We denote
+  the set of all temporal equilibrium models of a theory $\Gamma$ of length $\lambda$
+  as $\text{TEL}(\Gamma,\lambda)$.
 \end{definition}
 
 Strong equivalence of two formulas in THT, as in HT, allows us to
