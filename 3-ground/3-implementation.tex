@@ -6,9 +6,7 @@ datatype of the language. This reified representation then serve as
 input to a meta program, which in turn may reinterpret the semantics
 of the reified program. The complexity of this translation varies
 based on the complexity of the language's syntax. Lisp may serve as a
-gold standard here, where reification is simply done by quotation;
-reification is also quite simple in Prolog, as evidenced by the
-abundance of meta-interpreters for the language. 
+gold standard here, where reification is simply done by quotation. 
 
 The ASP grounder gringo offers native support for meta-programming by
 first grounding the input program, and then serializing a
@@ -27,14 +25,18 @@ Syntactically, the input language for meta-telingo is disjunctive
 logic programs in the language of the ASP grounder gringo
 \cite{PotasscoUserGuide19} \cite{gescth07a}. All rules are implicitly
 considered to be in the scope of an $\alwaysF$ operator. Temporal
-operators are represented via prefix notation symbolically. To be
-considered a temporal operator, the names and arities of such
-symbols must match the written name of the given operator, and their
-arity; the written names of the connectives $\vee, \wedge, \neg$ are
-considered to be \emph{or, and, neg}, respectively. Note that when we
-say symbolic function, we refer only to a syntactic form, and also
-consider symbolic atoms to be symbolic functions, as these are
-syntactically identical in the gringo language.
+operators are represented via prefix notation as a symbol. Note that
+when we say symbol, we consider symbolic functions as well as symbolic
+atoms in the gringo language to be symbols. For a symbol to be
+considered a temporal operator two conditions must be met. First, the
+names and arities of such symbols must match the written name of the
+given operator, and their arity; the written names of the connectives
+$\vee, \wedge, \neg$ are considered to be \emph{or, and, neg},
+respectively. For example \verb|since(a,b)| corresponds to
+$a \since b$. Second, the symbol must not occur nested within a symbol
+that is not an operator, i.e. in \verb|dog(next(spotty))|, the
+\verb|next/1| is not considered a temporal operator, as \verb|dog/1|
+is not an operator.
 
 Let us consider as an example the following temporal rule:
 \begin{equation*}
@@ -147,10 +149,6 @@ true(since(L,R,J),K)
 \begin{center}
 \begin{minipage}{\linewidth}
   \begin{lstlisting}[language=clingo, label={lst:meta-telingo2}]
-subformula(F2) :- derive(F1,F2), subformula(F1).
-true(F2,K) :- derive(F1,F2), true(F1,K).
-true(F1,K) :- derive(F1,F2), true(F2,K).
-
 derive(wnext(F),or(next(F),final)) :- subformula(wnext(F)).
 derive(wprev(F),or(prev(F),initial)) :- subformula(wprev(F)).
 derive(eventually_after(F),until(true,F)) 
@@ -165,6 +163,10 @@ derive(release(L,R),until(R,and(R,or(L,final))))
   :- subformula(release(L,R)).
 derive(trigger(L,R),since(R,and(R,or(L,initial)))) 
   :- subformula(trigger(L,R)).
+
+subformula(F2) :- derive(F1,F2), subformula(F1).
+true(F2,K) :- derive(F1,F2), true(F1,K).
+true(F1,K) :- derive(F1,F2), true(F2,K).
 
 #show.
 #show (F,K) : subformula(F), not not_atom(F), true(F,K), 
@@ -221,8 +223,28 @@ recursively collects all subformulas via the recursive rules on lines
 $subf^*(\Gamma)$; the derivations of derived operators will be
 collected later in the encoding.
 
+The rules in lines 21-61 do not require much explanation as they
+express, more or less verbatim, the rules in $\pi^k(\gamma)$ as seen
+in Figure \ref{fig:gamma-df-pi}. Note that the predicates
+\verb|true(until(L,R,J),K)| and \verb|true(since(L,R,J),K)| correspond
+to auxiliary atoms $L^k_{\varphi \until \psi,j}$ and
+$L^k_{\varphi \since \psi,j}$, respectively.
+
+Moving on to Listing 2, in lines 1-14, we introduce a new helper
+predicate \verb|derive(F1,F2)|. The effect of the rules is the
+following. If the formula \verb|F1| occurs as a subformula, and
+\verb|F1| has a top-level derived operator, and the derivation of
+\verb|F1| is \verb|F2|, then \verb|derive(F1,F2)| will hold. Line 16
+adds the derivations of derived operators to the set subformulas,
+completing the definition of \verb|subformula/1|. Lines 17-18 assert
+that when \verb|derive(F1,F2)| holds, \verb|true(F1,K)| is equivalent
+to \verb|true(F2,K)|, completing the translation from $\Gamma$ to
+$\tau(\Gamma)$.
 
 
+
+
+\subsubsection{Grounding Challenges}
 
 One limitation of meta-telingo that must be mentioned is introduced by
 gringo during the initial grounding and reification of the input
@@ -241,7 +263,7 @@ these simplifications may not be equivalent according to the semantic
 implemented by our meta-encoding, as gringo has no knowledge of these
 semantics when performing the aforementioned simplifications. Indeed,
 this is the case for meta-telingo as well; for example take the
-following ATR:
+following temporal program:
 
 \begin{lstlisting}[language=clingo]
 a :- prev(b).
@@ -279,7 +301,7 @@ two more external statements finally gets us the expected result.
 
 Having to reason through gringo's simplifications and manually add
 external statements is hardly a good user experience for our
-system. Fortunately, this issue is addressed and resolved in the next
-section, where we tackle the extension of meta-telingo to temporal rules with
-free variables, and present a system for applying metaprogramming to
-non-ground ASP programs.
+system. Fortunately, this issue is addressed and resolved in the
+following two section, where we tackle the extension of meta-telingo
+to temporal rules with free variables, and present a system for
+applying metaprogramming to non-ground ASP programs.
