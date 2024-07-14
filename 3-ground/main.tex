@@ -2,14 +2,17 @@
 
 We present an implementation the \emph{meta-telingo} system that,
 given a fixed finite trace length, is capable of calculating the
-temporal stable models of that length for a broad class of temporal
-theories. This implementation is carried out using meta-programming, a
-flexible and powerful tool to modify the semantics of ASP programs
+temporal stable models of any temporal logic program. This
+implementation is carried out by translating the temporal logic
+program to a logic program using meta-programming, a flexible and
+powerful tool to modify the semantics of ASP programs
 \cite{karoscwa21a} \cite{gepuscto08a} \cite{eifalepf03a} that is built
-into \verb|gringo|. In this section, we assume that the input temporal
-theory is ground, i.e. contains no free variables, and in the
-following sections, extend the approach to the non-ground, first order
-setting.
+into \verb|gringo|. The resulting logic program is then solved by the
+ASP solver clasp \cite{gekanesc07b}.
+
+In this section, we assume that the input temporal theory is ground,
+i.e. contains no free variables, and in the following sections, extend
+the approach to the non-ground, first order setting.
 
 \input{3-ground/3-translation.tex}
 \input{3-ground/3-implementation.tex}

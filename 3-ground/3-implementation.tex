@@ -1,66 +1,5 @@
 \subsection{Metaprogramming Implementation}
 
-\subsubsection{Input language}
-
-We now define types of temporal theories we will constitute the input
-language of meta-telingo.
-
-\begin{definition}[Simple Temporal Formula, Temporal Rule, Temporal Program]
-  We call a temporal formula $\varphi$ a \emph{implication-free} iff
-  $\varphi$ contains no implications (with the exception of negation).
-  
-  We call a temporal formula a temporal rule, iff it is of the form:
-  $$
-  \alwaysF(B \rightarrow H)
-  $$
-  where $B$ and $H$ are implication-free temporal formulas. We call a set of
-  temporal rules a temporal program.
-\end{definition}
-
-The syntactically input language for meta-telingo is disjunctive logic
-programs in the language of the ASP grounder gringo
-\cite{PotasscoUserGuide19} \cite{gescth07a}. All rules are implicitly
-considered to be in the scope of an $\alwaysF$ operator. Temporal
-operators are represented via prefix notation symbolically. To be
-considered a temporal operator, the names and arities of such
-functions must match the written name of the given operator, and their
-arity; the written names of the connectives $\vee, \wedge, \neg$ are
-considered to be \emph{or, and, neg}, respectively. Note that when we
-say symbolic function, we refer only to a syntactic form, and also
-consider symbolic atoms to be symbolic functions, as these are
-syntactically identical in the gringo language.
-
-Let us consider as an example the following temporal rule:
-\begin{equation*}
-\alwaysF(\textit{shoot} \wedge \textit{unloaded} \since \previous \textit{shoot} 
-\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful} \since \previous \textit{shoot})
-\end{equation*}
-which states that if at some time point a gun is shot that has
-remained unloaded since it's last shot, then the the gun will
-eventually fail, and we have determined the shooter to have been
-forgetful in the intervening time period \textbf{this is an incorrect
-  description, as the since in the head could "choose" a different
-  time point}. This example illustrates a difference in the input
-language of meta-telingo versus it's namesake, the temporal ASP system
-telingo\cite{cakamosc19a} \cite{agcadipescscvi20a}. Unlike telingo,
-meta-telingo does not restrict the input language to
-\emph{past-future} rules \cite{agcadipescscvi20a} where the body of a
-rule must not contain future operators, and the head of a rule must
-not contain past operators. This advantage stems from the fact that
-telingo solves for traces of incrementally increasing length, while in
-meta-telingo we have a fixed trace length. Returning to our example,
-the formula above can be represented in the meta-telingo input
-language as the rule:
-\begin{center}
-    \begin{lstlisting}[numbers=none]
-and(eventually_after(fail),
-    since(forgetful,prev(shoot))) 
-  :- shoot, since(unloaded,prev(shoot)).
-    \end{lstlisting}
-\end{center}
-
-\subsubsection{meta-telingo.lp}
-
 Metaprogramming is a generic technique in programming languages, where
 an input program is translated, or \emph{reified} into some primitive
 datatype of the language. This reified representation then serve as
@@ -73,173 +12,217 @@ abundance of meta-interpreters for the language.
 
 The ASP grounder gringo offers native support for meta-programming by
 first grounding the input program, and then serializing a
-representation of the ground program's much simpler syntax tree as a
-set of facts \cite{karoscwa21a}. This set of facts can then be fed as
-input to a \emph{meta-encoding}, which can reinterpret the semantics
-of the ground language constructs.
-
-We will not detail the reification format in this thesis. For a
-description of the format, and some examples of simpler
+representation of the ground program as a set of facts
+\cite{karoscwa21a}. This set of facts can then be fed as input to a
+\emph{meta-encoding}, which can reinterpret the semantics of the
+ground language constructs. The transformation $\tau(\Gamma)$
+described in the previous section will be implemented by such a
+meta-encoding. We will not detail the reification format in this
+thesis. For a description of the format, and some examples of simpler
 meta-encodings, we refer the reader to \cite{karoscwa21a}.
 
-Before commencing the description of the meta-encoding, we first
-present a slight modification of the translation $\chi$,
-$sigma^{\prime}$ which is the translation that our meta-encoding will
-be implementing. When $\Gamma$ is an temporal program, we define the modified
-translation as:
-\begin{align*}
-\chi^{\prime}(\Gamma) & = \{ \bigwedge_{k=0}^{\lambda} L_B^k
-\rightarrow L_H^k \mid \alwaysF(B \rightarrow H) \in \Gamma \} \\
-& \cup \{ df^k(\gamma) \mid \gamma \in subf(B) \cup subf(H), \kinlambda \}
-\end{align*}
-This translation is essentially the same as $\chi$, with the
-exception that it does not introduce the auxiliary variables and their
-definitions for the outermost $\alwaysF$ and $\rightarrow$, and
-instead immediately substitutes in place of their auxiliary literal
-the right hand sides of their definitions, starting off the
-translation $\chi$ from the head and the body of the temporal rule. A similar
-result to Theorem \ref{theorem:translation} can be proven for this
-translation.
+\subsubsection{Input language}
 
-We can now begin describing our meta-encoding. The encoding, referred
-to as meta-telingo.lp is spilt into three parts for readability. Given
-an input temporal program, referred to as tap.lp we can obtain it's temporal stable
-models by executing the command:
+Syntactically, the input language for meta-telingo is disjunctive
+logic programs in the language of the ASP grounder gringo
+\cite{PotasscoUserGuide19} \cite{gescth07a}. All rules are implicitly
+considered to be in the scope of an $\alwaysF$ operator. Temporal
+operators are represented via prefix notation symbolically. To be
+considered a temporal operator, the names and arities of such
+symbols must match the written name of the given operator, and their
+arity; the written names of the connectives $\vee, \wedge, \neg$ are
+considered to be \emph{or, and, neg}, respectively. Note that when we
+say symbolic function, we refer only to a syntactic form, and also
+consider symbolic atoms to be symbolic functions, as these are
+syntactically identical in the gringo language.
+
+Let us consider as an example the following temporal rule:
+\begin{equation*}
+\alwaysF(\textit{shoot} \wedge \textit{unloaded} \since \previous \textit{shoot} 
+\rightarrow \eventuallyF \textit{fail} \wedge \alwaysP \textit{forgetful})
+\end{equation*}
+which states that if at some time point a gun is shot that has
+remained unloaded since it's last shot, then the the gun will
+eventually fail, and we have determined the shooter to have been
+forgetful up until this point. This formula can be represented in the
+meta-telingo input language as the following rule:
+\begin{center}
+    \begin{lstlisting}[numbers=none]
+and(eventually_after(fail),since(forgetful,prev(shoot))) 
+  :- shoot, since(unloaded,prev(shoot)).
+    \end{lstlisting}
+\end{center}
+
+This example illustrates a difference in the input language of
+meta-telingo versus it's namesake, the temporal ASP system
+telingo\cite{cakamosc19a} \cite{agcadipescscvi20a}. Unlike telingo,
+meta-telingo does not restrict the input language to
+\emph{past-future} rules \cite{agcadipescscvi20a} where the body of a
+rule must not contain future operators, and the head of a rule must
+not contain past operators.
+
+\subsubsection{Meta Encoding}
+
+Given an input temporal logic program (represented symbolically),
+referred to as tap.lp we can obtain it's temporal stable models by
+executing the command:
 
 \begin{lstlisting}[language=bash,numbers=none]
-clingo tap.lp --output=reify | clingo
+clingo tap.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
 \end{lstlisting}
 
- We begin the description of meta-telingo with the first part,
- depicted in Listing 1.
-
- In the first two lines we define the constant lambda, and designate
- the time points of the trace we are solving for via the predicate
- time/1. Lines 4-6 then implement the usual semantics of implication
- as in \cite{karoscwa21a}, but parameterized by an additional time
- point $T$, in effect, this results in
+where \verb|<n>| is some natural number, and sets the trace length
+$\lambda$ for the translation. We begin the description of
+meta-telingo.lp encoding, which extends over Listing 1 and Listing 2.
 
 \begin{center}
 \begin{minipage}{\linewidth}
-\begin{lstlisting}[language=clingo, label={meta-telingo-one}]
-#const lambda = 1.
+\begin{lstlisting}[language=clingo, label={lst:meta-telingo-one}]
 time(0..lambda-1).
 
-conjunction(B,T) :- literal_tuple(B), time(T),
-        hold(L,T) : literal_tuple(B, L), L > 0;
-    not hold(L,T) : literal_tuple(B,-L), L > 0.
+conjunction(B,K) :- literal_tuple(B), time(K),
+        hold(L,K) : literal_tuple(B, L), L > 0;
+    not hold(L,K) : literal_tuple(B,-L), L > 0.
+body(normal(B),K) :- rule(_,normal(B)), conjunction(B,K), 
+                     time(K).
 
-body(normal(B),T) 
-  :- rule(_,normal(B)), conjunction(B,T), time(T).
+hold(A,K) : atom_tuple(H,A) :- rule(disjunction(H),B), 
+                               body(B,K), time(K).
 
-hold(A,T) : atom_tuple(H,A)   
-  :- rule(disjunction(H),B), body(B,T), time(T).
 
-true(O,T) :- hold(L,T), output(O,B), literal_tuple(B,L).
-hold(L,T) :- true(O,T), output(O,B), literal_tuple(B,L).
-true(O,T) :- time(T), output(O,B), not literal_tuple(B,_).
+true(O,K) :- hold(L,K), output(O,B), literal_tuple(B,L).
+hold(L,K) :- true(O,K), output(O,B), literal_tuple(B,L).
+true(O,K) :- time(K), output(O,B), not literal_tuple(B,_).
 
-formula(O) :- output(O,_).
-formula(F;G) :- formula(and(F,G);or(F,G);until(F,G);since(F,G)).
-formula(F) :- formula(neg(F);next(F);prev(F)).
+subformula(O) :- output(O,_).
+subformula((F;G)) :- subformula((and(F,G);or(F,G);until(F,G);since(F,G))).
+subformula(F)	 :- subformula((neg(F);next(F);prev(F))).
 
-not_atom(X)
-  :- formula(X), 
-     X=(true;false;initial;final;neg(_);next(_);prev(_);
-        weak_prev(_);weak_next(_);eventually_after(_);
-        eventually_before(_);always_after(_);always_before(_);
-        and(_,_);or(_,_);until(_,_);since(_,_);release(_,_);
-        trigger(_,_)).
+true(true,K) :- subformula(true), time(K).
+:- subformula(false), time(K), true(false,K).
 
-#show.
-#show (F,T) : formula(F), not not_atom(F), true(F,T), 
-              not output(show,_).
-#show (S,T) : output(show(S),_), true(S,T), output(show,_).
+true(and(F,G),K) :- subformula(and(F,G)), true(F,K), true(G,K).
+true((F;G),K) :- subformula(and(F,G)), true(and(F,G),K).
+true(or(F,G),K) :- subformula(or(F,G)), true((F;G),K).
+true(F,K);true(G,K) :- subformula(or(F,G)), true(or(F,G),K).
+
+true(neg(F),K) :- subformula(neg(F)), time(K), not true(F,K).
+not true(F,K) :- subformula(neg(F)), true(neg(F),K).
+
+true(initial,0) :- subformula(initial).
+:- true(initial,K), subformula(initial), K!=0.
+true(final,lambda-1) :- subformula(final).
+:- true(final,K), subformula(final), K!=lambda-1.
+
+true(F,K+1): time(K+1) :- subformula(next(F)), true(next(F),K).
+true(next(F),K) :- true(F,K+1), subformula(next(F)), time(K).
+
+true(F,K-1): time(K-1) :- subformula(prev(F)), true(prev(F),K).
+true(prev(F),K) :- true(F,K-1), subformula(prev(F)), time(K).
+
+true(until(L,R,J),K): K<=J, time(J)
+  :- subformula(until(L,R)), true(until(L,R),K), time(K).
+true(until(L,R),K)
+  :- subformula(until(L,R)), true(until(L,R,_),K).
+true(L,I) :- true(until(L,R,J),K), I=K..J-1.
+true(R,J) :- true(until(L,R,J),K).
+true(until(L,R,J),K)
+  :- subformula(until(L,R)), time(K), time(J), K<=J, true(R,J), 
+     true(L,I) : I=K..J-1.
+
+true(since(L,R,J),K): J<=K, time(J)
+  :- subformula(since(L,R)), true(since(L,R),K), time(K).
+true(since(L,R),K)
+  :- subformula(since(L,R)), true(since(L,R,_),K).
+true(L,I) :- true(since(L,R,J),K), I=J+1..K.
+true(R,J) :- true(since(L,R,J),K).
+true(since(L,R,J),K)
+  :- subformula(since(L,R)), time(K), time(J), J<=K, true(R,J), 
+     true(L,I) : I=J+1..K.
 \end{lstlisting}
 \captionof{lstlisting}{meta-telingo.lp - part 1}
 \end{minipage}
 \end{center}
 
-\textbf{DESCRIPTION of part 2}
-
 \begin{center}
 \begin{minipage}{\linewidth}
-  \begin{lstlisting}[]
-true(true,T) :- formula(true), time(T).
-:- formula(false), time(T), true(false,T).
+  \begin{lstlisting}[language=clingo, label={lst:meta-telingo2}]
+subformula(F2) :- derive(F1,F2), subformula(F1).
+true(F2,K) :- derive(F1,F2), true(F1,K).
+true(F1,K) :- derive(F1,F2), true(F2,K).
 
-true(and(F,G),T) :- formula(and(F,G)), true(F,T), true(G,T).
-true((F;G),T) :- formula(and(F,G)), true(and(F,G),T).
+derive(wnext(F),or(next(F),final)) :- subformula(wnext(F)).
+derive(wprev(F),or(prev(F),initial)) :- subformula(wprev(F)).
+derive(eventually_after(F),until(true,F)) 
+  :- subformula(eventually_after(F)).
+derive(eventually_before(F),since(true,F)) 
+  :- subformula(eventually_before(F)).
+derive(always_after(F),release(false,F)) 
+  :- subformula(always_after(F)).
+derive(always_before(F),trigger(false,F)) 
+  :- subformula(always_before(F)).
+derive(release(L,R),until(R,and(R,or(L,final)))) 
+  :- subformula(release(L,R)).
+derive(trigger(L,R),since(R,and(R,or(L,initial)))) 
+  :- subformula(trigger(L,R)).
 
-true(or(F,G),T) :- formula(or(F,G)), true((F;G),T).
-true(F,T);true(G,T) :- formula(or(F,G)), true(or(F,G),T).
+#show.
+#show (F,K) : subformula(F), not not_atom(F), true(F,K), 
+              not output(show,_).
+#show (S,K) : output(show(S),B), conjunction(B,K).
+#show (S,K) : time(K), output(show(S),B), literal_tuple(B,L), 
+              not atom_tuple(_,L).
 
-true(neg(F),T) :- formula(neg(F)), time(T), not true(F,T).
-not true(F,T) :- formula(neg(F)), true(neg(F),T).
-
-formula(F2) :- define(F1,F2), formula(F1).
-true(F2,T) :- define(F1,F2), true(F1,T).
-true(F1,T) :- define(F1,F2), true(F2,T).
-
-true(F,T+1): time(T+1) :- formula(next(F)), true(next(F),T).
-true(next(F),T) :- true(F,T+1), formula(next(F)), time(T).
-
-true(F,T-1): time(T-1) :- formula(prev(F)), true(prev(F),T).
-true(prev(F),T) :- true(F,T-1), formula(prev(F)), time(T).
-
-define(weak_prev(F),or(prev(F),initial))
-  :- formula(weak_prev(F)).
-define(weak_next(F),or(next(F),final)) :- formula(weak_next(F)).
-define(initial,neg(prev(true))) :- formula(initial).
-define(final,neg(next(true))) :- formula(final).
+#defined literal_tuple/1.
+#defined literal_tuple/2.
+#defined rule/2.
+#defined atom_tuple/2.
+#defined weighted_literal_tuple/3.
 \end{lstlisting}
 \captionof{lstlisting}{meta-telingo.lp - part 2}
 \end{minipage}
 \end{center}
 
-\textbf{DESCRIPTION of part 3}
+We begin with Listing 1. In the first line, we introduce a helper
+predicate \verb|time(K)|, which ranges over the time points of the trace we
+are solving for. 
 
-\begin{center}
-\begin{minipage}{\linewidth}
-  \begin{lstlisting}[]
-true(until(L,R),(T,J)): T<=J, time(J)
-  :- formula(until(L,R)), true(until(L,R),T), time(T).
-true(until(L,R),T)
-  :- formula(until(L,R)), true(until(L,R),(T,_)).
+Lines 3-10 correspond to the formulas
+$\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+\rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in
+\Gamma \} \subset \tau(\Gamma)$. All of the rules are parameterized by
+time point, and as such the ground instantiations of these rules will
+form a conjunction over all time points, as in the corresponding set
+of formulas in $\tau(\Gamma)$. The predicate \verb|hold(L,K)|
+corresponds the atoms $L_{b_i}^k$ and $L_{h_j}$ (with a caveat
+discussed in the next paragraph).
 
-true(L,K) :- true(until(L,R),(T,J)), K=T..J-1.
-true(R,J) :- true(until(L,R),(T,J)).
-true(until(L,R),(T,J))
-  :- formula(until(L,R)), time(T), time(J), T<=J, true(R,J), 
-     true(L,K) : K=T..J-1.
+Lines 13-15 takes care of some technical legwork required for the
+implementation. The reification format of gringo represents literals
+in the input program as integers \verb|L| in predicates
+\verb|literal_tuple(B,L)|. This integer representation is then linked
+to it's symbolic representation \verb|O| (a symbolic term in the
+gringo language) via the predicate \verb|output(O,B)|. Our translation
+will represent the atoms $L_\gamma^k \in \A_{\Gamma,\lambda}^*$ via
+\verb|true(O,K)|, where \verb|O| is symbolic representation of
+$\gamma$, and \verb|K| is a time point. Lines 13-14 make integer
+representation \verb|hold(L,K)| equivalent to the symbolic
+representation \verb|true(O,K)|. Line 15 handles an edge case. When,
+in \verb|output(O,B)|, \verb|O| is a fact, the reified representation
+generates no facts of the form \verb|literal_tuple(B,L)|. Line 15 thus
+asserts the truth of such facts for all time points.
 
-true(since(L,R),(T,J)): J<=T, time(J)
-  :- formula(since(L,R)), true(since(L,R),T), time(T).
-true(since(L,R),T)
-  :- formula(since(L,R)), true(since(L,R),(T,_)).
+Lines 17-19 introduce the predicate \verb|subformula(F)|, which will
+range over all formulas $\gamma \in subf^*(\Gamma)$. It starts on line
+17 from the formulas occurring in the head and bodies of rules in
+$\Gamma$, found in the first argument of \verb|output(O,_)|, and then
+recursively collects all subformulas via the recursive rules on lines
+18-19. Note that these rules do not collect all subformulas in
+$subf^*(\Gamma)$; the derivations of derived operators will be
+collected later in the encoding.
 
-true(L,K) :- true(since(L,R),(T,J)), K=J+1..T.
-true(R,J) :- true(since(L,R),(T,J)).
-true(since(L,R),(T,J))
-  :- formula(since(L,R)), time(T), time(J), J<=T, true(R,J), 
-     true(L,K) : K=J+1..T.
 
-define(eventually_after(F),until(true,F)) 
-  :- formula(eventually_after(F)).
-define(eventually_before(F),since(true,F)) 
-  :- formula(eventually_before(F)).
-define(release(L,R),until(R,and(R,or(L,final)))) 
-  :- formula(release(L,R)).
-define(always_after(F),release(false,F))
-  :- formula(always_after(F)).
-define(trigger(L,R),since(R,and(R,or(L,initial))))
-  :- formula(trigger(L,R)).
-define(always_before(F),trigger(false,F)) 
-  :- formula(always_before(F)).
-\end{lstlisting}
-\captionof{lstlisting}{meta-telingo.lp - part 3}
-\end{minipage}
-\end{center}
+
 
 One limitation of meta-telingo that must be mentioned is introduced by
 gringo during the initial grounding and reification of the input
@@ -281,12 +264,12 @@ additional statement should help.
 #external initially.
 \end{lstlisting}
 
-But alas, the temporal answer set is still just
+But, unfortunately, the temporal answer set is still just
 $\bm{T}=(\{ b \},\{ c \})$. This is due to the fact that gringo during
 grounding does not understand the semantic connections between
 \verb|next(c)| and \verb|c| or \verb|prev(b)| and \verb|b|, and
 therefore concludes the program has no way to derive \verb|prev(b)| or
-\verb|c|, and as result discards the rules on lines 1 and 4. Adding
+\verb|c|, and as a result discards the rules on lines 1 and 4. Adding
 two more external statements finally gets us the expected result.
 
 \begin{lstlisting}[language=clingo,numbers=none]

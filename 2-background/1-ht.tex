@@ -1,5 +1,8 @@
 \subsection{HT and Equilibrium Logic}
 
+\textbf{Don't forget to declare somewhere that sections 1-2 were part
+  of your IM.}
+
 The logic of Here-and-There forms the monotonic basis for defining
 it's non-monotonic counterpart, equilibrium logic, which can in turn
 be used to give a purely logical semantics for Answer Set Programming
@@ -30,7 +33,7 @@ $\textit{Lit}(\A) = \{ a, \lnot a\ |\ a \in \A \}$.
 \begin{align*}
   b_{1} \wedge \cdots \wedge b_{m} \rightarrow h_1 \vee \cdots \vee h_{n}
 \end{align*}
-where $h_{i}, b_{j} \in \textit{Lit}(\A)$. We call the set of literals ${ h_i | 1 \leq i \leq n, i\in \mathbb{N}}$ the \emph{head} of the rule, and the set of literals ${ b_b | 1 \leq j \leq m, j \in \mathbb{N}}$ the \emph{body} of the rule.
+where $h_{i}, b_{j} \in \textit{Lit}(\A)$. We call the set of literals $\{ h_i | 1 \leq i \leq n, i\in \mathbb{N}\}$ the \emph{head} of the rule, and the set of literals $\{ b_j | 1 \leq j \leq m, j \in \mathbb{N}\}$ the \emph{body} of the rule.
 \end{definition}
 
 We call a theory $P$ containing only (disjunctive) rules a
@@ -72,65 +75,11 @@ structural induction.
   then $\tandt \models \varphi$.
 \end{proposition}
 
-HT can also be defined as a 3-valued logic, known commonly as Gödel's
-3-valued logic \cite{capeva05a}. A 3-valued interpretation
-$I: \A \rightarrow \textbf{3}$ assigns to every atom $a\in \A$ a value
-from $\textbf{3}=\{ 0, 1, 2 \}$. We define a one-to-one correspondence
-between 3-valued interpretations and HT interpretations via the
-following mapping. Given an HT interpretation $\handt$, the
-corresponding 3 valued interpretation $I_{\handt}$ $I_{\handt}(a)=2$
-is defined as iff $a \in H$, $I_{\handt}(a)=1$ iff
-$a \in T \setminus H$ and $I_{\handt}(a)=0$ iff $a \not\in T$. Given a
-3-valued interpretation $I$, the corresponding HT interpretation given
-by the inverse of the mapping above is denoted as $\handt_{I}$. 
 
-A 3-valued HT interpretation $I$ can be extended to
-$\mathcal{L}_\A$ inductively using the following rules:
 
-\begin{align*}
-&I(\varphi \wedge \psi) = min(I(\varphi),I(\psi)) 
-&&I(\varphi \vee \varphi) = max(I(\varphi),I(\psi)) \\
-&I(\varphi \rightarrow \psi) = 
-\begin{cases}
-  2 & \text { if } I(\varphi) \leq I(\psi) \\
-  I(\psi) & \text { otherwise }
-\end{cases}.
-&&I(\neg \varphi) = \begin{cases}2 
-  & \text { if } I(\varphi)=0 \\ 
-  0 & \text { otherwise }\end{cases} 
-\end{align*}
-
-One way of conceptualizing the three values is to view the atoms in
-$H$, $T$ and $\A \setminus T$ as being proved to be true, assumed to
-be true and false, respectively \cite{agcadipescscvi20a}. Using
-3-valued interpretations instead of HT traces can be beneficial when
-one wishes to check satisfaction or (strong) equivalence of formulas,
-as these can be reduced to a simple calculation of truth values using
-the rules above.
-
-\begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht}
-For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
-\begin{description}
-  \item $\handt \models \varphi$ iff $I_{\handt}(\varphi) = 2$
-  \item $\tandt \models \varphi$ iff $I_{\tandt}(\varphi) \neq 0$
-  \item $\handt \models \varphi \leftrightarrow \psi$ iff $I_{\handt}(\varphi) = I_{\handt}(\psi)$
-\end{description}
-\end{proposition}
-
-As a consequence of Proposition \ref{prop:3-valued-ht}, we can
-equivalently define satisfaction of formula, using only the 3-valued
-interpretation, as $I \models \varphi$ iff $I(\varphi)=2$. Given the
-one-to-one correspondence, we will use HT interpretations $\handt$ and
-their corresponding 3-valued interpretations $I_{\handt}$
-interchangeably when this does not lead to confusion.
-
-We call an HT interpretation $\handt$ total if $H=T$. Following the
-previous analogy of the meaning of the values assigned by $I$, we can
-conceptualize total interpretations and interpretations in which all
-our of assumptions must be proven to be true; or more concretely. By
-imposing an additional minimality condition on total interpretations,
-we arrive at the concept of an equilibrium model, and of a stable
-model.
+We call an HT interpretation $\handt$ total if $H=T$. By imposing an
+additional minimality condition on total interpretations, we arrive at
+the concept of an equilibrium model, and of a stable model.
 
 \begin{definition}[Equilibrium Model/Stable model \cite{lipeva01a} \cite{pearce06a}]
   A total HT interpretation $\tandt$ is said to be an equilibrium
@@ -145,7 +94,7 @@ model.
 It is worth noting that this definition of a stable model above is
 equivalent to the original reduct-based characterization
 \cite{lipeva01a}, though we will not be making use of the reduct in
-our discussion. 
+this thesis. 
 
 We would now like to characterize the necessary and sufficient
 conditions when two theories have the same answer sets in any context.
@@ -153,7 +102,7 @@ conditions when two theories have the same answer sets in any context.
 \begin{definition}[Strong Equivalence \cite{lipeva01a}]
   Two theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent iff for
   any theory $\Gamma$, $\Gamma_1 \cup \Gamma$ and
-  $\Gamma_2 \cup \Gamma$ have the same answer sets.
+  $\Gamma_2 \cup \Gamma$ have the same stable models.
 \end{definition}
 
 Strong equivalence is a particularly significant property in a logic
@@ -180,3 +129,72 @@ to the one known in classical logic.
   from replacing said occurrence of $\varphi$ with $\psi$. If
   $\varphi \equivht \psi$, then $\gamma[\varphi] \equivht \gamma[\psi]$.
 \end{proposition}
+
+HT can also be defined as a 3-valued logic, known commonly as Gödel's
+3-valued logic \cite{capeva05a}. A 3-valued interpretation
+$I: \A \rightarrow \textbf{3}$ assigns to every atom $a\in \A$ a value
+from $\textbf{3}=\{ 0, 1, 2 \}$. We define a one-to-one correspondence
+between 3-valued interpretations and HT interpretations via the
+following mapping. Given an HT interpretation $\handt$, the
+corresponding 3 valued interpretation $I_{\handt}$ is defined as
+$I_{\handt}(a)=2$ iff $a \in H$, $I_{\handt}(a)=1$ iff
+$a \in T \setminus H$ and $I_{\handt}(a)=0$ iff $a \not\in T$. Given a
+3-valued interpretation $I$, the corresponding HT interpretation
+$\handt_{I}$ is produced by the inverse of the mapping above. In the
+following, we will occasionally use HT interpretations $\handt$ and
+their corresponding 3-valued interpretations $I_{\handt}$
+interchangeably when this does not lead to confusion.
+
+A 3-valued interpretation $I$ can be extended to $\mathcal{L}_\A$
+inductively using the following rules:
+\begin{definition}[Extension of 3-valued interpretation]\label{def:3-valued-extension}
+  \begin{align*}
+    &I(\bot) = 0
+    &&I(\top) = 2 \\
+    &I(\varphi \wedge \psi) = min(I(\varphi),I(\psi)) 
+    &&I(\varphi \vee \varphi) = max(I(\varphi),I(\psi)) \\
+    &I(\varphi \rightarrow \psi) = 
+      \begin{cases}
+        2 & \text { if } I(\varphi) \leq I(\psi) \\
+        I(\psi) & \text { otherwise }
+      \end{cases}
+    &&I(\neg \varphi) = \begin{cases}2 
+      & \text { if } I(\varphi)=0 \\ 
+      0 & \text { otherwise }\end{cases}
+  \end{align*}
+\end{definition}
+
+The values assigned to formulas by a 3-valued interpretation can also
+be characterized via HT models, as shown by the following proposition.
+
+\begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht}
+For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
+\begin{description}
+  \item $I_{\handt}(\varphi) = 2$ iff $\handt \models \varphi$ 
+  \item $I_{\handt}(\varphi) = 1$ iff $\tandt \models \varphi$ and $\handt \not\models \varphi$
+  \item $I_{\handt}(\varphi) = 0$ iff $\tandt \not\models \varphi$
+  \item  $I_{\handt}(\varphi) = I_{\handt}(\psi)$ iff $\handt \models \varphi \leftrightarrow \psi$
+\end{description}
+\end{proposition}
+
+As a consequence of Proposition \ref{prop:3-valued-ht}, we can
+equivalently define when a 3-valued interpretation satisfies a
+formula, as follows: $I \models \varphi$ iff $I(\varphi)=2$.
+
+As evident from the proposition, the HT formulation is more verbose,
+and thus more cumbersome to use when all 3 values assigned to formulas
+are relevant. 3-valued interpretations also allow us to check
+satisfaction or (strong) equivalence of formulas via a simple
+calculation of truth values according to the rules in Definition
+\ref{def:3-valued-extension}.
+
+On a more philosophical note, one way of conceptualizing the three
+values is to view the atoms in $H$ as being \textit{certainly true},
+$T \setminus H$ as being \textit{true by default} and $\A \setminus T$
+as being \textit{false} \cite{capeva17a}. Total interpretations can
+then be thought of as interpretations in which every atom that is true
+is true with certainty. An equilibrium model of a theory $\Gamma$ is in
+turn an interpretation according to which $\Gamma$ is certainly true,
+any true atoms must be true with certainty, and none of the truth
+values of any of these certainly true atoms may be weakened to be only
+true by default, while also keeping $\Gamma$ certainly true.
