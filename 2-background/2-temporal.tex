@@ -1,4 +1,4 @@
-\subsection{THT and TEL}
+\subsection{THT and TEL}\label{subsec:tht-tel}
 
 Linear time temporal logic (LTL) enhances propositional logic with a
 linear sequence of worlds and temporal modal operators which allows us
@@ -22,14 +22,15 @@ following grammar:
   \alwaysF \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2
 \end{align*}
 where $\otimes \in \{ \wedge, \vee, \to \}$ is a binary Boolean
-connective. We denote set of all temporal formulas as the language
-$\mathcal{L}_{\A}^{T}$, and a subset of $\mathcal{L}_{\A}^{T}$ as a
-temporal theory. We sometimes drop the temporal adjective from the
-definitions of this subsection when it is clear from context that we
-are talking about the temporal setting. The operators can be split
-into groups based on whether they act on past or future time points,
-and can be distinguished visually; past operators are filled, while
-future operators are outlined. The temporal operators are read as follows:
+connective. We denote set of all temporal formulas over $\A$ as the
+language $\mathcal{L}_{\A}^{T}$, and a subset of
+$\mathcal{L}_{\A}^{T}$ as a temporal theory. We sometimes drop the
+temporal adjective from the definitions of this subsection when it is
+clear from context that we are talking about the temporal setting. The
+operators can be split into groups based on whether they act on past
+or future time points, and can be distinguished visually; past
+operators are filled, while future operators are outlined. The
+temporal operators are read as follows:
 
 \[
   \begin{array}{l l|l l}

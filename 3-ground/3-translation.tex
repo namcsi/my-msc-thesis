@@ -59,10 +59,11 @@ the output logic program can then be obtained by an answer set solver,
 in our case, \verb|clasp|, which will correspond to the temporal
 stable models of the input temporal logic program.
 
-We start by introducing some notation. 
-Given a temporal formula $\gamma$, let $subf(\gamma)$ denote all
-subformulas occurring in $\gamma$. We extend $subf$ over temporal
-logic programs , defining it as the following:
+We start by introducing some notation.  Given a temporal formula
+$\gamma$, let $subf(\gamma)$ denote all subformulas occurring in
+$\gamma$. We consider $\gamma$ to be a subformula of $\gamma$ and so
+$\gamma \in subf(\gamma)$. We extend $subf$ over temporal logic
+programs, defining it as the following:
 \begin{align*}
 subf(\Gamma) \defeq &\{ subf(b_i) \mid \temprulelong \in \Gamma, \rangecc{i}{1}{n}, n,m \in \mathbb{N} \}\\
   \cup &\{ subf(h_j) \mid \temprulelong \in \Gamma,\rangecc{j}{1}{m}, n,m \in \mathbb{N} \}
@@ -178,7 +179,7 @@ such a connection.
   $\varphi \in \mathcal{L}_{\A}^{T}$.
 \end{definition}
 
-\begin{theorem}[Bijection of Models]\label{theorem:translation}
+\begin{theorem}[Bijection of Here-and-There Models]\label{theorem:translation}
 
   For any $I \in \text{HT}(\chi(\Gamma))$, $\mathcal{M}(I)$ is a
   3-valued temporal interpretation over $\A$. Additionally,

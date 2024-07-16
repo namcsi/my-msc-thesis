@@ -77,6 +77,20 @@ where \verb|<n>| is some natural number, and sets the trace length
 $\lambda$ for the translation. We begin the description of
 meta-telingo.lp encoding, which extends over Listing 1 and Listing 2.
 
+We begin with Listing 1. In the first line, we introduce a helper
+predicate \verb|time(K)|, which ranges over the time points of the trace we
+are solving for. 
+
+Lines 3-10 correspond to the formulas
+$\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+\rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in
+\Gamma \} \subset \tau(\Gamma)$. All of the rules are parameterized by
+time point, and as such the ground instantiations of these rules will
+form a conjunction over all time points, as in the corresponding set
+of formulas in $\tau(\Gamma)$. The predicate \verb|hold(L,K)|
+corresponds the atoms $L_{b_i}^k$ and $L_{h_j}$ (with a caveat
+discussed in the next paragraph).
+
 \begin{center}
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[language=clingo, label={lst:meta-telingo-one}]
@@ -168,6 +182,13 @@ subformula(F2) :- derive(F1,F2), subformula(F1).
 true(F2,K) :- derive(F1,F2), true(F1,K).
 true(F1,K) :- derive(F1,F2), true(F2,K).
 
+not_atom(F) 
+ :- subformula(F), 
+    F=(true;false;initial;final;neg(_);next(_);prev(_);wprev(_);
+    wnext(_);eventually(_);eventually_before(_);always(_);
+    always_before(_);and(_,_);or(_,_);until(_,_);since(_,_);
+    release(_,_);trigger(_,_);show(_)).
+
 #show.
 #show (F,K) : subformula(F), not not_atom(F), true(F,K), 
               not output(show,_).
@@ -179,27 +200,12 @@ true(F1,K) :- derive(F1,F2), true(F2,K).
 #defined literal_tuple/2.
 #defined rule/2.
 #defined atom_tuple/2.
-#defined weighted_literal_tuple/3.
 \end{lstlisting}
 \captionof{lstlisting}{meta-telingo.lp - part 2}
 \end{minipage}
 \end{center}
 
-We begin with Listing 1. In the first line, we introduce a helper
-predicate \verb|time(K)|, which ranges over the time points of the trace we
-are solving for. 
-
-Lines 3-10 correspond to the formulas
-$\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
-\rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in
-\Gamma \} \subset \tau(\Gamma)$. All of the rules are parameterized by
-time point, and as such the ground instantiations of these rules will
-form a conjunction over all time points, as in the corresponding set
-of formulas in $\tau(\Gamma)$. The predicate \verb|hold(L,K)|
-corresponds the atoms $L_{b_i}^k$ and $L_{h_j}$ (with a caveat
-discussed in the next paragraph).
-
-Lines 13-15 takes care of some technical legwork required for the
+Lines 13-15 takes care of some technicalities required for the
 implementation. The reification format of gringo represents literals
 in the input program as integers \verb|L| in predicates
 \verb|literal_tuple(B,L)|. This integer representation is then linked
@@ -241,10 +247,44 @@ that when \verb|derive(F1,F2)| holds, \verb|true(F1,K)| is equivalent
 to \verb|true(F2,K)|, completing the translation from $\Gamma$ to
 $\tau(\Gamma)$.
 
+The lines 20-25 of Listing 2 tag any subformulas that are not atoms
+via the predicate \verb|show/1|. This includes all of the symbols that
+denote a temporal operator, as well as \verb|true| and
+\verb|false|. We additionally mark symbols of the form \verb|show/1|
+as not being atoms; the reason for this will become apparent in the
+next paragraph.
 
+Lines 27-32 are responsible for setting the output handling of
+meta-telingo.lp, which is designed to mimic the output handling of
+regular clingo. First, on line 27 we tell clingo to hide all atoms in
+the output, and to show only terms that are explicitly marked to be
+shown via a show statement. This is necessary, as by default, we wish
+to only print the symbols corresponding to atoms. The statement on
+lines 28-29 set up the default output handling. The statement shows a
+term \verb|(F,K)| for all subformulas \verb|F| that are atomic
+formulas and hold at time point \verb|K|; this behaviour is disabled
+if the input program has a \verb|#show show.| statement, mimicking the
+behaviour of clingo. 
 
+Line 30 shows the term \verb|(S,K)|, if there is a show statement of
+the form \verb|#show show(S): Body|, where \verb|Body| holds at time
+point \verb|K|, again mimicking the behavior of show statements in
+clingo. Lines 32-33 take care of showing \verb|(S,K)| at all time
+points \verb|K|, if there is a show statement of the form
+\verb|#show show(S).|, where the show statement has no body. The
+reified representation of such statements can be distinguished from
+statements with a body by the fact that there is no fact of the form
+show \verb|atom_tuple(_,L)|, where \verb|L| is the integer
+representation of \verb|S|.
 
-\subsubsection{Grounding Challenges}
+Finally, lines 34-37 suppress info messages from clingo, when some
+predicate in the reified representation over which there are no facts
+produced by the reification of the input program. This can occur
+during normal operation of the system, and the info messages would not
+be particularly informative to the user, so we suppress them. This
+concludes the meta-encoding.
+
+\subsubsection{Issues Surrounding Grounding}
 
 One limitation of meta-telingo that must be mentioned is introduced by
 gringo during the initial grounding and reification of the input
@@ -258,12 +298,13 @@ determined during grounding to hold in all answer sets, and rules with
 a negative occurrence of the atom in their body are discarded \cite{gekakasc12a}.
 
 These simplifications preserve the stable models of the input program,
-and therefore do not cause any issues outside of reification. However,
-these simplifications may not be equivalent according to the semantic
-implemented by our meta-encoding, as gringo has no knowledge of these
-semantics when performing the aforementioned simplifications. Indeed,
-this is the case for meta-telingo as well; for example take the
-following temporal program:
+and therefore do not cause any issues, when reification and
+meta-interpretation is not involved. However, these simplifications
+may not be equivalent according to the semantics implemented by our
+meta-encoding, as gringo has no knowledge of these semantics when
+performing the aforementioned simplifications. Indeed, this is the
+case for meta-telingo as well; for example take the following temporal
+program:
 
 \begin{lstlisting}[language=clingo]
 a :- prev(b).
@@ -278,9 +319,9 @@ grounding all of the rules of the program would be discarded as
 \verb|initially| does not occur in any rule head, and so we would get
 an empty trace as the temporal answer set.
 
-Atoms can be guarded from simplification by using clingo's external
-statements \cite{PotasscoUserGuide19}, so adding the following
-additional statement should help.
+Atoms can be guarded from simplification during grounding by using
+clingo's external statements \cite{PotasscoUserGuide19}, so adding the
+following additional statement may solve our problem.
 
 \begin{lstlisting}[language=clingo,numbers=none]
 #external initially.
@@ -299,9 +340,47 @@ two more external statements finally gets us the expected result.
 #external c.
 \end{lstlisting}
 
-Having to reason through gringo's simplifications and manually add
-external statements is hardly a good user experience for our
-system. Fortunately, this issue is addressed and resolved in the
-following two section, where we tackle the extension of meta-telingo
-to temporal rules with free variables, and present a system for
-applying metaprogramming to non-ground ASP programs.
+Having to reason through gringo's grounding procedure and the
+simplifications performed, and manually adding external statements is
+hardly a good user experience for our system.  Things become even
+trickier if we allow our input program to contain variables. Take for
+example the following temporal rule.
+
+\begin{lstlisting}[language=clingo,numbers=none]
+a(X) :- prev(b(X)).
+\end{lstlisting}
+
+How do we protect the grounding of this rule from simplification? One
+approach would be to add an external statement.
+
+\begin{lstlisting}[language=clingo,numbers=none]
+#external prev(b(X)): b(X).
+\end{lstlisting}
+
+This would have effect of protecting any atoms of the form
+\verb|prev(b(X))| from being simplified for which we have a ground
+instantiation of \verb|b(X)| in the program. However, we need some
+additional formal tools to show the correctness of this approach, and
+to extend it to all temporal operators.
+
+As a final point, let us consider the following temporal program:
+
+\begin{lstlisting}[language=clingo,numbers=none]
+b(X) :-  initially, wprev(c(X)).
+\end{lstlisting}
+
+What would be semantics of this non-ground temporal program? For any
+substitution of a term \verb|t| in place of \verb|X|, the body of the
+rule would be satisfied at the initial time step, and therefore we
+would derive \verb|b(X)|. But this would result in the answer sets of
+the temporal program being dependant on the domain of terms over which
+it is ground, violating the property of \textit{domain independence}
+that is guaranteed in safe (regular) logic programs. This hints at the
+fact that the rule should be considered \textit{unsafe}.
+
+To be able to formally tackle the issues surrounding grounding of the
+input temporal program, will formally discuss the semantics of first
+order temporal logic programs with variables in the following
+section. We will then present a system for applying metaprogramming to
+non-ground ASP programs to resolve the issues surrounding grounding in
+the meta-telingo system.

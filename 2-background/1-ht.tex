@@ -10,7 +10,8 @@ be used to give a purely logical semantics for Answer Set Programming
 definitions of these logics, and in the following subsection extend
 them in the standard way into the temporal setting.
 
-A formula over a set of atoms $\A$ is defined by the grammar:
+We define a signature $\A$ as a set, the elements of which $a\inA$ we
+call atoms. A formula over a signature $\A$ is defined by the grammar:
 
 \begin{align*}
     \varphi ::= &\; a \mid \bot \mid
@@ -19,9 +20,13 @@ A formula over a set of atoms $\A$ is defined by the grammar:
                   \varphi_1 \to \varphi_1
 \end{align*}
 
-We refer to the set of all possible formulas built from the grammar above as the language $\mathcal{L}_\A$ over \A, and a subset of $\mathcal{L}_\A$ as a theory.
-We also define as shorthands $\neg \varphi \defeq \varphi \to \bot$, 
-$\top \defeq \bot \to \bot$ and $\varphi \leftrightarrow \psi \defeq (\varphi \rightarrow \psi) \wedge (\varphi \leftarrow \psi)$.
+We refer to the set of all possible formulas built from the grammar
+above over signature $\A$ as the language $\mathcal{L}_\A$, and a
+subset of $\mathcal{L}_\A$ as a theory.  We also define as shorthands
+$\neg \varphi \defeq \varphi \to \bot$, $\top \defeq \bot \to \bot$
+and
+$\varphi \leftrightarrow \psi \defeq (\varphi \rightarrow \psi) \wedge
+(\varphi \leftarrow \psi)$.
 
 A specific syntactic subset of formulas of a particular form are of
 greater interest to us due to their relevance to logic programming.
