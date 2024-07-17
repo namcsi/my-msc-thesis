@@ -1,0 +1,484 @@
+\documentclass[aspectratio=169,xcolor=svgnames]{beamer} 
+
+\input{preambles}
+
+\usepackage[normalem]{ulem}
+\usepackage{xcolor}
+\usepackage[export]{adjustbox}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\input{include/asp-macros/dtel}
+\input{include/asp-macros/logics}
+\input{include/asp-macros/systems}
+\input{include/asp-macros/ht}
+\input{include/asp-macros/automata}
+\input{include/asp-macros/listings}
+\input{local-macros}
+
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage[font=footnotesize]{caption}
+
+% For exported plots and tables
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\DeclareUnicodeCharacter{2212}{−}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+\usepackage{subcaption}
+\usepackage[T1]{fontenc}
+\usepackage[toc,page]{appendix}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[inline]{enumitem}
+\usepackage{tabularx}
+
+\lstdefinelanguage{clingo}{
+  keywordstyle=[1]\usefont{OT1}{cmtt}{m}{n},%
+  keywordstyle=[2]\textbf,%
+  keywordstyle=[3]\usefont{OT1}{cmtt}{m}{n},%\textit
+  alsoletter={\#,\&},%
+  keywords=[1]{not,from,import,def,if,else,return,while,break,and,or,for,in,del,and,class},%
+  keywords=[2]{\#const,\#show,\#minimize,\#base,\#theory,\#count,\#external,\#program,\#script,\#end,\#heuristic,\#edge,\#project,\#show},%
+  keywords=[3]{&,&dom,&sum,&diff,&show,&minimize},%
+  morecomment=[l]{\#\ },%
+  morecomment=[l]{\%\ },%
+  commentstyle={\color{darkgray}}%
+}
+
+\lstset
+{ %Formatting for code in appendix
+    literate={~}{{\fontfamily{ptm}\selectfont \textasciitilde}}1,
+    language=clingo,
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    stepnumber=1,
+    showstringspaces=false,
+    tabsize=1,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    xleftmargin=2em
+}
+
+% \lstset{
+%     basicstyle=\ttfamily,
+%     numbers=left,
+%     firstnumber=1,
+%     numberfirstline=true,
+%     breaklines=true,                    % sets automatic line breaking
+% %   breakatwhitespace=false,            % sets if automatic breaks should only happen at whitespace
+%     prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}}, % just as an example
+% }
+
+%%%%%%%%%%%%%%%%%%%%% Formats %%%%%%%%%%%%%%%%%%%%%%
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkblue}{HTML}{00305E}
+\definecolor{darkred}{rgb}{0.8,0,0}
+\newtheoremstyle{theoremstyle_space}
+{7pt} % Space above
+{7pt} % Space below
+{} % Body font
+{} % Indent amount
+{\bfseries} % Theorem head font
+{} % Punctuation after theorem head
+{\newline} % Space after theorem head: \newline = linebreak
+{\thmname{#1}\thmnumber{ #2} \thmnote{(\emph{#3})}}% Theorem head spec (can be left empty, meaning `normal')
+
+\theoremstyle{theoremstyle_space}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\newcounter{example}
+\NewCommandCopy{\proofqedsymbol}{\qedsymbol}% save the default
+\newcommand{\exampleqedsymbol}{$\triangle$}% for end of examples
+
+% ensure that proof has the standard symbol
+\AtBeginEnvironment{proof}{\renewcommand{\qedsymbol}{\proofqedsymbol}}
+\newtheorem{example}{Example}
+\AtBeginEnvironment{example}{%
+  \pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}%
+}
+\AtEndEnvironment{example}{\popQED\endexample}
+
+% PRESENTATION PURPOSE
+    % * Explaining the problem well
+    % * Showing clearly what your encoding does
+    % * Justifying your design decisions
+    % * Using tests and benchmarks to compare with the other groups
+
+% DOCUMENT INFORMATION
+\title[Temporal AST via Metaprogramming]{Implementing a Temporal Answer Set Solver using Metaprogramming Techniques}
+\subtitle{MSc. Thesis Defense/IM presentation}
+\author{Amadé Nemes}
+
+\institute[]{%
+    ~nemes@uni-potsdam.de \\
+    ~Cognitive Systems MSc. \\
+    ~Universität Potsdam, Institut für Informatik \\
+}
+\date{\today}
+
+\begin{document}
+
+% TITLE PAGE WITHOUT SIDEBAR
+\begingroup
+    \makeatletter
+    \setlength{\hoffset}{.5\beamer@sidebarwidth}
+    \makeatother
+    \begin{frame}[plain]
+        \maketitle
+    \end{frame}
+\endgroup
+
+% TABLE OF CONTENTS
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+%%% SECTION 1: INTRODUCTION
+\section{Introduction}
+
+
+\section[Temporal Here-and-There]{THT}
+
+%% FRAME: How does MDD-SAT work?
+\begin{frame}[t]{Grammar}
+A temporal formula over a set of atoms $\A$ is defined by the
+following grammar:
+
+\begin{align*}
+    \varphi ::=   \; a &\mid \bot \mid \varphi_1 \otimes \varphi_2 \mid\\
+  \initially &\mid \previous \varphi \mid \wprevious \varphi \mid \eventuallyP \varphi \mid
+  \alwaysP \varphi \mid \varphi_1 \since \varphi_2 \mid \varphi_1 \trigger \varphi_2 \mid\\
+  \finally &\mid \Next \varphi \mid \wnext \varphi \mid \eventuallyF \varphi \mid
+  \alwaysF \varphi \mid \varphi_1 \until \varphi_2 \mid \varphi_1 \release \varphi_2
+\end{align*}
+where $\otimes \in \{ \wedge, \vee, \to \}$
+\end{frame}
+
+\begin{frame}[t]{Pronunciation Guide}
+
+\[
+  \begin{array}{l l|l l}
+    \initially & \text{\emph{initial}} & \finally & \text{\emph{final}}\\
+    \previous & \text{\emph{previous}} & \Next & \text{\emph{next}}\\
+    \wprevious & \text{\emph{weak previous}} & \wnext & \text{\emph{weak next}}\\
+    \eventuallyP & \text{\emph{eventually before}} & \eventuallyF & \text{\emph{eventually after}}\\
+    \alwaysP & \text{\emph{always before}} & \alwaysF & \text{\emph{always after}}\\
+    \since & \text{\emph{since}} & \Next & \text{\emph{until}}\\
+    \trigger & \text{\emph{trigger}} & \release & \text{\emph{release}}
+\end{array}
+\]
+
+\end{frame}
+
+\begin{frame}[t]{HT Traces}
+
+\begin{definition}[Trace]
+  A trace $\bm{T}$ of length $\lambda$ over signature $\A$ a (possibly
+  infinite) sequence of sets of atoms.
+  $\bm{T} \in \A^{\intervco{0}{\lambda}}$.
+\end{definition}
+
+\begin{definition}[HT-Trace]
+  An HT trace $\thandt$ of length $\lambda$ is an ordered pair of
+  traces, where for each $\rangeco{i}{0}{\lambda}$
+  $H_i \subseteq T_i$. An $HT$ trace is total iff $\bm{H} = \bm{T}$
+\end{definition}
+
+Note: in what follows we will always assume that $\lambda$ is
+finite.
+
+\end{frame}
+
+\begin{frame}[t]{THT Satisfaction}
+
+\begin{definition}[THT Satisfaction]
+An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
+  satisfies a temporal formula $\varphi$ at time point
+  $\kinlambda$, written as $\thandt,k \models \varphi$ if
+  the following condition holds, where we use the shorthand
+  $\bf{M} =$ $\thandt$.
+\begin{enumerate}
+  \item $\bf{M}, k \not \models \bot$
+  % \item $\bf{M},k \models$ $a$ if $a \in H_{k}$ for any atom $a \in \mathcal{A}$
+  % \item $\bf{M},k \models \varphi \wedge \psi$ iff $\bf{M}, k \models \varphi$ and $\bf{M}, k \models \psi$
+  % \item $\bf{M},k \models \varphi \vee \psi$ iff $\bf{M}, k \models \varphi$ or $\bf{M}, k \models \psi$
+  % \item $\bf{M},k \models \varphi \rightarrow \psi$ iff 
+  %   $\langle \bm{H}^{\prime},\bm{T} \rangle, k \not \models \varphi$ 
+  %   or $\langle \bm{H}^{\prime},\bm{T} \rangle, k \models \psi$, 
+  %   for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
+  % \item $\bf{M},k \models \initially$ iff $k=0$
+  % \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
+  % \item $\bf{M},k \models \wprevious \varphi$ iff $k=0$ or $\bf{M},k-1 \models \varphi$
+  % \item $\bf{M},k \models \eventuallyP \varphi$ iff $j \models \varphi$ for some $\rangecc{j}{0}{k}$  
+  % \item $\bf{M},k \models \alwaysP \varphi$ iff $j \models \varphi$ for all $\rangecc{j}{0}{k}$  
+  % \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $\rangeoc{i}{j}{k}$
+  % \item $\bf{M},k \models \varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $\rangeoc{i}{j}{k}$
+  % \item $\bf{M},k \models \finally$ iff $k=\lambda - 1$
+  % \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
+  % \item $\bf{M},k \models \wnext \varphi$ iff $k=\lambda-1$ or $\bf{M},k+1 \models \varphi$
+  % \item $\bf{M},k \models \eventuallyF \varphi$ iff $j \models \varphi$ for all $\rangeco{j}{k}{\lambda}$  
+  % \item $\bf{M},k \models \alwaysF \varphi$ iff $j \models \varphi$ for some $\rangeco{j}{k}{\lambda}$  
+  % \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $\rangeco{i}{k}{j}$
+  % \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangeco{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
+  %   i=\varphi$ for some $\rangeco{i}{k}{j}$
+\end{enumerate}
+\end{definition}
+
+\end{frame}
+
+
+%%% SECTION 3: IMPLEMENTATION
+\section{Implementation}
+
+\begin{frame}[t,fragile]{Dummy Example} 
+
+\begin{lstlisting}[language=clingo,numbers=none]
+shoot(potato_gun) :- initial.
+next(shoot(potato_gun)) :- initial.
+and(eventually_after(fail(X)),forgetful(Y)) 
+  :- shoot(X), prev(since(not_load(Y,X),shoot(X))).
+\end{lstlisting}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile=singleslide]{Incremental Solving - Encoding Structure}
+\begin{itemize}
+    \item Incremental solving loop of MDD-SAT and SMT-CBS can be implemented via clingo's multi-shot solving capabilities.
+    \item Following the incremental solving approach laid out in \cite{kaminski2021build} all our encodings are partitioned into three distinct subprograms:
+    \begin{itemize}
+        \item \verb|#program base.| 
+        static knowledge independent of step parameter \verb|t| (e.g.: layout, agent's initial and goal vertices).
+        \item \verb|#program cumulative(t).| cumulative information which remains true for all further steps of \verb|t| (e.g.: positions of agents at time step \verb|t|).
+        \item \verb|#program check(t).| volatile information, which is only true for the current maximal time step \verb|t|, and is invalidated once \verb|t| is incremented to \verb|t+1|. (e.g.: costs of agent). Achieved by adding external atom \verb|query(t)| to the body of each rule in the subprogram, and controlling truth value via API.
+        \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{Incremental Solving - Solving Loop}
+\begin{itemize}
+    \item We have a base MAPF encoding partitioned into these 3 parts
+    \item Each of our solvers extends this base encoding by adding additional rules.
+    \item Solving occurs using IncSolver (and inheritors), which controls the solving loop.
+    \begin{itemize}
+        \item At first time step, grounds \verb|#program base| and     \verb|#program check(0)|, assigns \verb|query(0)| to true and          solves.
+        \item As subsequent steps time steps \verb|t|, grounds \verb|#program cumulative(t)| and \verb|#program check(t)|, sets external \verb|{query(t-1)| to           false and \verb|query(t)| to true and solves.
+        \item Halts and returns solution if solving returns SAT.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{Incremental Solving - Inheritance}
+\begin{itemize}
+    \item Solving behaviour can be customized/extended via inheritance from base class \verb|IncSolver|.
+\end{itemize}
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\tikzset{level distance=50pt}
+\Tree [.\node[draw]{IncSolver};
+    [.\node[draw]{MddSatSolver};
+    [.\node[draw]{SmtCbsExtSolver};]
+    [.\node[draw]{SmtCbsPropSolver};]]
+]
+\end{tikzpicture}
+\caption{\label{Inheritence Tree}
+Inheritence tree of our ASP-based MAPF solvers.
+}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}[fragile=singleslide]{Base MAPF encoding - base}
+\begin{verbatim}
+#program base.
+grid(X,Y) :- init(object(node,_), value(at,(X,Y))).
+move(-1,0). move(1,0). move(0,-1). move(0,1). move(0,0).
+robot(R) :- init(object(robot,R),value(at,(X,Y))).
+position(R,X,Y,0) :- init(object(robot,R),value(at,(X,Y))).
+goal(R,X,Y) :- init(object(destination,R),value(at,(X,Y))).
+ngoal(R,0) :- goal(R,X,Y), not position(R,X,Y,0).
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{Base MAPF encoding - cumulative}
+\begin{verbatim}
+#program cumulative(t).
+{ position(R,X+U,Y+V,t) : grid(X+U,Y+V), move(U,V) } = 1 :- 
+  position(R,X,Y,t-1).
+ngoal(R,t) :- goal(R,X,Y), not position(R,X,Y,t).
+\end{verbatim}
+\begin{itemize}
+    \item We do not encode conflict handling - this is added in for each solver individually as they differ.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{Base MAPF encoding - check}
+\begin{verbatim}
+#program check(t).
+#external query(t).
+:- ngoal(R,t), query(t).
+robot_cost(R,N,t) :- N = 
+  #max{ T : ngoal(R,T-1), not ngoal(R,T), 0 <= T, T <= t },  
+  robot(R), query(t).
+soc(M,t) :- M = #sum{ N,R : robot_cost(R,N,t) }, query(t).
+#minimize{ N : soc(N,t) }.
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{MddSatSolver}
+\begin{itemize}
+    \item Enhance base encoding by forbidding conflicts.
+\begin{verbatim}
+#program cumulative(t).
+:- position(R1,X,Y,t), position(R2,X,Y,t), R1 > R2.
+:- position(R1,X1,Y1,t), position(R2,X2,Y2,t), 
+   position(R1,X2,Y2,t-1), position(R2,X1,Y1,t-1), R1 > R2.
+\end{verbatim}
+    \item Add upper bound on SoC.
+\begin{verbatim}
+#program check(t).
+ub_soc(N,t) :- ub_soc(N-1,t-1).
+:- ub_soc(N,t), soc(M,t), M > N, query(t).
+\end{verbatim}
+    \item Initial upper bound is found in extended setup step to find individual shortest paths, adding initial fact \verb|ub(M_0,t_0).|.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Motivation}
+\begin{itemize}
+    \item Constraints forbidding conflicts complicate search space - possibly unnecessarily, if agents don't collide in practice.
+    \item By relaxing constraints, and adding them lazily we may find a solution faster.
+    \item Convincing results for SMT-CBS vs MDD-SAT in literature \cite{ijcai2019p164}.
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Implementation}
+\begin{itemize}
+    \item Idea: implement lazy conflict forbidding constraints by making constraints contingent on external atom.
+    \begin{verbatim}
+#external constraint(R1,R2,X,Y,t) : 
+  robot(R1), robot(R2), R1 < R2, grid(X,Y).
+:- position(R1,X,Y,t), position(R2,X,Y,t),
+  constraint(R1,R2,X,Y,t).
+
+#external constraint(R1,R2,X1,Y1,X2,Y2,t) : 
+  robot(R1), robot(R2), R1 < R2, grid(X1,Y1), grid(X2,Y2).
+:- position(R1,X1,Y1,t), position(R2,X2,Y2,t), 
+   position(R1,X2,Y2,t-1), position(R2,X1,Y1,t-1),
+   constraint(R1,R2,X1,Y1,X2,Y2,t).
+    \end{verbatim}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Implementation}
+\begin{itemize}
+    \item Also include SoC upper bound encoding.
+    \item Extend MddSatSolver's solving loop by adding check for conflicts after solving call for fixed time step.
+    \begin{itemize}
+        \item If no conflicts are found, valid solution found, break from outer solving loop.
+        \item If conflicts are found, corresponding external atoms are set to true, and we re-solve for the same time step.
+    \end{itemize}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{SmtCbsPropSolver - Motivation}
+\begin{itemize}
+    \item While using external atoms is very straightforward, performance leaves something to be desired.
+    \item Ground instantiation of constraints is rather large, and grounding still needs to be done for each possible constraint.
+    \item In preliminary experiments, this incurred a noticeable time penalty when grounding iteratively.
+    \item Could we add constraints directly to the program, without having to ground every possible one?
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile=singleslide]{SmtCbsPropSolver - Implementation}
+\begin{itemize}
+    \item clingo 5.0 introduced the Propagator interface to customize the solving process.
+    \item Registered Propagator can be used to perform lazy checking after  total assignment of solver literals is found.
+    \item This allows us to lazily check for conflicts, and add forbidding nogoods directly to the solver if conflict is found.
+    \item Thus, no rules encoding constraints are necessary, base encoding is extended only by SoC upper bound constraints.
+\end{itemize}
+\end{frame}
+
+
+%%% SECTION 4: EXPERIMENT RESULTS
+\section{Experiment Results}
+
+%% FRAME: What happens when we increase k?
+\begin{frame}[t]{How did each algorithm perform?}
+    \begin{table}
+    \centering
+    \caption{Average run time for each algorithm based on the number of agents.}
+        \begin{tabular}{cccc}
+        Agents & MDD-SAT & PROP   & EXT     \\
+        5      & 0.15    & 0.30   & 0.33    \\
+        6      & 0.26    & 0.65   & 0.65    \\
+        7      & 2.10    & 8.18   & 7.25    \\
+        8      & 57.62   & 118.07 & 294.78  \\
+        9      & 19.02   & 31.46  & 50.65   \\
+        10     & 151.69  & 601.17 & 710.05  
+        \end{tabular}
+    \label{Table_1}
+    \end{table}
+\end{frame}
+
+%% FRAME: How does this compare to the performance of CBS?
+\begin{frame}[t]{How does this compare to the class?}
+    \begin{itemize}
+        \item Our instances
+        \begin{itemize}
+            \item ours finds the optimal solution
+            \item occasionally, other groups find optimal solution but not always
+        \end{itemize} 
+        \item Other groups' instances
+        \begin{itemize}
+            \item ours finds optimal solution on half of instances
+            \item timeout threshold is reached on other half
+        \end{itemize}
+        \item Our average results
+        \begin{itemize}
+            \item 1.43 seconds for MDD-SAT
+            \item 3.26 secondes for PROP
+            \item 6.08 seconds for EXT
+        \end{itemize}
+        
+    \end{itemize}
+\end{frame}
+    
+\section{Conclusion}
+\begin{frame}[t]{Conclusions}
+    \begin{itemize}
+        \item ASP can be used to implement reduction-based solvers in a concise, performant manner.
+        \item For SMT-CBS, utilizing the propagator yields significant advantages over grounding external atoms.
+        \item This advantage grows as the environment becomes more complicated (more ground rules).
+        \item Even in simpler environments, the baseline approach remains the best
+    \end{itemize}
+\end{frame}
+
+
+% REFERENCES
+\begin{frame}[allowframebreaks]\frametitle{References}
+    \bibliographystyle{ieeetr}
+    \bibliography{references}
+\end{frame}
+
+\end{document}
