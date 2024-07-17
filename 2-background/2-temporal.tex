@@ -144,6 +144,37 @@ similarly as in the HT case.
   as $\text{TEL}(\Gamma,\lambda)$.
 \end{definition}
 
+\begin{example}\label{exam:shoot-ground-theory}
+  Let us consider as an example the following temporal theory, which
+  models the dynamics of shooting a single-shot potato cannon:
+\begin{equation*}
+\begin{gathered}
+\textit{shoot}\\
+\Next\textit{not\_load}\\
+\Next\Next\textit{shoot}\\
+\alwaysF(\textit{shoot} \wedge \previous(\textit{not\_load} \since \textit{shoot})
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful}
+\end{gathered}
+\end{equation*}
+\end{example}
+
+The first three formulas state that at time point 0 the potato cannon
+is shot, it is not loaded at time point 1, and it is shot again at
+time point 2. The final formula states that if at some time point a
+potato cannon is shot and it has been shot at some time point in the
+past, with the potato cannon not being loaded in any intervening time
+points, then it will eventually fail, and the person forgot to load it
+in the intervening time has proven to be forgetful.
+
+Setting $\lambda=4$, the temporal equilibrium models of this theory
+are
+\begin{align*}
+\bm{T_1}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
+\{\textit{shoot}\}, \{ \textit{fail} \}, \{ \})\\
+\bm{T_2}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
+\{\textit{shoot}\}, \{ \}, \{ \textit{fail} \})
+\end{align*}
+
 Strong equivalence of two formulas in THT, as in HT, allows us to
 replace one formula with another within a theory without affecting the
 temporal stable models of the theory as a whole.
@@ -248,7 +279,7 @@ The 3-valued THT interpretation satisfies similar properties as the
 \begin{description}
 \item $m_{\thandt}(k,\varphi) = 2$ iff $\thandt,k \models \varphi$
 \item $m_{\ttandt}(k,\varphi) = 1$ iff $\ttandt,k \models \varphi$ and $\thandt,k \not\models \varphi$
-  \item $m_{\ttandt}(k,\varphi) = 0$ iff $\ttandt,k \not\models \varphi$ and $\thandt,k \not\models \varphi$
+  \item $m_{\ttandt}(k,\varphi) = 0$ iff $\ttandt,k \not\models \varphi$
 \item $m_{\thandt}(k,\varphi) = m_{\thandt}(k,\psi)$ iff $\thandt,k \models \varphi \leftrightarrow \psi$
 \end{description}
 \end{proposition}
@@ -260,8 +291,8 @@ any derived operator $\gamma$ and $\kinlambda$,
 $m(k,\gamma)=m(k,der(\gamma))$ due to strong equivalence. We refer the
 reader to \cite{agcadipescscvi20a} for the concrete values.
 
-Finally, we distinguish the syntactic fragment of temporal theories
-which we will be studying in further detail in the rest of this thesis.
+Finally, we distinguish the syntactic fragment that we will restrict
+our discussion to in the rest of the paper.
 
 \begin{definition}[Temporal Rule, Temporal Program]
   We call a temporal formula $\varphi \in \mathcal{L}_{\A}^{T}$ a
@@ -279,3 +310,18 @@ which we will be studying in further detail in the rest of this thesis.
 
   We call a set of temporal rules a temporal logic program.
 \end{definition}
+
+\begin{example}\label{exam:shoot-ground-program}
+  We can represent the theory in Example
+  \ref{exam:shoot-ground-theory} equivalently as the following
+  temporal logic program:
+\begin{equation*}
+\begin{gathered}
+\alwaysF (\initially \rightarrow \textit{shoot})\\
+\alwaysF (\initially \rightarrow \Next\textit{not\_load})\\
+\alwaysF (\initially \rightarrow \Next\Next\textit{shoot})\\
+\alwaysF(\textit{shoot} \wedge \previous(\textit{not\_load} \since \textit{shoot})
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful})
+\end{gathered}
+\end{equation*}
+\end{example}

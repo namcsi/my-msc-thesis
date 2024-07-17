@@ -85,18 +85,30 @@
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
+
 \newcounter{example}
-\newenvironment{example}[1][]{\refstepcounter{example}\par\medskip
-\noindent \textcolor{black!45}{\textbf{Example~\theexample. #1}}
-\par\nopagebreak%
-\begin{mdframed}[
-   linewidth=3pt,
-   linecolor=black!17,
-   bottomline=false,topline=false,rightline=false,
-   innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt,
-   innerleftmargin=1em,% Distance between vertical rule & proof content
-   skipabove=.5\baselineskip
- ]\end{mdframed}}
+\NewCommandCopy{\proofqedsymbol}{\qedsymbol}% save the default
+\newcommand{\exampleqedsymbol}{$\triangle$}% for end of examples
+
+% ensure that proof has the standard symbol
+\AtBeginEnvironment{proof}{\renewcommand{\qedsymbol}{\proofqedsymbol}}
+\newtheorem{example}{Example}
+\AtBeginEnvironment{example}{%
+  \pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}%
+}
+\AtEndEnvironment{example}{\popQED\endexample}
+
+% \newenvironment{example}[1][]{\refstepcounter{example}\par\medskip
+% \noindent \textcolor{black!45}{\textbf{Example~\theexample. #1}}
+% \nopagebreak%
+% \begin{mdframed}[
+%    linewidth=3pt,
+%    linecolor=black!17,
+%    bottomline=false,topline=false,rightline=false,
+%    innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt,
+%    innerleftmargin=1em,% Distance between vertical rule & proof content
+%    skipabove=.5\baselineskip
+%  ]\end{mdframed}}
 
 \bibliography{include/bibliography/krr.bib}
 \bibliography{include/bibliography/procs.bib}

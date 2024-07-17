@@ -38,58 +38,19 @@ that is not an operator, i.e. in \verb|dog(next(spotty))|, the
 \verb|next/1| is not considered a temporal operator, as \verb|dog/1|
 is not an operator.
 
-Let us consider as an example the following temporal rule:
-\begin{equation*}
-\alwaysF(\textit{shoot} \wedge \textit{unloaded} \since \previous \textit{shoot} 
-\rightarrow \eventuallyF \textit{fail} \wedge \alwaysP \textit{forgetful})
-\end{equation*}
-which states that if at some time point a gun is shot that has
-remained unloaded since it's last shot, then the the gun will
-eventually fail, and we have determined the shooter to have been
-forgetful up until this point. This formula can be represented in the
-meta-telingo input language as the following rule:
+\begin{example}\label{exam:shoot-ground-symbolic}
+  The temporal program in Example \ref{exam:shoot-ground-program} is
+  represented symbolically in our input language as the following rules:
 \begin{center}
     \begin{lstlisting}[numbers=none]
-and(eventually_after(fail),since(forgetful,prev(shoot))) 
-  :- shoot, since(unloaded,prev(shoot)).
+shoot :- initial.
+next(not_load) :- initial.
+next(next(shoot)) :- initial
+and(eventually_after(fail),forgetful) 
+  :- shoot, prev(since(not_load,shoot)).
     \end{lstlisting}
 \end{center}
-
-This example illustrates a difference in the input language of
-meta-telingo versus it's namesake, the temporal ASP system
-telingo\cite{cakamosc19a} \cite{agcadipescscvi20a}. Unlike telingo,
-meta-telingo does not restrict the input language to
-\emph{past-future} rules \cite{agcadipescscvi20a} where the body of a
-rule must not contain future operators, and the head of a rule must
-not contain past operators.
-
-\subsubsection{Meta Encoding}
-
-Given an input temporal logic program (represented symbolically),
-referred to as tap.lp we can obtain it's temporal stable models by
-executing the command:
-
-\begin{lstlisting}[language=bash,numbers=none]
-clingo tap.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
-\end{lstlisting}
-
-where \verb|<n>| is some natural number, and sets the trace length
-$\lambda$ for the translation. We begin the description of
-meta-telingo.lp encoding, which extends over Listing 1 and Listing 2.
-
-We begin with Listing 1. In the first line, we introduce a helper
-predicate \verb|time(K)|, which ranges over the time points of the trace we
-are solving for. 
-
-Lines 3-10 correspond to the formulas
-$\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
-\rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in
-\Gamma \} \subset \tau(\Gamma)$. All of the rules are parameterized by
-time point, and as such the ground instantiations of these rules will
-form a conjunction over all time points, as in the corresponding set
-of formulas in $\tau(\Gamma)$. The predicate \verb|hold(L,K)|
-corresponds the atoms $L_{b_i}^k$ and $L_{h_j}$ (with a caveat
-discussed in the next paragraph).
+\end{example}
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -205,6 +166,34 @@ not_atom(F)
 \end{minipage}
 \end{center}
 
+\subsubsection{Meta Encoding}
+
+Given an input temporal logic program (represented symbolically),
+referred to as tap.lp we can obtain it's temporal stable models by
+executing the command:
+
+\begin{lstlisting}[language=bash,numbers=none]
+clingo tap.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
+\end{lstlisting}
+
+where \verb|<n>| is some natural number, and sets the trace length
+$\lambda$ for the translation. We begin the description of
+meta-telingo.lp encoding, which extends over Listing 1 and Listing 2.
+
+We begin with Listing 1. In the first line, we introduce a helper
+predicate \verb|time(K)|, which ranges over the time points of the trace we
+are solving for. 
+
+Lines 3-10 correspond to the formulas
+$\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+\rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in
+\Gamma \} \subset \tau(\Gamma)$. All of the rules are parameterized by
+time point, and as such the ground instantiations of these rules will
+form a conjunction over all time points, as in the corresponding set
+of formulas in $\tau(\Gamma)$. The predicate \verb|hold(L,K)|
+corresponds the atoms $L_{b_i}^k$ and $L_{h_j}$ (with a caveat
+discussed in the next paragraph).
+
 Lines 13-15 takes care of some technicalities required for the
 implementation. The reification format of gringo represents literals
 in the input program as integers \verb|L| in predicates
@@ -303,80 +292,62 @@ meta-interpretation is not involved. However, these simplifications
 may not be equivalent according to the semantics implemented by our
 meta-encoding, as gringo has no knowledge of these semantics when
 performing the aforementioned simplifications. Indeed, this is the
-case for meta-telingo as well; for example take the following temporal
-program:
-
-\begin{lstlisting}[language=clingo]
-a :- prev(b).
-b :- initially.
-next(c) :- initially.
-d :- c.
-\end{lstlisting}
-
-Setting $\lambda=2$ the expected temporal answer set for this program
-would be the trace $\bm{T}=(\{ b \},\{ a, c, d \})$. However, during
-grounding all of the rules of the program would be discarded as
-\verb|initially| does not occur in any rule head, and so we would get
-an empty trace as the temporal answer set.
+case for meta-telingo as well; the temporal program from Example
+\ref{exam:shoot-ground-symbolic}. Setting $\lambda=3$ the expected
+single temporal answer set for this program would be the trace
+$\bm{T}=(\{ shoot \}, \{ not\_load \}, \{ shoot, forgetful, fail \}
+\})$. However, during grounding all of the rules of the program would
+be discarded as \verb|initially| and
+\verb|since(unloaded,prev(shoot))| does not occur in any rule head,
+and so we would get the empty trace as the single temporal answer set.
 
 Atoms can be guarded from simplification during grounding by using
 clingo's external statements \cite{PotasscoUserGuide19}, so adding the
-following additional statement may solve our problem.
+following additional external statements statement resolve this issue
+in this specific case.
 
 \begin{lstlisting}[language=clingo,numbers=none]
-#external initially.
-\end{lstlisting}
-
-But, unfortunately, the temporal answer set is still just
-$\bm{T}=(\{ b \},\{ c \})$. This is due to the fact that gringo during
-grounding does not understand the semantic connections between
-\verb|next(c)| and \verb|c| or \verb|prev(b)| and \verb|b|, and
-therefore concludes the program has no way to derive \verb|prev(b)| or
-\verb|c|, and as a result discards the rules on lines 1 and 4. Adding
-two more external statements finally gets us the expected result.
-
-\begin{lstlisting}[language=clingo,numbers=none]
-#external prev(b).
-#external c.
+#external initial.
+#external prev(since(not_load,shoot)).
 \end{lstlisting}
 
 Having to reason through gringo's grounding procedure and the
 simplifications performed, and manually adding external statements is
-hardly a good user experience for our system.  Things become even
-trickier if we allow our input program to contain variables. Take for
-example the following temporal rule.
+hardly a good user experience for our system. Protecting rules from
+simplification becomes even trickier if we allow our input program to
+contain variables. Additionally, once variables are allowed, we must
+face some challenges in the semantics of programs. 
 
+\begin{example}\label{exam:shoot-nonground-unsafe}
+  Take the following logic program, a modification of Example
+  \ref{exam:shoot-ground-symbolic} that includes variables.
 \begin{lstlisting}[language=clingo,numbers=none]
-a(X) :- prev(b(X)).
+shoot(potato_gun) :- initial.
+next(shoot(potato_gun)) :- initial.
+and(eventually_after(fail(X)),forgetful(Y)) 
+  :- shoot(X), prev(since(not_load(Y,X),shoot(X))).
 \end{lstlisting}
+\end{example}
 
-How do we protect the grounding of this rule from simplification? One
-approach would be to add an external statement.
-
-\begin{lstlisting}[language=clingo,numbers=none]
-#external prev(b(X)): b(X).
-\end{lstlisting}
-
-This would have effect of protecting any atoms of the form
-\verb|prev(b(X))| from being simplified for which we have a ground
-instantiation of \verb|b(X)| in the program. However, we need some
-additional formal tools to show the correctness of this approach, and
-to extend it to all temporal operators.
-
-As a final point, let us consider the following temporal program:
-
-\begin{lstlisting}[language=clingo,numbers=none]
-b(X) :-  initially, wprev(c(X)).
-\end{lstlisting}
-
-What would be semantics of this non-ground temporal program? For any
-substitution of a term \verb|t| in place of \verb|X|, the body of the
-rule would be satisfied at the initial time step, and therefore we
-would derive \verb|b(X)|. But this would result in the answer sets of
-the temporal program being dependant on the domain of terms over which
-it is ground, violating the property of \textit{domain independence}
-that is guaranteed in safe (regular) logic programs. This hints at the
-fact that the rule should be considered \textit{unsafe}.
+Here, we give the predicates \verb|shoot| and \verb|fail| an arity of
+1, allowing the final rule to take effect over an arbitrarily large
+range of potato guns. The predicate \verb|not_load| now has an arity
+of 2, with the second argument giving the potato gun, and the first
+argument the person who would be responsible to load it after
+shooting. Since we have two consecutive shots of \verb|potato_gun|,
+the body of the final rule will always be satisfied. So for any
+substitution of a term \verb|t| from the domain of the program for the
+variable \verb|Y|, we will derive \verb|forgetful(t)|. In particular
+for \verb|t=potato_gun|, we see that we derive
+\verb|forgetful(potato_gun)|, which is clearly silly. Additionally, if
+we introduce a new fact \verb|happy(flower).|, just by virtue of
+adding a new term to the domain of the program, we will also derive
+\verb|forgetful(flower)|, even though the predicate \verb|happy| is
+completely disconnected from the rest of the program This shows that
+the final rule violates the important property of \textit{domain
+  independence} that is guaranteed in safe (regular) logic
+programs. This hints at the fact that the rule should be considered
+\textit{unsafe}.
 
 To be able to formally tackle the issues surrounding grounding of the
 input temporal program, will formally discuss the semantics of first

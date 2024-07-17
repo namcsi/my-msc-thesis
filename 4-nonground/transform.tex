@@ -28,30 +28,23 @@ operand(function(F),function(F'),Safety)
   :- operator(function(F)), function(F,Name,terms(T)), arg(Name,P,Safety),
 		 terms(T,P,function(F')).
 
-#show log("error", "{}: All arguments of operator '{}/{}' must be functions.", 
-          location(function(F),Begin,End), Name, Arity)
-  : operator(function(F)), function(F,Name,terms(T)), 
-    N=#count{ Operand: operand(function(F),Operand,_) },
-    N < Arity, func_arity(F,Arity), 
-    location(function(F),Begin,End).
-
 root_operator(Func)
   :- operator(Func), symbolic_atom(_,Func).
 
-operand_from_root(Root,Operand,Safety)
+root2desc_operand(Root,Operand,Safety)
   :- root_operator(Root), operand(Root,Operand,Safety).
-operand_from_root(Root,Operand',Safety)
-  :- operand_from_root(Root,Operand,Safety), 
+root2desc_operand(Root,Operand',Safety)
+  :- root2desc_operand(Root,Operand,Safety), 
      operand(Operand,Operand',safe).
-operand_from_root(Root,Operand',unsafe)
-  :- operand_from_root(Root,Operand,Safety), 
+root2desc_operand(Root,Operand',unsafe)
+  :- root2desc_operand(Root,Operand,Safety), 
      operand(Operand,Operand',unsafe).
-leaf_operand_from_root(Root,Operand,Safety)
-  :- operand_from_root(Root,Operand,Safety), 
+root2desc_leaf_operand(Root,Operand,Safety)
+  :- root2desc_operand(Root,Operand,Safety), 
      not operator(Operand).
 
 \end{lstlisting}
-\captionof{lstlisting}{meta-telingo.lp - part 3}
+\captionof{lstlisting}{generate-external.lp - part 1}
 \end{minipage}
 \end{center}
 
@@ -76,17 +69,17 @@ safe_atomic_subformula(Func,Func)
 safe_atomic_subformula(Func,Func')
   :- symbolic_atom(A,Func), root_operator(Func), 
      atom_sign(A,"pos"), 
-     leaf_operand_from_root(Func,Func',safe).
+     root2desc_leaf_operand(Func,Func',safe).
 
-desc_stm((statements(STM),Pos),Child) 
+stm2desc((statements(STM),Pos),Child) 
   :- statements(STM,Pos,Child).
-desc_stm(Statement,Child') 
-  :- desc_stm(Statement,Child), not root_operator(Child), 
+stm2desc(Statement,Child') 
+  :- stm2desc(Statement,Child), not root_operator(Child), 
      child(Child,Child').
 
-root_op2extern_cond(Func,Func'')
-  :- desc_stm(Statement,Func), root_operator(Func), 
-     desc_stm(Statement,body_literal(BL)), 
+root2extern_cond(Func,Func'')
+  :- stm2desc(Statement,Func), root_operator(Func), 
+     stm2desc(Statement,body_literal(BL)), 
      body_literal(BL,"pos",symbolic_atom(S)), 
      symbolic_atom(S,Func'), 
      safe_atomic_subformula(Func',Func'').
@@ -99,7 +92,7 @@ ast(add(statements(externals,pos(Func,Operand),
         external(Operand,symbolic_atom(Operand),
                  body_literals(Func),false);
         symbolic_atom(Operand,Operand)))
-  :- head_root_op(Func), leaf_operand_from_root(Func,Operand,_).
+  :- head_root_op(Func), root2desc_leaf_operand(Func,Operand,_).
 
 ast(add(statements(externals,pos(Func),external(Func));
         external(Func,symbolic_atom(Func),
@@ -116,9 +109,9 @@ has_var(Func) :- desc_root_op(Func,variable(V)).
 ast(add(body_literals(Func,pos(Func'),body_literal(Func'));
         body_literal(Func',"pos",symbolic_atom(Func'));
         symbolic_atom(Func',Func')))
-  :- root_operator(Func), root_op2extern_cond(Func,Func'), 
+  :- root_operator(Func), root2extern_cond(Func,Func'), 
 		 #false : not has_var(Func), body_root_op(Func).
 \end{lstlisting}
-\captionof{lstlisting}{meta-telingo.lp - part 3}
+\captionof{lstlisting}{generate-external.lp - part 2}
 \end{minipage}
 \end{center}

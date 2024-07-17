@@ -90,8 +90,9 @@ We define a first order variant of a temporal rule and temporal program.
 
 \begin{definition}[Universal Temporal Rule/Temporal Program] We call
   formulas of the form $\forall x_1, \dots, \forall x_n \varphi$,
-  where $\varphi$ is a temporal rule, a \emph{universal temporal rule}. We
-  call a set of such formulas a \emph{universal temporal program}.
+  where $\varphi$ is a temporal rule with no variables aside from
+  $x_1, \dots x_n$, a \emph{universal temporal rule}. We call a set of
+  such formulas a \emph{universal temporal program}.
 \end{definition}
 
 We should note that in the logic programming context, we usually
@@ -161,30 +162,35 @@ paper. First, we define this extended notion of safety:
   in an unsafe position in $\varphi$. Any subformula of $\varphi$ that
   is not in an unsafe position in $\varphi$ is said to be in a
   \textit{safe position} in $\varphi$. We denote the set of such
-  subformulas as $\safe{\varphi}$.
+  subformulas as $\safe{\varphi}$. We call an atomic subformula of
+  $\varphi$ safe iff it occurs in a safe position in $\varphi$.
 
-  We call a temporal rule $\varphi = \alwaysF(B \rightarrow H)$
-  \emph{safe}, iff each variable $x$ in $\varphi$ occurs in an atom
-  that is in a safe position in $B$. We call a universal temporal rule
+  We call a variable $x_i$ occurring in a temporal rule
+  $\varphi = \alwaysF(B \rightarrow H)$ safe, iff it has an occurrence
+  in a safe atomic subformula of $B$. We call a temporal rule safe iff
+  all of it's variables are safe . We call a universal temporal rule
   $\forallx \psi$ safe iff $\psi$ is safe. We call a program safe, if
   all of it's rules are safe.
 \end{definition}
-
-As an example, under this expanded definition of safety, the following
-rule would also be considered safe:
-
-\begin{center}
-    \begin{lstlisting}[numbers=none]
-should_not_shoot(X)  :- since(unloaded(X),prev(shoot(X))).
-    \end{lstlisting}
-\end{center}
-
-The rule is safe, as \verb|shoot(X)| is an atom which is in a safe
-position w.r.t. of the body of the rule, and can thus provide safety
-for the single implicitly universally quantified variable \verb|X|
-occurring in the rule. Note that \verb|unloaded(X)| is in an unsafe
-position of the body, and as such would not be able to provide safety
-for the variable \verb|X|.
+\begin{example}
+  Under this definition of safety, the following universal temporal
+  rule from Example \ref{exam:shoot-nonground-unsafe} would be
+  considered unsafe.
+\begin{equation*}
+  \forall x \forall y \alwaysF( \textit{shoot}(x) \land \previous(\textit{not\_load}(y,x) \since \textit{shoot}(x)) 
+  \rightarrow \eventuallyF \textit{fail}(x) \land \textit{forgetful}(y)) 
+\end{equation*}
+This is due to the fact that the occurrence of the atom
+$\textit{not\_load}(y,x)$ is in an unsafe position in the body of the
+rule, and as such, $y$ is unsafe. The safety of $x$ is established by
+the atom $\textit{shoot}(x)$ in the body, but could also be
+established by the occurrence of the atom as the right hand operand of
+$\since$. Therefore, if we modify the rule to the following, it will now be considered safe.
+\begin{equation*}
+  \forall x \forall y \alwaysF( \textit{shoot}(x) \land \textit{loader}(y) \land \previous(\textit{not\_load}(y,x) \since \textit{shoot}(x)) 
+  \rightarrow \eventuallyF \textit{fail}(x) \land \textit{forgetful}(y)) 
+\end{equation*}
+\end{example}
 
 We will now embark on the path towards proving the two desirable
 properties of the new safety definition. We first prove some
@@ -192,8 +198,8 @@ properties of implication-free temporal formulas.
 
 \begin{lemma}\label{lemma:safe-atomic-subformula-satisfied}
   Let $\varphi$ be an implication-free ground temporal formula. If
-  $\qthandt,j \models \varphi$, then for all atoms $p$ with
-  $p \in \safe{\varphi}$, there exists a $\kinlambda$, such that
+  $\qthandt,j \models \varphi$, then for all safe atomic subformulas
+  $p$ of $\varphi$, there exists a $\kinlambda$, such that
   $\qthandt,k \models p$.
 \end{lemma}
 \begin{proof}
@@ -413,7 +419,7 @@ in H. The transformation of $r$, denoted as $\delta(r)$ is defined as:
 \alwaysF(\bigwedge_{j=1}^{n}p_j \rightarrow h_i) \mid
 \rangecc{i}{1}{m})\}
 \end{equation*}
-and $\delta (\Gamma^{\prime}) \defeq \cup_{r \in Gamma}
+and $\delta (\Gamma^{\prime}) \defeq \cup_{r \in \Gamma}
 \delta(r)$. Then, the following result holds:
 
 \begin{proposition}\label{prop:simplified-facts}
@@ -465,9 +471,7 @@ and $\delta (\Gamma^{\prime}) \defeq \cup_{r \in Gamma}
 
 Proposition \ref{prop:simplified-facts} can be used to obtain a ground
 instantiation of $\Gamma$ given $\delta(\Gamma)$ in the following
-way. 
-
-First we obtain the unique temporal equilibrium model $\bm{J}$ of
+way. First we obtain the unique temporal equilibrium model $\bm{J}$ of
 $\delta(\Gamma)$, and collect all ground atoms occurring at any time
 point in the trace $\bm{J}$. Note that due to the simple structure of
 $\delta(\Gamma)$, the set of ground atoms are identical at any time
@@ -477,32 +481,63 @@ can be fully evaluated during grounding by gringo, one does not even
 require a temporal answer set solver for this step; one can simply
 pass the program $\delta^{\prime}(\Gamma)$ consisting of rules
 
-\begin{equation*} \delta^{\prime}(r) =\{ \forall x_1, \dots \forall x_n
+\begin{equation*} \delta^{\prime}(r) \defeq \{ \forall x_1, \dots \forall x_n
   \bigwedge_{j=1}^{n}p_j \rightarrow h_i) \mid \rangecc{i}{1}{m})\}
 \end{equation*}
 
 to gringo to obtain the set of ground atoms.
 
+\begin{example}\label{exam:shoot-nonground-safe}
+  Let the safe universal temporal program $\Gamma$ be the following:
+  \begin{lstlisting}[language=clingo,numbers=none]
+    loader(john).
+    shoot(potato_gun) :- initial.
+    next(shoot(potato_gun)) :- initial.
+    and(eventually_after(fail(X)),forgetful(Y)) 
+    :- shoot(X), loader(Y), prev(since(not_load(Y,X),shoot(X))).
+  \end{lstlisting}
+  For $\lambda=2$ this program (assuming a Herbrand structure) has the
+  unique first order stable temporal stable model 
+  \begin{align*}
+  \bm{T} = (&\{ loader(john), shoot(potato\_gun) \},\\
+            &\{ loader(john), shoot(potato\_gun), forgetful(john), fail(potato\_gun) \})
+  \end{align*}
+  The transformed set of (non-temporal) rules
+  $\delta^{\prime}(\Gamma)$ would then be:
+  \begin{lstlisting}[language=clingo,numbers=none]
+    loader(john).
+    shoot(potato_gun).
+    fail(X) :- shoot(X), loader(Y), shoot(X).
+    forgetful(Y) :- shoot(X), loader(Y), shoot(X).
+  \end{lstlisting}
+  Which has the unique stable model 
+  $$
+  T = \{ loader(john), shoot(potato\_gun), fail(potato\_gun), forgetful(john) \}
+  $$
+\end{example}
+
 Once this set of ground atoms have been obtained, they can then be
-utilized to ground the program by substituting for atomic formulas
-with variables, while taking care to perform a join operation when a
-variable occurs in multiple atomic formulas, like in e.g.:
-\verb|:- next(a(Y,X)), b(X,Z).|. This grounding will be correct, as due to
-Proposition \ref{prop:simplified-facts}, any atom that may occur in
+utilized to ground rules the program by applying variable
+substitutions for atomic formulas with variables in the rule, over the
+set of ground atoms of the same signature in found $\bm{J}$, while
+taking care to perform join operations when a variable occurs in
+multiple atomic formulas of a rule, like for example \verb|X| in
+\verb|:- next(a(Y,X)), b(X,Z).| This grounding will be correct, as due
+to Proposition \ref{prop:simplified-facts}, any atom that may occur in
 any temporal stable model of the original program will occur in
 $\bm{J}$.
 
 Instead of performing these substitutions and join operations
 ourselves, we can make gringo perform these tasks for us during the
-grounding of the input program, written in the input language of
-meta-telingo. We can achieve this by cleverly enhancing our original
-program $\Gamma$ with external statements similar to the form of those
-of $\delta^\prime(\Gamma)$, which will ensure that all the ground
-atoms of $J$ of the unique stable model of $\delta^\prime(\Gamma)$ are
-substituted into the program during grounding. We will not make a
-formal proof of the correctness of this method, as it involves the
-grounding algorithm of gringo which is out of scope for this thesis,
-but we will give an informal description of why the approach works.
+grounding of the input program. We can achieve this by cleverly
+enhancing our original program $\Gamma$ with external statements
+similar to the form of those of $\delta^\prime(\Gamma)$, which will
+ensure that all the ground atoms of $J$ of the unique stable model of
+$\delta^\prime(\Gamma)$ are substituted correctly into the program
+during grounding. We will not make a formal proof of the correctness
+of this method, as it involves the grounding algorithm of gringo which
+is out of scope for this thesis, but we will give an informal
+description of why the approach works.
 
 To roughly summarize how external statements work in gringo, any
 \verb|a| marked as external via a \verb|#external a.| statement will
@@ -522,10 +557,12 @@ and \\\verb|#external a(1)|.
 Now to describe the external generation. First, we will generate one
 external statement for each rule in $r' \in \delta^\prime(\Gamma)$,
 with the head and bodies of the external statement being the same as
-$r'$. These first set of external statements will, in effect cause the
-grounder to derive unique stable model $J$ of $\delta^\prime(\Gamma)$,
-but in the form of ground external statements, thus marking each atom
-in $J$ to not be simplified during grounding.
+$r'$ (unless $r'$ is a fact, in which case the external would have no
+effect). These first set of external statements will, in effect cause
+the grounder to derive unique stable model $J$ of
+$\delta^\prime(\Gamma)$, but in the form of ground external statements
+and facts, thus marking each atom in $J$ to not be simplified during
+grounding, and making these atoms accessible for grounding.
 
 Second, for each rule $r \in \Gamma$ we will generate one external
 statement for each non-atomic formula $\gamma$ in the body of $r$, the
@@ -534,12 +571,24 @@ conjunction of all safe atomic subformulas occurring in the body of
 $r$. This second set of rules will ensure that the protected atoms in
 $J$ are substituted in their correct place in atomic subformulas.
 
-As an example, take the following program:
+\begin{example}
+  As an example, take the temporal program in Example
+  \ref{exam:shoot-nonground-safe}. The externals generated for that program would be:
+  \begin{lstlisting}[numbers=none]
+    #external shoot(potato_gun).
+    #external fail(X) : shoot(X); loader(Y); shoot(X).
+    #external forgetful(Y) : shoot(X); loader(Y); shoot(X).
+
+    #external initial.
+    #external prev(since(not_load(Y,X),shoot(X))) : shoot(X); loader(Y); shoot(X).
+  \end{lstlisting}
+  The first set of rules correspond to the first type described above,
+  while the second corresponds to the second.
+\end{example}
 
 
-
-We carry out the generation of these external statements using a novel
-non-ground meta-programming system for AST which allows us to specify
-transformations over non-ground. This system is described, as well as
-the meta-encoding that performs this transformation, in the following
-subsection.
+We carry out the generation of these external statements automatically
+using a novel non-ground meta-programming system for AST which allows
+us to specify transformations over non-ground programs. This system is
+described, as well as the meta-encoding that performs this
+transformation, in the following subsection.
