@@ -4,9 +4,10 @@ To capture the semantics of grounding temporal rules, we need to raise
 our discussion from the propositional to the first order level. For HT
 the corresponding first order logics are the logic of Quantified
 Here-and-There, and Quantified Equilibrium Logic, both of which are
-well studied in the literature \cite{peaval06a} \cite{peaval08a}. The
-discussion of a first order variant of THT, however, is somewhat less
-exhaustive. Descriptions of the semantics of the telingo temporal
+well studied in the literature \cite{peaval06a} \cite{peaval08a}.
+
+The discussion of a first order variant of THT, however, is somewhat
+less exhaustive. Descriptions of the semantics of the telingo temporal
 answer set solver remain on the propositional level. A paper where the
 first order case is considered is \cite{agcapevidi17a}, where the
 authors define the logic of Quantified Temporal Here-and-There with
@@ -14,13 +15,14 @@ static domains for operators $\Next$, $\alwaysF$ and
 $\eventuallyF$. They consider a syntactic fragment of first order
 temporal formulas called \emph{splittable temporal formulas} over
 infinite traces, define a safety condition for such programs, and
-discuss a solver for such programs, STeLP. In this section, we will
-extend the definitions to all the temporal operators discussed in
-Section 2, and extend the discussion to temporal programs (as defined
-in this thesis), over which define a more permissive, but similarly
-powerful safety criterion. Finally, we provide a grounding procedure
-that results in a more compact ground instantiation than a naive
-grounding approach, which allows us to reify and solve the resulting
+discuss a solver for such programs, STeLP. 
+
+In this section, we will extend the definitions to all the temporal
+operators discussed in Section 2, and extend the discussion to
+temporal programs, over which we define a more permissive, but
+similarly powerful safety criterion. Finally, we provide a grounding
+procedure that results in a more compact ground instantiation than a
+naive grounding approach, allowing us to reify and solve the resulting
 propositional temporal program using our meta-telingo.lp encoding
 discussed in the previous section.
 

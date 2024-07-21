@@ -71,23 +71,23 @@ subf(\Gamma) \defeq &\{ subf(b_i) \mid \temprulelong \in \Gamma, \rangecc{i}{1}{
 We define the set of temporal formulas over $\A$ with a top-level
 derived operator as:
 $$
-\mathcal{D}_{\A}^{T} \defeq \{ \gamma \mid \varphi \in
-\mathcal{L}_{\A}^{T}, \psi \in \mathcal{L}_{\A}^{T}, 
+\langdat \defeq \{ \gamma \mid \varphi \in
+\langat, \psi \in \langat, 
 \gamma \in \{ \wnext\varphi, \wprevious\varphi, \eventuallyF\varphi,
               \eventuallyP\varphi, \alwaysF\varphi, \alwaysP\varphi, \varphi
               \release \psi, \varphi \trigger \psi \} \}
 $$
 We define a variant of $subf$, $subf^*$ as:
 $$
-subf^*(\Gamma) \defeq subf(\Gamma) \cup \{ der(\gamma) \mid \gamma \in subf(\Gamma) \cap \mathcal{D}_{\A}^{T} \}\\
+subf^*(\Gamma) \defeq subf(\Gamma) \cup \{ der(\gamma) \mid \gamma \in subf(\Gamma) \cap \langdat \}\\
 $$
 To sum up in words, the function $subf^*$ collects each subformula
 occurring in implication-free temporal formulas constituting the head
 and body of $\Gamma$, and additionally, the derivation of each
 subformula that has a top-level derived operator. Note that
-$subf^*(\Gamma) \subset \mathcal{F}_{\A}^{T}$.
+$subf^*(\Gamma) \subset \langfat$.
 
-Then, for a temporal theory $\Gamma$ over signature \A, we define a
+Then, for a temporal logic program $\Gamma$ over signature \A, we define a
 new signature $\A_{\Gamma,\lambda}$ as:
 $$
 \A_{\Gamma,\lambda} = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in subf^*(\Gamma) \}
@@ -173,10 +173,10 @@ such a connection.
   Furthermore, for any 3-valued interpretation $I$ over
   $\A_{\Gamma,\lambda}$ with $I \in \text{HT}(\chi(\Gamma))$, we
   define the mapping from $I$ to a 3-valued function
-  $m_I: \intervco{0}{\lambda} \times \mathcal{L}_{\A}^{T} \rightarrow
+  $m_I: \intervco{0}{\lambda} \times \langat \rightarrow
   \textbf{3}$ as $\mathcal{M}(I) = m_I$, where
   $m_I(k,\varphi) \defeq I(L_{\varphi}^k)$ for any $\kinlambda$ and
-  $\varphi \in \mathcal{L}_{\A}^{T}$.
+  $\varphi \in \langat$.
 \end{definition}
 
 \begin{theorem}[Bijection of Here-and-There Models]\label{theorem:translation}
@@ -280,7 +280,7 @@ such a connection.
     &= \max \{\min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
     &= I_m(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i))
   \end{align*}
-  if $\gamma \in \mathcal{D}_{\A}^{T}$
+  if $\gamma \in \langdat$
   $$
   I_m(L^k_{\gamma}) = m(k,\gamma) \stackrel{*}{=} m(k,der(\gamma)) = I_m(L^k_{der(\gamma)})
   $$
@@ -344,7 +344,7 @@ programs. Fortunately, for any $\gamma \in subf^*(\Gamma)$ we can
 apply a set of transformations on $df^k(\gamma)$ described in Figure
 \ref{fig:gamma-df-pi} to reduce the definition of $\gamma$ to a set of
 rules, denoted as $\pi^k(\gamma)$. Figure \ref{fig:gamma-df-pi} omits
-the value of $\pi^k(\gamma)$ when $\gamma \in \mathcal{D}_{\A}^{T}$,
+the value of $\pi^k(\gamma)$ when $\gamma \in \langdat$,
 in which case it is simply defined as
 $\pi^k(\gamma) \defeq \{ L^k_{\gamma} \rightarrow L^k_{der(\gamma)},
 L^k_{der(\gamma)} \rightarrow L^k_{\gamma} \}$. Note that the
@@ -368,10 +368,9 @@ most part, simply applying the strongly equivalent, vocabulary
 preserving transformations defined in \cite{capeva05a} to unfold
 $df^k(\gamma)$ into rules. However, we cannot say that
 $\chi(\Gamma) \equivht \tau(\Gamma)$, as they are not over the same
-signature due to the auxiliary atoms introduced. Nonetheless, it
-straightforward to show that the transformation from $\chi(\Gamma)$ to
-$\tau(\Gamma)$ is strongly faithful in the sense of \cite{capeva05a},
-so our approach remains valid.
+signature due to the auxiliary atoms introduced. Nonetheless, a
+similar bijection can be show between the stable models of
+$\chi(\Gamma)$ and $\tau(\Gamma)$, so our approach remains valid.
 
 \begin{figure}
 \begin{center}
@@ -495,5 +494,3 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
 \end{center}
 \caption{Table defining transformation $\pi^k(\gamma)$ for any temporal formula $\gamma$\label{fig:gamma-df-pi}, omitting derived operators.}
 \end{figure}
-
-\textbf{Insert example formula and it's translation here.}

@@ -20,6 +20,10 @@
 \input{include/asp-macros/listings}
 \input{local-macros}
 
+\bibliography{include/bibliography/krr.bib}
+\bibliography{include/bibliography/procs.bib}
+\bibliography{local-bib.bib}
+
 \usepackage[framemethod=tikz]{mdframed}
 \usepackage[font=footnotesize]{caption}
 
@@ -36,7 +40,6 @@
 \usepackage[T1]{fontenc}
 \usepackage[toc,page]{appendix}
 \usepackage{amsmath,amsthm,amssymb}
-\usepackage[inline]{enumitem}
 \usepackage{tabularx}
 
 \lstdefinelanguage{clingo}{
@@ -98,17 +101,17 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 
-\newcounter{example}
-\NewCommandCopy{\proofqedsymbol}{\qedsymbol}% save the default
-\newcommand{\exampleqedsymbol}{$\triangle$}% for end of examples
+% \newcounter{example}
+% \NewCommandCopy{\proofqedsymbol}{\qedsymbol}% save the default
+% \newcommand{\exampleqedsymbol}{$\triangle$}% for end of examples
 
-% ensure that proof has the standard symbol
-\AtBeginEnvironment{proof}{\renewcommand{\qedsymbol}{\proofqedsymbol}}
-\newtheorem{example}{Example}
-\AtBeginEnvironment{example}{%
-  \pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}%
-}
-\AtEndEnvironment{example}{\popQED\endexample}
+% % ensure that proof has the standard symbol
+% \AtBeginEnvironment{proof}{\renewcommand{\qedsymbol}{\proofqedsymbol}}
+% \newtheorem{example}{Example}
+% \AtBeginEnvironment{example}{%
+%   \pushQED{\qed}\renewcommand{\qedsymbol}{$\triangle$}%
+% }
+% \AtEndEnvironment{example}{\popQED\endexample}
 
 % PRESENTATION PURPOSE
     % * Explaining the problem well
@@ -149,6 +152,18 @@
 %%% SECTION 1: INTRODUCTION
 \section{Introduction}
 
+\begin{frame}[t]{Introduction}
+  \begin{itemize}
+  \item Temporal ASP is a valuable formalism for modeling dynamic
+    systems where negation as failure is needed.
+  \item Past work on implementing temporal answer set solvers include
+    the telingo system, which solves syntactically restricted set of
+    temporal programs incrementally.
+  \item In this thesis, we implement a temporal answer set solver using metaprogramming
+  \item This system accepts a broader class of temporal formulas than
+    telingo, but solves for a fixed amount of time steps
+  \end{itemize}
+\end{frame}
 
 \section[Temporal Here-and-There]{THT}
 
@@ -196,289 +211,664 @@ where $\otimes \in \{ \wedge, \vee, \to \}$
   traces, where for each $\rangeco{i}{0}{\lambda}$
   $H_i \subseteq T_i$. An $HT$ trace is total iff $\bm{H} = \bm{T}$
 \end{definition}
-
-Note: in what follows we will always assume that $\lambda$ is
-finite.
-
+Note: in what follows we will always assume that $\lambda$ is finite.
 \end{frame}
 
 \begin{frame}[t]{THT Satisfaction}
-
 \begin{definition}[THT Satisfaction]
 An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
   satisfies a temporal formula $\varphi$ at time point
   $\kinlambda$, written as $\thandt,k \models \varphi$ if
   the following condition holds, where we use the shorthand
   $\bf{M} =$ $\thandt$.
-\begin{enumerate}
+\end{definition}
+\begin{itemize}
   \item $\bf{M}, k \not \models \bot$
-  % \item $\bf{M},k \models$ $a$ if $a \in H_{k}$ for any atom $a \in \mathcal{A}$
-  % \item $\bf{M},k \models \varphi \wedge \psi$ iff $\bf{M}, k \models \varphi$ and $\bf{M}, k \models \psi$
-  % \item $\bf{M},k \models \varphi \vee \psi$ iff $\bf{M}, k \models \varphi$ or $\bf{M}, k \models \psi$
-  % \item $\bf{M},k \models \varphi \rightarrow \psi$ iff 
-  %   $\langle \bm{H}^{\prime},\bm{T} \rangle, k \not \models \varphi$ 
-  %   or $\langle \bm{H}^{\prime},\bm{T} \rangle, k \models \psi$, 
-  %   for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
-  % \item $\bf{M},k \models \initially$ iff $k=0$
-  % \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
-  % \item $\bf{M},k \models \wprevious \varphi$ iff $k=0$ or $\bf{M},k-1 \models \varphi$
-  % \item $\bf{M},k \models \eventuallyP \varphi$ iff $j \models \varphi$ for some $\rangecc{j}{0}{k}$  
-  % \item $\bf{M},k \models \alwaysP \varphi$ iff $j \models \varphi$ for all $\rangecc{j}{0}{k}$  
-  % \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $\rangeoc{i}{j}{k}$
-  % \item $\bf{M},k \models \varphi \trigger \psi$ iff for all $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ or $\bf{M}, i \models \varphi$ for some $\rangeoc{i}{j}{k}$
-  % \item $\bf{M},k \models \finally$ iff $k=\lambda - 1$
-  % \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
-  % \item $\bf{M},k \models \wnext \varphi$ iff $k=\lambda-1$ or $\bf{M},k+1 \models \varphi$
-  % \item $\bf{M},k \models \eventuallyF \varphi$ iff $j \models \varphi$ for all $\rangeco{j}{k}{\lambda}$  
-  % \item $\bf{M},k \models \alwaysF \varphi$ iff $j \models \varphi$ for some $\rangeco{j}{k}{\lambda}$  
-  % \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $\rangeco{i}{k}{j}$
-  % \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangeco{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
-  %   i=\varphi$ for some $\rangeco{i}{k}{j}$
-\end{enumerate}
+  \item $\bf{M},k \models$ $a$ if $a \in H_{k}$ for any atom $a \in \mathcal{A}$
+  \item $\bf{M},k \models \varphi \wedge \psi$ iff $\bf{M}, k \models \varphi$ and $\bf{M}, k \models \psi$
+  \item $\bf{M},k \models \varphi \vee \psi$ iff $\bf{M}, k \models \varphi$ or $\bf{M}, k \models \psi$
+  \item $\bf{M},k \models \varphi \rightarrow \psi$ iff 
+    $\langle \bm{H}^{\prime},\bm{T} \rangle, k \not \models \varphi$ 
+    or $\langle \bm{H}^{\prime},\bm{T} \rangle, k \models \psi$, 
+    for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[t]{THT Satisfaction}
+  \begin{itemize}
+  \item $\bf{M},k \models \initially$ iff $k=0$
+  \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
+  \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $\rangeoc{i}{j}{k}$
+  \item $\bf{M},k \models \finally$ iff $k=\lambda - 1$
+  \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
+  \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $\rangeco{i}{k}{j}$
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[t]{THT models and Temporal Equilibrium Models}
+
+  \begin{itemize}
+  \item We say that an HT-trace $\thandt$ is a THT model of a temporal
+    theory $\Gamma$ iff $\thandt,0 \models \varphi$ for all
+    $\varphi \in \Gamma$.
+  \item A formula $\varphi$ is a THT tautology, written as
+    $\models \varphi$, if $\handt,k \models \varphi$ for any HT-trace
+    $\thandt$ and $\kinlambda$
+  \item Two formulas $\varphi$ and $\psi$ are said to be THT
+    equivalent, denoted as $\varphi \equivtht \psi$, iff
+    $\models \varphi \leftrightarrow \psi$
+  \end{itemize}
+
+\begin{definition}[Temporal Equilibrium Model/Temporal Stable Model]
+  A total HT-trace $\ttandt$ is said to be a temporal equilibrium
+  model of a temporal theory $\Gamma$ iff $\ttandt \models \Gamma$,
+  and there is no HT-trace $\thandt$ such that
+  $\thandt \models \Gamma$ and $\bm{H} \subset \bm{T}$. A trace
+  $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$
+  iff $\ttandt$ is a temporal equilibrium model of $\Gamma$.
 \end{definition}
 
 \end{frame}
 
+\begin{frame}[t]{Example temporal theory}
+\begin{example}\label{exam:shoot-ground-theory}
+  Let us consider the following temporal theory, which models the
+  dynamics of shooting a single-shot potato cannon:
+\begin{equation*}
+\begin{gathered}
+\textit{shoot}\\
+\Next\textit{not\_load}\\
+\Next\Next\textit{shoot}\\
+\alwaysF(\textit{shoot} \wedge \previous(\textit{not\_load} \since \textit{shoot})
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful}
+\end{gathered}
+\end{equation*}
+
+Setting $\lambda=4$, the temporal equilibrium models of this theory
+are
+\begin{align*}
+\bm{T_1}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
+\{\textit{shoot}, \textit{forgetful}\}, \{ \textit{fail} \})\\
+\bm{T_2}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
+\{\textit{shoot}, \textit{forgetful}, \textit{fail}\}, \{ \})
+\end{align*}
+
+\end{example}
+\end{frame}
+
+\begin{frame}{Normal form}
+\begin{definition}[Temporal Rule, Temporal Program]
+  We call a temporal formula a temporal rule, iff it is of the form:
+  $$
+  \tempruleshort
+  $$
+  where $B=b_i \land \dots \land b_n$, $H=h_1 \lor \dots \lor h_m$,
+  and $b_i,h_j$ are temporal formulas that contain no implication.  
+
+  We call a set of temporal rules a temporal logic program.
+\end{definition}
+
+\begin{equation*}
+\begin{gathered}
+\alwaysF (\initially \rightarrow \textit{shoot})\\
+\alwaysF (\initially \rightarrow \Next\textit{not\_load})\\
+\alwaysF (\initially \rightarrow \Next\Next\textit{shoot})\\
+\alwaysF(\textit{shoot} \wedge \previous(\textit{not\_load} \since \textit{shoot})
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful})
+\end{gathered}
+\end{equation*}
+\end{frame}
+
+\begin{frame}{Strong Equivalence}
+
+\begin{definition}[Strong Equivalence]
+  Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly
+  equivalent iff for any temporal theory $\Gamma$,
+  $\Gamma_1 \cup \Gamma$ and $\Gamma_2 \cup \Gamma$ have the same
+  temporal stable models.
+\end{definition}
+
+\begin{proposition}[Strong Equivalence and THT Equivalence]
+  Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent
+  iff $\Gamma_1 \equivtht \Gamma_2$
+\end{proposition}
+
+\begin{proposition}[Replacement Property]
+  Let $\gamma[\varphi]$ denote a temporal formula with some occurrence of a
+  subformula $\varphi$ and let $\gamma[\psi]$ be the temporal formula resulting
+  from replacing said occurrence of $\varphi$ with $\psi$. If
+  $\varphi \equivtht \psi$, then $\gamma[\varphi] \equivtht \gamma[\psi]$.
+\end{proposition}
+
+\end{frame}
+
+\begin{frame}[t]{Derived Operators}
+  
+\begin{proposition}[Derived Operators]\label{prop:derived-op}
+\[
+\begin{array}{lll|lll}
+\wprevious \varphi & \equivtht & \previous \varphi \vee \initially &
+\wnext \varphi & \equivtht & \Next \varphi \vee \finally\\
+\eventuallyP \varphi & \equivtht & \top \since \varphi &
+\eventuallyF \varphi & \equivtht & \top \until \varphi\\
+\alwaysP \varphi & \equivtht & \bot \trigger \varphi &
+\alwaysF \varphi & \equivtht & \bot \release \varphi\\
+\varphi \trigger \psi &\equivtht & \psi \since (\psi \wedge (\varphi \vee \initially)) &
+\varphi \release \psi &\equivtht &\psi \until (\psi \wedge (\varphi \vee \finally))
+\end{array}
+\]
+\end{proposition}
+\end{frame}
+
+\begin{frame}[t]{Three-Valued Interpretations}
+
+\begin{definition}
+  For any HT trace $\thandt$, we define a corresponding 3-valued
+  interpretation $m_{\thandt}$ as 
+  \begin{itemize}
+  \item $m_{\thandt}(k,a)=2$ iff $a \in H_k$
+  \item $m_{\thandt}(k,a)=1$ iff $a \in T_k \setminus H_k$ 
+  \item $m_{\thandt}(k,a)=0$ iff $a \not\in T_k$
+\end{itemize}
+\end{definition}
+
+A 3-valued interpretation can be extended to arbitrary formulas as follows.
+
+\begin{align*}
+  m(k, \perp) &= 0 \\
+  m(k, \varphi \wedge \psi) &= \min (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \vee \psi) &= \max (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \rightarrow \psi) &= \operatorname{imp}(m(k, \varphi), m(k, \psi)) \\
+\end{align*}
+\end{frame}
+
+\begin{frame}{Three-Valued Interpretations}
+Let $\operatorname{imp}(x,y)=2$ if $x \leq y$, otherwise
+$\operatorname{imp}(x,y)=y$.
+\begin{align*}
+  m(k, \perp) &= 0 \\
+  m(k, \varphi \wedge \psi) &= \min (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \vee \psi) &= \max (m(k, \varphi), m(k, \psi)) \\
+  m(k, \varphi \rightarrow \psi) &= \operatorname{imp}(m(k, \varphi), m(k, \psi)) \\
+  m(k, \previous \varphi) &= \begin{cases}
+    0 & \text { if } k=0 \\
+    m(k-1, \varphi) & \text { if } k>0
+  \end{cases} \\
+ m(k, \varphi \since \psi) &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+ m(k, \Next \varphi) &= \begin{cases}0 & \text { if } k+1=\lambda(\neq \omega) \\
+m(k+1, \varphi) & \text { if } k+1<\lambda\end{cases} \\
+ m(k, \varphi \until \psi) &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid k \leq i<j\}) \mid k \leq j<\lambda\} \\
+\end{align*}
+\end{frame}
+
+\begin{frame}[t]{Three-Valued Interpretations}
+\begin{proposition}\label{prop:3-valued-temporal-properties}
+  For any 3-valued THT interpretation $m$, $\kinlambda$ and temporal
+  formulas $\varphi$, $\psi$:
+\begin{description}
+\item $m_{\thandt}(k,\varphi) = 2$ iff $\thandt,k \models \varphi$
+\item $m_{\thandt}(k,\varphi) = 1$ iff $\ttandt,k \models \varphi$ and $\thandt,k \not\models \varphi$
+  \item $m_{\thandt}(k,\varphi) = 0$ iff $\ttandt,k \not\models \varphi$
+\item $m_{\thandt}(k,\varphi) = m_{\thandt}(k,\psi)$ iff $\thandt,k \models \varphi \leftrightarrow \psi$
+\end{description}
+\end{proposition}
+
+\begin{itemize}
+\item As a consequence, we can equivalently define THT satisfaction as
+  $m \models \varphi$ iff $m(0,\varphi)=2$.
+\end{itemize}
+
+\end{frame}
 
 %%% SECTION 3: IMPLEMENTATION
-\section{Implementation}
+\section{Solving Temporal Logic Programs}
 
-\begin{frame}[t,fragile]{Dummy Example} 
+\begin{frame}{Approach}
+  \begin{itemize}
+  \item We will present the \textit{meta-telingo} system capable of
+    solving any temporal logic program given a finite $\lambda$.
+  \item The approach translates a temporal logic program into an equivalent
+    regular logic program which it then solves.
+  \item This approach is implemented via the \textit{meta-programming}
+    capabilities of gringo.
+  \item We first present the theory behind the translation, and then
+    the meta-programming implementation.
+  \end{itemize}
 
+\end{frame}
+
+\begin{frame}[t]{Translation - Theory}
+
+  \begin{itemize}
+  \item The logic program into which we will be translate our temporal
+    logic program $\Gamma$ will use the signature:
+  $$
+  \A_{\Gamma,\lambda} = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in subf(\Gamma) \}
+  $$
+\item Goal: $L_{\varphi}^k$ will hold in translated program iff
+  $\varphi$ holds in temporal program.
+\item To this end, for any $\kinlabda$ and temporal formula, let
+  $df^k(\gamma)$ denote the formula over $\A_{\Gamma,\lambda}$ given
+  by the following (we show only past operators for brevity):
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Translation - Theory}
+\begin{align*}
+df^k(\gamma) \defeq \begin{cases}
+  L^k_{\gamma} \leftrightarrow L_{\varphi}^k \otimes L_{\psi}^k 
+  &\text{ if } \gamma = \varphi \otimes \psi \text{ and } \otimes \in \{ \vee, \wedge\}\\[2ex]
+  L^k_{\gamma} \leftrightarrow \gamma
+  &\text{ if } \gamma \in \{ \bot, \top \}\\[2ex]
+  L^k_\gamma \leftrightarrow \begin{cases} 
+    \top &\text{ when } k = 0\\
+    \bot &\text{ when } k > 0
+  \end{cases}
+  &\text{ if } \gamma = \initially \\[2ex]
+  L^k_{\gamma} \leftrightarrow \begin{cases} 
+    L^{k-1}_{\varphi} &\text{ when } 0 < k\\
+    \bot &\text{ when } k = 0
+    \end{cases}
+  &\text{ if } \gamma = \previous \varphi \\[2ex]
+  L^k_{\gamma} \leftrightarrow \bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
+  &\text{ if } \gamma = \varphi \since \psi\\[2ex]
+  L^k_{\gamma} \leftrightarrow L^k_{der(\gamma)}
+  &\text{ if } \gamma \text{ is derived operator}
+\end{cases}
+\end{align*}
+\end{frame}
+
+\begin{frame}[t]{Translation - Theory}
+  \begin{itemize}
+  \item We can now define our translation from a temporal program
+    $\Gamma$ over $\A$ to the propositional theory $\chi(\Gamma)$ over
+    $\A_{\Gamma,\lambda}$ as follows:
+\begin{align*}
+  \chi(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
+                  & \cup \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda \}
+\end{align*}
+\item We would like to show some correspondence between the stable
+  models of the two theories.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Translation - Theory}
+  \begin{definition}[Mapping of Interpretations]
+  Given a temporal logic program $\Gamma$ over $\A$, we define the
+  following mappings.  
+
+  For any 3-valued temporal interpretation $m$
+  over $\A$ with $m \in \text{THT}(\Gamma,\lambda)$, we define the
+  mapping from $m$ to a 3 valued interpretation over
+  $\A_{\Gamma,\lambda}$ as $\mathcal{I}(m) = I_m$, where
+  $I_m(L^k_\varphi) \defeq m(k,\varphi))$ for any
+  $L^k_\varphi \in \A_{\Gamma,\lambda}$.
+
+  Furthermore, for any 3-valued interpretation $I$ over
+  $\A_{\Gamma,\lambda}$ with $I \in \text{HT}(\chi(\Gamma))$, we
+  define the mapping from $I$ to a 3-valued interpretation $m_I$ over
+  $\A$ as $\mathcal{M}(I) = m_I$, where
+  $m_I(k,\varphi) \defeq I(L_{\varphi}^k)$ for any $\kinlambda$ and
+  $\varphi \in \langat$.
+\end{definition}
+\begin{theorem}[Bijection of Here-and-There Models]\label{theorem:translation}
+  $\mathcal{I}$ is a bijection between $\text{THT}(\Gamma,\lambda)$
+  and $\text{HT}(\chi(\Gamma))$, and $\mathcal{M}$ is the inverse
+  function of $\mathcal{I}$.
+\end{theorem}
+\end{frame}
+
+\begin{frame}[t]{Translation - Theory}
+\begin{corollary}[Bijection of Equilibrium Models]\label{cor:bijection-of-sm}
+  $\mathcal{I}\vert_{\text{TEL}(\Gamma,\lambda)}$ is a bijection
+  between $\text{TEL}(\Gamma,\lambda)$ and $\text{EL}(\chi(\Gamma))$
+  and $\mathcal{M}\vert_{\text{EL}(\chi(\Gamma))}$ is the inverse
+  function of $\mathcal{I}\vert_{\text{TEL}(\Gamma,\lambda)}$.
+\end{corollary}
+\begin{itemize}
+\item Corollary \ref{cor:bijection-of-sm} thus establishes a method of
+  finding temporal stable models of a temporal logic program $\Gamma$
+  by translating it to the propositional theory $\chi(\Gamma)$, and
+  finding it's stable models. 
+\item Since we have $m_I(k,a)=I(L_a^k)$ we need simply to extract the
+  values of $I(L_a^k), a\in \A$ from a stable model of $\chi(\Gamma)$
+  to obtain the corresponding temporal stable model of $\Gamma$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Translation - meta-telingo}
+  \begin{itemize}
+  \item The ASP grounder gringo offers native support for
+    meta-programming by first grounding the input program, and then
+    serializing a representation of the ground program as a set of
+    facts.
+  \item This set of facts can then be fed as input to a meta-encoding,
+    which can reinterpret the semantics of the ground language constructs.
+  \item The implementation of our translation will be such a
+    meta-encoding, referred to as meta-telingo.lp.
+  \end{itemize}
+
+\begin{lstlisting}[language=bash,numbers=none]
+clingo temporal-program.lp --output=reify | 
+  clingo - meta-telingo.lp -c lambda=<n>
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[t,fragile]{Translation - meta-telingo Input Language}
+The temporal logic program
+\begin{equation*}
+\begin{gathered}
+\alwaysF (\initially \rightarrow \textit{shoot})\\
+\alwaysF (\initially \rightarrow \Next\textit{not\_load})\\
+\alwaysF (\initially \rightarrow \Next\Next\textit{shoot})\\
+\alwaysF(\textit{shoot} \wedge \previous(\textit{not\_load} \since \textit{shoot})
+\rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful})
+\end{gathered}
+\end{equation*}
+corresponds to the following program in the input language of
+meta-telingo (e.g. temporal-program.lp).
+\begin{center}
+    \begin{lstlisting}[numbers=none]
+shoot :- initial.
+next(not_load) :- initial.
+next(next(shoot)) :- initial.
+and(eventually_after(fail),forgetful) 
+  :- shoot, prev(since(not_load,shoot)).
+    \end{lstlisting}
+\end{center}
+\end{frame}
+
+\begin{frame}[t,fragile]{Translation - meta-telingo Implementation}
+    \begin{lstlisting}[]
+time(0..lambda-1).
+
+conjunction(B,K) :- literal_tuple(B), time(K),
+        hold(L,K) : literal_tuple(B, L), L > 0;
+    not hold(L,K) : literal_tuple(B,-L), L > 0.
+body(normal(B),K) :- rule(_,normal(B)), conjunction(B,K), 
+                     time(K).
+hold(A,K) : atom_tuple(H,A) :- rule(disjunction(H),B), 
+                               body(B,K), time(K).
+    \end{lstlisting}
+\begin{align*}
+  \chi(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
+                  & \cup \{ df^k(\gamma) \mid \gamma \in subf^*(\Gamma), \kinlambda \}
+\end{align*}
+\end{frame}
+
+\begin{frame}[t,fragile]{Translation - meta-telingo Implementation}
+      \begin{lstlisting}[]
+true(O,K) :- hold(L,K), output(O,B), literal_tuple(B,L).
+hold(L,K) :- true(O,K), output(O,B), literal_tuple(B,L).
+true(O,K) :- time(K), output(O,B), not literal_tuple(B,_).
+
+subformula(O) :- output(O,_).
+subformula((F;G)) :- subformula((and(F,G);or(F,G);until(F,G);since(F,G))).
+subformula(F)	 :- subformula((neg(F);next(F);prev(F))).
+    \end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[t,fragile]{Translation - meta-telingo Implementation}
+    \begin{lstlisting}[]
+true(and(F,G),K) :- subformula(and(F,G)), true(F,K), true(G,K).
+true((F;G),K) :- subformula(and(F,G)), true(and(F,G),K).
+
+true(F,K-1): time(K-1) :- subformula(prev(F)), true(prev(F),K).
+true(prev(F),K) :- true(F,K-1), subformula(prev(F)), time(K).
+    \end{lstlisting}
+\begin{align*}
+  L^k_{\varphi \lor \psi} &\leftrightarrow L_{\varphi}^k \lor L_{\psi}^k\\
+  L^k_{\previous \varphi} &\leftrightarrow \begin{cases} 
+    L^{k-1}_{\varphi} &\text{ when } 0 < k\\
+    \bot &\text{ when } k = 0
+    \end{cases}
+\end{align*}
+\end{frame}
+
+\begin{frame}[t,fragile]{Translation - meta-telingo Implementation}
+    \begin{lstlisting}[]
+subformula(F2) :- derive(F1,F2), subformula(F1).
+true(F2,K) :- derive(F1,F2), true(F1,K).
+true(F1,K) :- derive(F1,F2), true(F2,K).
+
+derive(wprev(F),or(prev(F),initial)) :- subformula(wprev(F)).
+derive(eventually_before(F),since(true,F)) 
+  :- subformula(eventually_before(F)).
+derive(always_before(F),trigger(false,F)) 
+  :- subformula(always_before(F)).
+derive(trigger(L,R),since(R,and(R,or(L,initial)))) 
+  :- subformula(trigger(L,R)).
+    \end{lstlisting}
+\begin{align*}
+L^k_{\gamma} \leftrightarrow L^k_{der(\gamma)} \text{ if } \gamma \text{ is a derived operator.}
+\end{align*}
+\end{frame}
+
+\begin{frame}[t,fragile]{meta-telingo - Issues with Grounding}
+For the input program
+\begin{lstlisting}[language=clingo,numbers=none]
+shoot :- initial.
+next(not_load) :- initial.
+next(next(shoot)) :- initial.
+and(eventually_after(fail),forgetful)
+  :- shoot, prev(since(not_load,shoot)).
+\end{lstlisting}
+We need additional external statements:
+\begin{lstlisting}[language=clingo,numbers=none]
+#external initial.
+#external prev(since(not_load,shoot)).
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,fragile]{meta-telingo - Issues with Grounding}
+  \begin{itemize}
+  \item Things become even trickier when we allow the input program to contain variables:
+  \end{itemize}
 \begin{lstlisting}[language=clingo,numbers=none]
 shoot(potato_gun) :- initial.
 next(shoot(potato_gun)) :- initial.
 and(eventually_after(fail(X)),forgetful(Y)) 
   :- shoot(X), prev(since(not_load(Y,X),shoot(X))).
 \end{lstlisting}
-
-\end{frame}
-
-
-
-\begin{frame}[fragile=singleslide]{Incremental Solving - Encoding Structure}
 \begin{itemize}
-    \item Incremental solving loop of MDD-SAT and SMT-CBS can be implemented via clingo's multi-shot solving capabilities.
-    \item Following the incremental solving approach laid out in \cite{kaminski2021build} all our encodings are partitioned into three distinct subprograms:
-    \begin{itemize}
-        \item \verb|#program base.| 
-        static knowledge independent of step parameter \verb|t| (e.g.: layout, agent's initial and goal vertices).
-        \item \verb|#program cumulative(t).| cumulative information which remains true for all further steps of \verb|t| (e.g.: positions of agents at time step \verb|t|).
-        \item \verb|#program check(t).| volatile information, which is only true for the current maximal time step \verb|t|, and is invalidated once \verb|t| is incremented to \verb|t+1|. (e.g.: costs of agent). Achieved by adding external atom \verb|query(t)| to the body of each rule in the subprogram, and controlling truth value via API.
-        \end{itemize}
+\item Ignoring for now the issues with externals, let's think about
+  the semantics of this program.
+\item Any substitutions of \verb|Y| satisfies the final rule, so we
+  derive \verb|forgetful(potato_gun)|.
+\item The final rule should be considered unsafe.
 \end{itemize}
 \end{frame}
-
-\begin{frame}[fragile=singleslide]{Incremental Solving - Solving Loop}
-\begin{itemize}
-    \item We have a base MAPF encoding partitioned into these 3 parts
-    \item Each of our solvers extends this base encoding by adding additional rules.
-    \item Solving occurs using IncSolver (and inheritors), which controls the solving loop.
-    \begin{itemize}
-        \item At first time step, grounds \verb|#program base| and     \verb|#program check(0)|, assigns \verb|query(0)| to true and          solves.
-        \item As subsequent steps time steps \verb|t|, grounds \verb|#program cumulative(t)| and \verb|#program check(t)|, sets external \verb|{query(t-1)| to           false and \verb|query(t)| to true and solves.
-        \item Halts and returns solution if solving returns SAT.
-    \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{Incremental Solving - Inheritance}
-\begin{itemize}
-    \item Solving behaviour can be customized/extended via inheritance from base class \verb|IncSolver|.
-\end{itemize}
-\begin{figure}
-\centering
-\begin{tikzpicture}
-\tikzset{level distance=50pt}
-\Tree [.\node[draw]{IncSolver};
-    [.\node[draw]{MddSatSolver};
-    [.\node[draw]{SmtCbsExtSolver};]
-    [.\node[draw]{SmtCbsPropSolver};]]
-]
-\end{tikzpicture}
-\caption{\label{Inheritence Tree}
-Inheritence tree of our ASP-based MAPF solvers.
-}
-\end{figure}
-\end{frame}
-
-
-
-\begin{frame}[fragile=singleslide]{Base MAPF encoding - base}
-\begin{verbatim}
-#program base.
-grid(X,Y) :- init(object(node,_), value(at,(X,Y))).
-move(-1,0). move(1,0). move(0,-1). move(0,1). move(0,0).
-robot(R) :- init(object(robot,R),value(at,(X,Y))).
-position(R,X,Y,0) :- init(object(robot,R),value(at,(X,Y))).
-goal(R,X,Y) :- init(object(destination,R),value(at,(X,Y))).
-ngoal(R,0) :- goal(R,X,Y), not position(R,X,Y,0).
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{Base MAPF encoding - cumulative}
-\begin{verbatim}
-#program cumulative(t).
-{ position(R,X+U,Y+V,t) : grid(X+U,Y+V), move(U,V) } = 1 :- 
-  position(R,X,Y,t-1).
-ngoal(R,t) :- goal(R,X,Y), not position(R,X,Y,t).
-\end{verbatim}
-\begin{itemize}
-    \item We do not encode conflict handling - this is added in for each solver individually as they differ.
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{Base MAPF encoding - check}
-\begin{verbatim}
-#program check(t).
-#external query(t).
-:- ngoal(R,t), query(t).
-robot_cost(R,N,t) :- N = 
-  #max{ T : ngoal(R,T-1), not ngoal(R,T), 0 <= T, T <= t },  
-  robot(R), query(t).
-soc(M,t) :- M = #sum{ N,R : robot_cost(R,N,t) }, query(t).
-#minimize{ N : soc(N,t) }.
-\end{verbatim}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{MddSatSolver}
-\begin{itemize}
-    \item Enhance base encoding by forbidding conflicts.
-\begin{verbatim}
-#program cumulative(t).
-:- position(R1,X,Y,t), position(R2,X,Y,t), R1 > R2.
-:- position(R1,X1,Y1,t), position(R2,X2,Y2,t), 
-   position(R1,X2,Y2,t-1), position(R2,X1,Y1,t-1), R1 > R2.
-\end{verbatim}
-    \item Add upper bound on SoC.
-\begin{verbatim}
-#program check(t).
-ub_soc(N,t) :- ub_soc(N-1,t-1).
-:- ub_soc(N,t), soc(M,t), M > N, query(t).
-\end{verbatim}
-    \item Initial upper bound is found in extended setup step to find individual shortest paths, adding initial fact \verb|ub(M_0,t_0).|.
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Motivation}
-\begin{itemize}
-    \item Constraints forbidding conflicts complicate search space - possibly unnecessarily, if agents don't collide in practice.
-    \item By relaxing constraints, and adding them lazily we may find a solution faster.
-    \item Convincing results for SMT-CBS vs MDD-SAT in literature \cite{ijcai2019p164}.
-
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Implementation}
-\begin{itemize}
-    \item Idea: implement lazy conflict forbidding constraints by making constraints contingent on external atom.
-    \begin{verbatim}
-#external constraint(R1,R2,X,Y,t) : 
-  robot(R1), robot(R2), R1 < R2, grid(X,Y).
-:- position(R1,X,Y,t), position(R2,X,Y,t),
-  constraint(R1,R2,X,Y,t).
-
-#external constraint(R1,R2,X1,Y1,X2,Y2,t) : 
-  robot(R1), robot(R2), R1 < R2, grid(X1,Y1), grid(X2,Y2).
-:- position(R1,X1,Y1,t), position(R2,X2,Y2,t), 
-   position(R1,X2,Y2,t-1), position(R2,X1,Y1,t-1),
-   constraint(R1,R2,X1,Y1,X2,Y2,t).
-    \end{verbatim}
-
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{SmtCbsExtSolver - Implementation}
-\begin{itemize}
-    \item Also include SoC upper bound encoding.
-    \item Extend MddSatSolver's solving loop by adding check for conflicts after solving call for fixed time step.
-    \begin{itemize}
-        \item If no conflicts are found, valid solution found, break from outer solving loop.
-        \item If conflicts are found, corresponding external atoms are set to true, and we re-solve for the same time step.
-    \end{itemize}
-
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{SmtCbsPropSolver - Motivation}
-\begin{itemize}
-    \item While using external atoms is very straightforward, performance leaves something to be desired.
-    \item Ground instantiation of constraints is rather large, and grounding still needs to be done for each possible constraint.
-    \item In preliminary experiments, this incurred a noticeable time penalty when grounding iteratively.
-    \item Could we add constraints directly to the program, without having to ground every possible one?
-
-\end{itemize}
-\end{frame}
-
-\begin{frame}[fragile=singleslide]{SmtCbsPropSolver - Implementation}
-\begin{itemize}
-    \item clingo 5.0 introduced the Propagator interface to customize the solving process.
-    \item Registered Propagator can be used to perform lazy checking after  total assignment of solver literals is found.
-    \item This allows us to lazily check for conflicts, and add forbidding nogoods directly to the solver if conflict is found.
-    \item Thus, no rules encoding constraints are necessary, base encoding is extended only by SoC upper bound constraints.
-\end{itemize}
-\end{frame}
-
 
 %%% SECTION 4: EXPERIMENT RESULTS
-\section{Experiment Results}
+\section{Grounding Temporal Logic Programs}
 
-%% FRAME: What happens when we increase k?
-\begin{frame}[t]{How did each algorithm perform?}
-    \begin{table}
-    \centering
-    \caption{Average run time for each algorithm based on the number of agents.}
-        \begin{tabular}{cccc}
-        Agents & MDD-SAT & PROP   & EXT     \\
-        5      & 0.15    & 0.30   & 0.33    \\
-        6      & 0.26    & 0.65   & 0.65    \\
-        7      & 2.10    & 8.18   & 7.25    \\
-        8      & 57.62   & 118.07 & 294.78  \\
-        9      & 19.02   & 31.46  & 50.65   \\
-        10     & 151.69  & 601.17 & 710.05  
-        \end{tabular}
-    \label{Table_1}
-    \end{table}
+\begin{frame}[t]{Safety}
+\begin{definition}[Safety]
+  Given an implication-free temporal formula $\varphi$, we say a
+  subformula $\gamma \in subf(\varphi)$ is in an unsafe position in
+  $\varphi$, if it occurs on the left hand side of a
+  $\since/\until/\trigger/\release$ operator, on either side of an
+  $\lor$, or as the operand of a $\wprevious/\wnext/\lnot$. Any
+  subformula of such a $\gamma$ is also in an unsafe position.\\
+
+  Any subformula of $\varphi$ that is not in an unsafe position is
+  said to be in a \textit{safe position}.
+  
+  We call an atomic subformula of $\varphi$ safe iff it occurs in a
+  safe position in $\varphi$.
+
+  We call a variable $x_i$ occurring in a temporal rule
+  $\varphi = \alwaysF(B \rightarrow H)$ safe, iff it has an occurrence
+  in a safe atomic subformula of $B$. 
+
+  \\We call a temporal rule safe iff all of it's variables are safe
+  . We call a universal temporal rule $\forallx \psi$ safe iff $\psi$
+  is safe. We call a program safe, if all of it's rules are safe.
+\end{definition}
 \end{frame}
 
-%% FRAME: How does this compare to the performance of CBS?
-\begin{frame}[t]{How does this compare to the class?}
+\begin{frame}[t,fragile]{Safety}
+\begin{theorem}[Domain Independence]
+  Let $\varphi$ be a safe universal temporal rule. Suppose
+  $C \subseteq C'$. A total QTHT model $\qttandt$ is a temporal
+  equilibrium model of $\ground{C}{\varphi}$ iff it is a temporal
+  equilibrium model of $\ground{C'}{\varphi}$.
+\end{theorem}
+\begin{itemize}
+\item Under this definition, the previous program with variables is
+  unsafe. The following in a modification which is safe.
+\end{itemize}
+  \begin{lstlisting}[language=clingo,numbers=none]
+loader(john).
+shoot(potato_gun) :- initial.
+next(shoot(potato_gun)) :- initial.
+and(eventually_after(fail(X)),forgetful(Y)) 
+  :- shoot(X), loader(Y), prev(since(not_load(Y,X),shoot(X))).
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[t]{Grounding}
+  \begin{itemize}
+  \item As seen before, grounding of the input program is not
+    straightforward due to the simplifications made by gringo.
+  \item Externals can fix the problem on a case-by-case basis.
+  \item But, is there a general solution?
+  \item Our method will construct a simplified version of the original
+    program, which we can ground successfully. We will then use the
+    ground atoms of this program to ground the original.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Grounding}
+  \begin{itemize}
+  \item Given a temporal rule
+    $r=\forall x_1, \dots, \forall x_n \alwaysF(B \rightarrow H)$, we define
+    it's set of transformed rules $\delta(r)$.
+  \item Let $p_1,\dots, p_n$ be the safe atomic subformulas occurring
+    in $B$, and $h_1, \dots, h_m$ the atomic subformulas occurring in
+    H. Then:
+\begin{equation*} \delta(r) \defeq \{ \forall x_1, \dots, \forall x_n
+\alwaysF(\bigwedge_{j=1}^{n}p_j \rightarrow h_i) \mid
+\rangecc{i}{1}{m})\}
+\end{equation*}
+  \end{itemize}
+
+\begin{proposition}\label{prop:simplified-facts}
+  Let $\qttandt$ be a temporal equilibrium model of a safe universal
+  temporal program $\Gamma$, and
+  $\langle \dsigma, \bm{J},\bm{J} \rangle$ the unique temporal
+  universal equilibrium model of $\delta(\Gamma)$. Then,
+  $\bm{T} \subseteq \bm{J}$.
+\end{proposition}
+\end{frame}
+
+\begin{frame}[t]{Grounding}
+  \begin{itemize}
+  \item Notice that $\delta(r)$ is a set of positive rules (with each
+    enclosed an always operator).
+  \item We can therefore obtain the same $J$ by solving the regular
+    program $\delta^{\prime}(\Gamma)$, where
+\begin{equation*} \delta^{\prime}(r) \defeq \{ \forall x_1, \dots \forall x_n
+  \bigwedge_{j=1}^{n}p_j \rightarrow h_i) \mid \rangecc{i}{1}{m})\}
+\end{equation*}
+  \item This is a positive program, and as such can be fully evaluated during grounding.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]{Grounding}
+  Let the safe universal temporal program $\Gamma$ be the following:
+  \begin{lstlisting}[language=clingo,numbers=none]
+loader(john).
+shoot(potato_gun) :- initial.
+next(shoot(potato_gun)) :- initial.
+and(eventually_after(fail(X)),forgetful(Y)) 
+ :- shoot(X), loader(Y), prev(since(not_load(Y,X),shoot(X))).
+  \end{lstlisting}
+  $\delta^{\prime}(\Gamma)$:
+  \begin{lstlisting}[language=clingo,numbers=none]
+    loader(john).
+    shoot(potato_gun).
+    fail(X) :- shoot(X), loader(Y), shoot(X).
+    forgetful(Y) :- shoot(X), loader(Y), shoot(X).
+  \end{lstlisting}
+  $$
+  J = \{ loader(john), shoot(potato\_gun), fail(potato\_gun), forgetful(john) \}
+  $$
+\end{frame}
+
+\begin{frame}[t,fragile]{Grounding}
+  \begin{itemize}
+  \item To ground the program $\Gamma$ using
+    $J=SM(\delta^{\prime}(\Gamma))$, we will make clever use of
+    external statements.
+  \item External statements may also have bodies, in which case the
+    external statement is ground like a rule, and the obtained ground
+    heads are marked as external, with bodies being discarded.
+  \item First, we will generate one external statement for each rule
+    in $r' \in \delta^\prime(\Gamma)$, with the head and bodies of the
+    external statement being the same as $r'$
     \begin{itemize}
-        \item Our instances
-        \begin{itemize}
-            \item ours finds the optimal solution
-            \item occasionally, other groups find optimal solution but not always
-        \end{itemize} 
-        \item Other groups' instances
-        \begin{itemize}
-            \item ours finds optimal solution on half of instances
-            \item timeout threshold is reached on other half
-        \end{itemize}
-        \item Our average results
-        \begin{itemize}
-            \item 1.43 seconds for MDD-SAT
-            \item 3.26 secondes for PROP
-            \item 6.08 seconds for EXT
-        \end{itemize}
-        
+    \item This will cause the grounder to mark all atoms in the unique
+      stable model $J$ of $\delta^\prime(\Gamma)$ as external.
     \end{itemize}
+  \end{itemize}
 \end{frame}
-    
-\section{Conclusion}
-\begin{frame}[t]{Conclusions}
+
+\begin{frame}[t,fragile]{Grounding}
+  \begin{itemize}
+  \item Second, for each rule $r \in \Gamma$ we will generate one
+    external statement for each non-atomic formula $\gamma$ in the
+    body of $r$, the head of which will be $\gamma$, and the body will
+    be the body of (any) $r' \in \delta^{\prime}(r)$.
     \begin{itemize}
-        \item ASP can be used to implement reduction-based solvers in a concise, performant manner.
-        \item For SMT-CBS, utilizing the propagator yields significant advantages over grounding external atoms.
-        \item This advantage grows as the environment becomes more complicated (more ground rules).
-        \item Even in simpler environments, the baseline approach remains the best
+    \item This second set of rules will ensure that formulas in the
+      bodies of rules with occurrences of atoms from $J$ will also be
+      protected from simplification.
     \end{itemize}
+  \end{itemize}
 \end{frame}
 
+\begin{frame}[t,fragile]{Grounding}
+Given the program:
+\begin{lstlisting}[language=clingo,numbers=none]
+loader(john).
+shoot(potato_gun) :- initial.
+next(shoot(potato_gun)) :- initial.
+and(eventually_after(fail(X)),forgetful(Y)) 
+ :- shoot(X), loader(Y), prev(since(not_load(Y,X),shoot(X))).
+  \end{lstlisting}
+The generated externals would be:
+  \begin{lstlisting}[numbers=none]
+#external loader(john).
+#external shoot(potato_gun).
+#external fail(X) : shoot(X); loader(Y); shoot(X).
+#external forgetful(Y) : shoot(X); loader(Y); shoot(X).
 
-% REFERENCES
-\begin{frame}[allowframebreaks]\frametitle{References}
-    \bibliographystyle{ieeetr}
-    \bibliography{references}
+#external initial.
+#external prev(since(not_load(Y,X),shoot(X))) 
+  : shoot(X); loader(Y); shoot(X).
+  \end{lstlisting}
+\end{frame}
+
+\section{Conclusions}
+
+\begin{frame}
+  \begin{itemize}
+  \item In this thesis, we saw an implementation of a temporal answer
+    set solver from first principles.
+  \item We proved it's correctness for ground temporal programs.
+  \item We had a careful discussion of the semantic issues around
+    grounding temporal programs.
+  \item We extended the definition of safety for temporal programs,
+    and showed that it has the desired properties.
+  \item Finally, we introduced a method that can ground first order temporal programs.
+  \end{itemize}
 \end{frame}
 
 \end{document}

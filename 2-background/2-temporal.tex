@@ -23,8 +23,8 @@ following grammar:
 \end{align*}
 where $\otimes \in \{ \wedge, \vee, \to \}$ is a binary Boolean
 connective. We denote set of all temporal formulas over $\A$ as the
-language $\mathcal{L}_{\A}^{T}$, and a subset of
-$\mathcal{L}_{\A}^{T}$ as a temporal theory. We sometimes drop the
+language $\langat$, and a subset of
+$\langat$ as a temporal theory. We sometimes drop the
 temporal adjective from the definitions of this subsection when it is
 clear from context that we are talking about the temporal setting. The
 operators can be split into groups based on whether they act on past
@@ -84,10 +84,10 @@ THT for short.
 
 \begin{definition}[THT satisfaction \cite{agcadipescscvi20a}]
   An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
-  satisfies a temporal formula $\varphi$ at time point
-  $\kinlambda$, written as $\thandt,k \models \varphi$ if
-  the following condition holds, where we use the shorthand
-  $\bf{M} =$ $\thandt$.
+  satisfies a temporal formula $\varphi \in \langat$ at
+  time point $\kinlambda$, written as $\thandt,k \models \varphi$ if
+  the following condition holds, where we use the shorthand $\bf{M} =$
+  $\thandt$.
 \begin{enumerate}
   \item $\bf{M}, k \not \models \bot$
   \item $\bf{M},k \models$ $a$ if $a \in H_{k}$ for any atom $a \in \mathcal{A}$
@@ -107,8 +107,8 @@ THT for short.
   \item $\bf{M},k \models \finally$ iff $k=\lambda - 1$
   \item $\bf{M},k \models \Next \varphi$ iff $k+1<\lambda$ and $\bf{M}, k+1 \models \varphi$
   \item $\bf{M},k \models \wnext \varphi$ iff $k=\lambda-1$ or $\bf{M},k+1 \models \varphi$
-  \item $\bf{M},k \models \eventuallyF \varphi$ iff $j \models \varphi$ for all $\rangeco{j}{k}{\lambda}$  
-  \item $\bf{M},k \models \alwaysF \varphi$ iff $j \models \varphi$ for some $\rangeco{j}{k}{\lambda}$  
+  \item $\bf{M},k \models \eventuallyF \varphi$ iff $j \models \varphi$ for some $\rangeco{j}{k}{\lambda}$  
+  \item $\bf{M},k \models \alwaysF \varphi$ iff $j \models \varphi$ for all $\rangeco{j}{k}{\lambda}$  
   \item $\bf{M}, k \models \varphi \until \psi$ iff for some $j \in[k . . \lambda)$, we have $\bf{M}, j \models \psi$ and $\bf{M}, i \models \varphi$ for all $\rangeco{i}{k}{j}$
   \item $\bf{M}, k \models \varphi \release \psi$ iff for all $\rangeco{j}{k}{\lambda}$, we have $\bf{M}, j \models \psi$ or $\bf{M},
     i=\varphi$ for some $\rangeco{i}{k}{j}$
@@ -156,7 +156,6 @@ similarly as in the HT case.
 \rightarrow \eventuallyF \textit{fail} \wedge \textit{forgetful}
 \end{gathered}
 \end{equation*}
-\end{example}
 
 The first three formulas state that at time point 0 the potato cannon
 is shot, it is not loaded at time point 1, and it is shot again at
@@ -170,28 +169,29 @@ Setting $\lambda=4$, the temporal equilibrium models of this theory
 are
 \begin{align*}
 \bm{T_1}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
-\{\textit{shoot}\}, \{ \textit{fail} \}, \{ \})\\
+\{\textit{shoot}, \textit{forgetful}\}, \{ \textit{fail} \})\\
 \bm{T_2}&=(\{\textit{shoot}\}, \{\textit{not\_load}\},
-\{\textit{shoot}\}, \{ \}, \{ \textit{fail} \})
+\{\textit{shoot}, \textit{forgetful}, \textit{fail}\}, \{ \})
 \end{align*}
+\end{example}
 
 Strong equivalence of two formulas in THT, as in HT, allows us to
 replace one formula with another within a theory without affecting the
 temporal stable models of the theory as a whole.
 
-\begin{definition}[Strong Equivalence \cite{agcadipescscvi20a}]
+\begin{definition}[Temporal Strong Equivalence \cite{agcadipescscvi20a}]
   Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly
   equivalent iff for any temporal theory $\Gamma$,
   $\Gamma_1 \cup \Gamma$ and $\Gamma_2 \cup \Gamma$ have the same
   temporal stable models.
 \end{definition}
 
-\begin{proposition}[Strong Equivalence and THT Equivalence \cite{agcadipescscvi20a}]
+\begin{proposition}[Temporal Strong Equivalence and THT Equivalence \cite{agcadipescscvi20a}]
   Two temporal theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent
   iff $\Gamma_1 \equivtht \Gamma_2$
 \end{proposition}
 
-\begin{proposition}[Replacement Property \cite{agcadipescscvi20a}]
+\begin{proposition}[Temporal Replacement Property \cite{agcadipescscvi20a}]
   Let $\gamma[\varphi]$ denote a temporal formula with some occurrence of a
   subformula $\varphi$ and let $\gamma[\psi]$ be the temporal formula resulting
   from replacing said occurrence of $\varphi$ with $\psi$. If
@@ -223,7 +223,11 @@ derived operator), we call it's THT equivalent rewriting as given
 above, it's \textit{derivation}. We map such formulas to their
 derivation via the function $der(\gamma)$, e.g. for
 $\gamma = \wprevious \varphi$,
-$der(\wprevious \varphi) = \previous \varphi \vee \initially$.
+$der(\wprevious \varphi) = \previous \varphi \vee \initially$. We note
+that the $\initially$/$\finally$ operator could also be considered as
+derived operators, as
+$\initially \equivtht \lnot \previous
+\top$/$\finally \equivetht \lnot \Next \top$, but we do not do so.
 
 THT, similarly to HT, can also be characterized via a 3-valued THT
 interpretation $m$. In the case of THT though, the interpretation is
@@ -234,7 +238,7 @@ to the non-temporal case, there is a one-to-one correspondence; for
 any HT trace $\thandt$, we define a mapping to 3-valued interpretation
 $m_{\thandt}$ as $m_{\thandt}(k,a)=2$ iff $a \in H_k$,
 $m_{\thandt}(k,a)=1$ iff $a \in T_k \setminus H_k$ and
-$m_{\thandt}(k,a)=0$ iff $a \not\in T_i$. Given a 3-valued
+$m_{\thandt}(k,a)=0$ iff $a \not\in T_k$. Given a 3-valued
 interpretation $m$, the corresponding HT trace $\thandt_m$ given by the
 inverse of this mapping.
 
@@ -242,7 +246,7 @@ A 3-valued interpretation can be extended to arbitrary temporal
 formulas using the rules below \cite{agcadipescscvi20a}, where
 $\operatorname{imp}(x,y)=2$ if $x \leq y$, otherwise
 $\operatorname{imp}(x,y)=y$.
-\begin{definition}[Extension of 3-valued interpretation]\label{def:3-valued-extension-temporal}
+\begin{definition}[Extension of 3-valued Temporal Interpretation]\label{def:3-valued-extension-temporal}
 \begin{align*}
   m(k, \perp) &= 0 \\
   m(k, \varphi \wedge \psi) &= \min (m(k, \varphi), m(k, \psi)) \\
@@ -262,13 +266,13 @@ m(k+1, \varphi) & \text { if } k+1<\lambda\end{cases} \\
 \end{definition}
 
 We also call a 3-valued function
-$m: \intervco{0}{\lambda} \times \mathcal{L}_{\A}^{T} \rightarrow
+$m: \intervco{0}{\lambda} \times \langat \rightarrow
 \textbf{3}$ a 3-valued (temporal) interpretation, when $m$ satisfies
 the equalities laid out in Definition
 \ref{def:3-valued-extension-temporal}. This definition is sound, as if
 this is the case, the 3-valued function $m$ can simply be viewed as an
 extension of the 3-valued interpretation $m\vert_\A$ to
-$\mathcal{L}_{\A}^{T}$.
+$\langat$.
 
 The 3-valued THT interpretation satisfies similar properties as the
 3-valued HT interpretation discussed in the previous section.
@@ -278,8 +282,8 @@ The 3-valued THT interpretation satisfies similar properties as the
   formulas $\varphi$, $\psi$:
 \begin{description}
 \item $m_{\thandt}(k,\varphi) = 2$ iff $\thandt,k \models \varphi$
-\item $m_{\ttandt}(k,\varphi) = 1$ iff $\ttandt,k \models \varphi$ and $\thandt,k \not\models \varphi$
-  \item $m_{\ttandt}(k,\varphi) = 0$ iff $\ttandt,k \not\models \varphi$
+\item $m_{\thandt}(k,\varphi) = 1$ iff $\ttandt,k \models \varphi$ and $\thandt,k \not\models \varphi$
+  \item $m_{\thandt}(k,\varphi) = 0$ iff $\ttandt,k \not\models \varphi$
 \item $m_{\thandt}(k,\varphi) = m_{\thandt}(k,\psi)$ iff $\thandt,k \models \varphi \leftrightarrow \psi$
 \end{description}
 \end{proposition}
@@ -295,17 +299,17 @@ Finally, we distinguish the syntactic fragment that we will restrict
 our discussion to in the rest of the paper.
 
 \begin{definition}[Temporal Rule, Temporal Program]
-  We call a temporal formula $\varphi \in \mathcal{L}_{\A}^{T}$ a
+  We call a temporal formula $\varphi \in \langat$ a
   \emph{implication-free} iff $\varphi$ contains no implications (with
   the exception of negation). We denote the set of implication-free
-  temporal formulas as $\mathcal{F}_{\A}^{T}$.
+  temporal formulas as $\langfat$.
   
   We call a temporal formula a temporal rule, iff it is of the form:
   $$
   \tempruleshort
   $$
   where $B=b_i \land \dots \land b_n$, $H=h_1 \lor \dots \lor h_m$,
-  and $b_i,h_j \in \mathcal{F}_{\A}^{T}$ for $\rangecc{i}{1}{n}$,
+  and $b_i,h_j \in \langfat$ for $\rangecc{i}{1}{n}$,
   $\rangecc{j}{1}{m}$.  
 
   We call a set of temporal rules a temporal logic program.
