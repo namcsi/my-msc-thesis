@@ -40,18 +40,25 @@ use-case of external generation. We note that the reification format
 has an almost one-to-one correspondence to the AST representation of
 the clingo python
 API\footnote{\url{https://potassco.org/clingo/python-api/current/clingo/ast.html}},
-and as such, the latter can serve as a guide to the format. Let us
-first take the following program, and describe how it is reified by
-renopro.
+and as such, the api can serve as a guide to the format. Let us first
+take the following program, and describe how it is reified by renopro.
 
 \begin{lstlisting}[language=clingo]
 c(a(X)) :- b(X), not d. 
 b(1).
 \end{lstlisting}
 
-The reified representation contains the following set of facts:
+This program can be reified by the renopro system by calling:
 
-\begin{lstlisting}[language=clingo]
+\begin{lstlisting}[language=bash,numbers=none]
+renopro reify prg.lp
+\end{lstlisting}
+
+assuming the program above is saved as prg.lp. The reified
+representation we would see printed would contains the following set
+of facts:
+
+\begin{lstlisting}[language=clingo,label{lst:nong-reified}]
 program(0,"base",constants(1),statements(2)).
   statements(2,0,rule(3)).
     rule(3,literal(4),body_literals(11)).
@@ -87,39 +94,293 @@ the AST of the program.
 
 The first argument of each facts is an integer id of the fact. The id
 of each fact is unique (with the exception of tuple facts described in
-the next paragraph). We call the id wrapped in a function term with the
-same name as the fact, the fact's \emph{identifier}. The identifier of
-a fact can occur in other facts, indicating a child-parent
-relationship between the two facts.  Take as example the fact on line
-3, encoding a rule node in the AST. The term \verb|literal(4)| that
-serves as the second argument of the fact, indicates that the literal
-fact with id 4 is the head node of the rule (and is thus a child node
-of the rule node).
+the next paragraph), and is not necessarily required to be an integer,
+but integers are used by the reification implementation. We call the
+id wrapped in a function term with the same name as the fact, the
+fact's \emph{identifier}. The identifier of a fact can occur in other
+facts, indicating a child-parent relationship between the two facts.
+Take as example the fact on line 3, encoding a rule node in the
+AST. The identifier \texttt{literal(4)} that serves as the second
+argument of the fact, indicates that the literal fact with id 4 is the
+head node of the rule (and is thus a child node of the rule node).
 
 There are also facts that encode an element of a tuple of AST
 nodes. Such tuples occur in the AST when there are a variable number
 of nodes that may appear as children, such as the literals forming the
-body of a rule, as rules may have any number literals in their body,
-including none. For such facts that encode a tuple element, the second
-argument indicates the position of the element in the tuple, with the
-third and final argument being the identifier of the element. On line
-3 for example, we see that the rule with id 3 has a tuple of body
-literals with identifier \verb|body_literals(11)| constituting it's
-body. On lines 11 and 17 we see that the tuple contains the body
-literals with identifiers \verb|body_literal(12)| as it's first
-element, and \verb|body_literal(17)| as it's second element.  A tuple
-may also be empty; in this case there will be no facts encoding it's
-elements in the reified representation. For example, the rule fact on
-line 22 which encodes the fact \verb|b(1)| has the child tuple of body
-literals with identifier \verb||
+body of a rule, as rules may have any number literals in their
+body. For such facts that encode a tuple element, the second argument
+indicates the position of the element in the tuple, with the third and
+final argument being the identifier of the element. On line 3 for
+example, we see that the rule with id 3 has a tuple of body literals
+with identifier \texttt{body\_literals(11)} constituting it's body. On
+lines 11 and 17 we see that the tuple contains the body literals with
+identifiers \texttt{body\_literal(12)} as it's first element, and
+\texttt{body\_literal(17)} as it's second element.  A tuple may also be
+empty; in this case there will be no facts encoding it's elements in
+the reified representation. For example, the rule fact on line 22
+which encodes the fact \texttt{b(1)} has the child tuple of body
+literals with identifier \texttt{body\_literals(27)}, with no body
+literal fact with id 27 occurring in the reification.
 
-The root of the ast is the fact
-\verb|program(0,"base",constants(1),statements(2)).|. Rules in the
+The root of the AST is the fact
+\texttt{program(0,"base",constants(1),statements(2)).}. Rules in the
 gringo language are considered to implicitly be under the
-\verb|#program base.| subprogram\cite{karoscwa21a}. As such, this
-facts encodes the presence of a (sub)program with name "base", with
-child tuple of program constants with identifier 1, and a child tuple
-of statements with identifier 2.
+\texttt{\#program base.} subprogram\cite{karoscwa21a}. As such, this
+facts encodes the presence of a (sub)program with name "base", with an
+empty child tuple of program constants with identifier
+\texttt{constants(1)}, and a child tuple of statements with identifier
+\texttt{statements(2)}. This tuple of statements encode the sequence
+of statements occurring within the subprogram, such as rules,
+externals, an other meta-statements in the gringo language
+\cite{PotasscoUserGuide19}. In this case, the tuple contains the two
+rules, \texttt{rule(3)} and \texttt{rule(21)}, which we have discussed
+previously. Note that a program may be comprised of multiple such
+subprogram statements, so it would be perhaps more accurate to call
+the encoded AST a forest instead of a tree.
+
+The reification contains two types of facts encoding literals,
+\texttt{literal} and \texttt{body\_literal}, with the latter only allowed
+to occur in the the body of rules. For both, the second argument
+indicates it's sign, with "pos" being positive, and "not" being
+negative. The third argument identifies the child atom of the literal,
+which will in our discussion always be a symbolic atom, but in general
+the gringo language has other types of atoms, such as comparisons etc.
+
+Symbolic atom facts always have a single function child identifier as
+their second and final argument. These facts serve only to
+differentiate function symbols that are an atoms from function symbols
+that are function terms in the gringo language.
+
+Function facts encode a function symbol node. The second argument of a
+function fact it it's name, encoded as a constant. For example, on
+line 6 we see that the name of the function symbol \texttt{c(a(X))} is
+c. The third argument of a function fact is a tuple of terms, which
+encode the function symbol's arguments. If this tuple is empty, the
+function symbol has no arguments, and is thus a constant; this is the
+case on line 20 for the constant d. This tuple of terms may in turn
+include a further function symbol, indicating nested function symbols,
+as is the case for the reification of \texttt{c(a(X))}. Other term
+types we see in this reification are variables, as on lines 10 and 16,
+and numbers, as on line 27. The second argument of a variable fact is
+the variable's name, encoded as a string, while the second argument of
+a number fact encodes the value of the number as itself.
+
+Finally, we note that the reification format also contains a set of
+facts over predicate \texttt{child/2}. These fact explicitly encode
+the child-parent relationship between identifiers, which can be useful
+if in some meta-encoding one would like to check reachability between
+two nodes, for example. The set of child facts in the reification for
+the previous example are the following.
+
+\begin{lstlisting}[language=clingo]
+child(program(0),constants(1)).
+child(program(0),statements(2)).
+  child(statements(2),rule(3)).
+    child(rule(3),literal(4)).
+      child(literal(4),symbolic_atom(5)).
+        child(symbolic_atom(5),function(6)).
+          child(function(6),terms(7)).
+            child(terms(7),function(8)).
+              child(function(8),terms(9)).
+                child(terms(9),variable(10)).
+    child(rule(3),body_literals(11)).
+      child(body_literals(11),body_literal(12)).
+        child(body_literal(12),symbolic_atom(13)).
+          child(symbolic_atom(13),function(14)).
+            child(function(14),terms(15)).
+              child(terms(15),variable(16)).
+      child(body_literals(11),body_literal(17)).
+        child(body_literal(17),symbolic_atom(18)).
+          child(symbolic_atom(18),function(19)).
+            child(function(19),terms(20)).
+  child(statements(2),rule(21)).
+    child(rule(21),literal(22)).
+      child(literal(22),symbolic_atom(23)).
+        child(symbolic_atom(23),function(24)).
+          child(function(24),terms(25)).
+            child(terms(25),number(26)).
+    child(rule(21),body_literals(27)).
+\end{lstlisting}
+
+\subsection{Reflection}
+
+As mentioned before, reflection is the inverse operation of
+reification, and as such, takes as input a set of reified facts
+encoding a valid AST, and outputs it's representation as a gringo
+program. For example, if we were to save the reified facts seen
+previously as reified-prg.lp, and called the following:
+
+\begin{lstlisting}[language=bash,numbers=none]
+renopro reflect reified-prg.lp
+\end{lstlisting}
+
+we wound see the original program printed back to us as output.
+
+Reflection is performed by starting from the facts over signature
+\texttt{program/4}; as discussed before, these facts serve as the
+root(s) of the AST. Then, based on the child identifiers found in
+facts, the reachable AST nodes encoded by the set of facts are walked
+through recursively to reconstruct the program in it's gringo
+representation via the clingo API. It is required that every integer
+id is unique per type of reified fact, as otherwise the child facts
+cannot be be determined unambiguously.
+
+Note that there is a certain amount of data validation that happens
+during reflection, and helpful error messages are printed if the set
+of input facts encode an invalid AST. 
+
+As an example if there is a missing child fact where one is required,
+we would would get a helpful error message indicating so. This would
+be the case for example, if we were to delete the literal fact on line
+4 of the reification, as a rule must have a head in the AST. However
+deleting some child fact that is optional would result in no error, as
+we would still have a valid AST. This would be the case if we remove
+for example line 7. The term tuple would then be empty, lines 8-10
+would be unreachable, and the reflection of the reified facts would
+be:
+
+\begin{lstlisting}[language=clingo]
+c :- b(X), not d. 
+b(1).
+\end{lstlisting}
+
+The facts themselves are also validated against a schema that
+describes valid ASTs. For example, were we to replace the fact on line
+16 with \texttt{variable(16,2)}, we would receive an error message
+telling us that the second argument of a variable fact must be a
+string. Similar validation happens for child identifiers that occur as
+arguments of facts. If we replace the fact on rule 3 with
+\texttt{rule(3,function(4),body\_literals(11)).}, we would receive a
+helpful error message indication that \texttt{function(4)} is an
+invalid type of identifier for the head of a rule.
+
+\subsection{Transformation}
+
+A transformation meta-encoding is an encoding that takes as input a
+set of reified facts encoding a non-ground program. The occurrence of
+a set of special predicates of the form \texttt{ast/1} in the stable
+model of the encoding indicates some transformation to be applied to
+the encoded AST. The types of transformation supported are the following:
+
+\begin{enumerate}
+\item \texttt{ast(add(Fact))} indicates that the fact \textt{Fact}
+  should be added to the AST.
+\item \texttt{ast(delete(Fact))} indicates that the fact \textt{Fact}
+  should be deleted from the AST.
+\item \texttt{ast(replace(Fact1,Fact2))} indicates that the fact
+  \textt{Fact1} should be replaced by \texttt{Fact2} in the AST.
+\end{enumerate}
+
+The meaning of these predicates are enforced by the following
+program, which is always automatically appended to the transformation
+meta-encoding when the transformation functionality is used.
+
+\begin{lstlisting}[language=clingo]
+#include "wrap_ast.lp".
+#include "replace_id.lp".
+
+transformed(Fact) :- ast((fact(Fact);add(Fact))), 
+                 not ast(delete(Fact)).
+
+ast((delete(Fact1);add(Fact2))) :- ast(replace(Fact1,Fact2)).
+\end{lstlisting}
+
+The program \verb|wrap_ast.lp| contains schematic rules of the form
+$$
+\verb|ast(fact(Fact)) :- Fact.|
+$$
+where \verb|Fact| ranges over all types of facts in the reified
+representation. This collects all facts into a single
+"namespace". Line 4-5 then realizes the intended meaning of delete and
+add. Any reified fact that was already present or was added will be
+present in transformed set of reified facts, which are collected under
+\verb|transformed/1|; that is, unless they are indicated to be
+deleted. Line 7 shows that replacing a fact with another implies that
+the first fact is added, and the second one is deleted. Replacement
+has a further effect, as is defined by a set of schematic rules in
+\verb|replace_id.lp| which we do not show here. In short, apart from
+replacing one fact with another, in each reified fact, it also
+replaces every identifier referencing the first fact with an
+identifier referencing the second fact.
+
+\subsubsection{External generation for meta-telingo}
+
+As the final result of this thesis, we will now present a
+transformation meta-encoding that performs the generation of external
+statements required to ground a universal temporal program as defined
+at the end of Section \ref{sec:non-ground}. The meta-encoding is
+broken into two parts, ranging over Listings 3 and 4, which we will
+now describe.
+
+In lines 1-5 we define the predicate \verb|operator_arity/2|. The
+first argument of this predicate is the name of a (temporal) operator in
+it's gringo representation, and the second argument is the operator's
+arity.
+
+Next, on lines 7-12 we define when an argument of an operator is safe
+or unsafe subformula via predicate \verb|arg/3|, in line with
+Definition \ref{def:safe-subformula}. The second argument is the
+0-indexed position of the argument, while the third argument indicates
+safety via \verb|saf| and \verb|unsafe|.
+
+With the next rule, we assign to each id function id occurring in the
+input reified facts it's arity. This is done by counting up the number
+of elements of the associated term tuple. With the rule spanning lines
+17-19, we define when a function identifier may be considered an operator,
+namely, when it's name and arity matches one defined by
+\verb|operator_arity/2|.
+
+Now, we define a predicate of key importance, \verb|operand/3|. The
+predicate \verb|subformula(function(F),function(F'),Safety)| indicates
+that \verb|function(F')| is the subformula of the temporal formula
+\verb|function(F)|, with the safety given by \verb|Safety|, which is
+determined based on the previously defined predicate
+\verb|arg/3|. This predicate will later serve as the binary relation
+based on which safe and positive subformulas are defined in
+Definitions \ref{def:safe-subformula} and
+\ref{def:pos-subformula}. Knowing this, and the fact that subformulas
+of a negated formula can neither be safe nor positive, we do not
+define \verb|subformula/3| when the operator is \verb|neg|.
+
+On lines 25-28 we assign to symbolic atoms their sign, as given by
+their parent literal fact. Then with the following rule we mark
+operators that constitute positive symbolic atoms as being root
+operators. We again ignore cases where the symbolic atom is negative,
+as this will not lead to safe or positive subformulas.
+
+Finishing the first part of the meta-encoding, lines 34-44 define the
+predicate \verb|root2desc_subformula(Root,Operand,Safety)|. This
+predicate collect operands reachable from a root temporal formula
+through \verb|subformula/3|, while keeping track of the safety of the
+subformula via \verb|Safety|. In the recursive rules, once we pass
+through an unsafe argument, \verb|Safety| is set to unsafe, and
+remains so for all subformulas.
+
+Moving on to the second part of the encoding, we define
+\texttt{safe\_atomic\_subformua/2}, which holds iff the first argument
+is a safe atomic subformula of the second, exactly matching Definition
+\ref{def:safe-subformula}. Lines 8-19 defines the predicate
+\texttt{root\_tempf2body\_safe\_atomic\_subf/2}, which as the name
+suggests, maps root temporal formulas to the safe atomic subformulas
+that occur in the body of the given statement. On lines 21-25 we
+distinguish root temporal operators which occur in the head vs the
+body of a statement.
+
+Having defined all the necessary helper predicates, the remainder of
+the meta encoding derives the necessary \texttt{ast(add(Fact))} facts
+required to add all the necessary external statement.
+
+On lines 27-28 we add a new base subprogram, under which the external
+statements will be gathered. Here we take advantage of the fact that
+the ids of reified facts need not necessarily be integers, and may
+also be constants of function symbols, and use the id
+\texttt{externals} for the id of the new subprogram statement, as well
+as it's tuple of statements. This reuse of the id is not problematic,
+as ids need only to be unique per type of fact.
+
+The rule spanning lines 27-36 takes care of adding the first type of
+external statements, as described at the end of Section
+\ref{sec:non-ground}. The rule make
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -140,33 +401,34 @@ arg(Opname,Arg,safe)
 func_arity(F,A) :- function(F,_,terms(TS)), 
                    A = #count{ P: terms(TS,P,_) }.
 
-operator(function(F))
+temporal_formula(function(F))
   :- function(F,Name,terms(T)), operator_arity(Name,Arity), 
      func_arity(F,Arity).
 
-operand(function(F),function(F'),Safety)
-  :- operator(function(F)), function(F,Name,terms(T)), 
-     Name!=neg, rg(Name,P,Safety), terms(T,P,function(F')).
+subformula(function(F),function(F'),Safety)
+  :- temporal_formula(function(F)), function(F,Name,terms(T)), 
+     Name!=neg, arg(Name,P,Safety), terms(T,P,function(F')).
 
 atom_sign(A,Sign)
   :- literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
 atom_sign(A,Sign)
   :- body_literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
 
-root_operator(Func)
-  :- operator(Func), symbolic_atom(A,Func), atom_sign(A,"pos").
+root_temporal_formula(Func)
+  :- temporal_formula(Func), symbolic_atom(A,Func), 
+     atom_sign(A,"pos").
 
-root2desc_operand(Root,Operand,Safety)
-  :- root_operator(Root), operand(Root,Operand,Safety).
-root2desc_operand(Root,Operand',Safety)
-  :- root2desc_operand(Root,Operand,Safety), 
-     operand(Operand,Operand',safe).
-root2desc_operand(Root,Operand',unsafe)
-  :- root2desc_operand(Root,Operand,Safety), 
-     operand(Operand,Operand',unsafe).
-root2desc_leaf_operand(Root,Operand,Safety)
-  :- root2desc_operand(Root,Operand,Safety), 
-     not operator(Operand).
+root2desc_subformula(Root,Subformula,Safety)
+  :- root_temporal_formula(Root), subformula(Root,Subformula,Safety).
+root2desc_subformula(Root,Subformula',Safety)
+  :- root2desc_subformula(Root,Subformula,Safety), 
+     subformula(Subformula,Subformula',safe).
+root2desc_subformula(Root,Subformula',unsafe)
+  :- root2desc_subformula(Root,Subformula,Safety), 
+     subformula(Subformula,Subformula',unsafe).
+root2desc_atomic_subformula(Root,Subformula,Safety)
+  :- root2desc_subformula(Root,Subformula,Safety), 
+     not temporal_formula(Subformula).
 
 \end{lstlisting}
 \captionof{lstlisting}{generate-external.lp - part 1}
@@ -177,59 +439,55 @@ root2desc_leaf_operand(Root,Operand,Safety)
 \begin{center}
 \begin{minipage}{\linewidth}
   \begin{lstlisting}[]
-head_root_op(Func)
-  :-  literal(L,"pos",symbolic_atom(S)), symbolic_atom(S,Func),
-      root_operator(Func), not literals(_,_,literal(L)).
-body_root_op(Func) 
-  :- not head_root_op(Func), root_operator(Func).
-
 safe_atomic_subformula(Func,Func) 
-  :- symbolic_atom(A,Func), not root_operator(Func), 
+  :- symbolic_atom(A,Func), not root_temporal_formula(Func), 
      atom_sign(A,"pos").
 safe_atomic_subformula(Func,Func')
-  :- symbolic_atom(A,Func), root_operator(Func),
-     root2desc_leaf_operand(Func,Func',safe).
+  :- symbolic_atom(A,Func), root_temporal_formula(Func),
+     root2desc_atomic_subformula(Func,Func',safe).
 
 stm2desc((statements(STM),Pos),Child) 
   :- statements(STM,Pos,Child).
 stm2desc(Statement,Child') 
-  :- stm2desc(Statement,Child), not root_operator(Child), 
-     child(Child,Child').
+  :- stm2desc(Statement,Child), 
+     not root_temporal_formula(Child), child(Child,Child').
 
-root2extern_cond(Func,Func'')
-  :- stm2desc(Statement,Func), root_operator(Func), 
+root_tempf2body_safe_atomic_subf(Func,Func'')
+  :- stm2desc(Statement,Func), root_temporal_formula(Func), 
      stm2desc(Statement,body_literal(BL)), 
      body_literal(BL,"pos",symbolic_atom(S)), 
      symbolic_atom(S,Func'), 
      safe_atomic_subformula(Func',Func'').
 
+head_root_temp_form(Func)
+  :-  literal(L,"pos",symbolic_atom(S)), symbolic_atom(S,Func),
+      root_temporal_formula(Func).
+body_root_temp_form(Func) 
+  :- not head_root_temp_form(Func), root_temporal_formula(Func).
+
 ast(add(program(externals,"base",constants(externals),
                 statements(externals)))).
 
-ast(add(statements(externals,pos(Func,Operand),
-                   external(Operand));
-        external(Operand,symbolic_atom(Operand),
+ast(add(statements(externals,pos(Func,Subformula),
+                   external(Subformula));
+        external(Subformula,symbolic_atom(Subformula),
                  body_literals(Func),false);
-        symbolic_atom(Operand,Operand)))
-  :- head_root_op(Func), root2desc_leaf_operand(Func,Operand,_).
+        symbolic_atom(Subformula,Subformula)))
+  :- head_root_temp_form(Func), 
+     root2desc_atomic_subformula(Func,Subformula,_).
 
 ast(add(statements(externals,pos(Func),external(Func));
         external(Func,symbolic_atom(Func),
                  body_literals(Func),false);
 	symbolic_atom(Func,Func)))
-  :- body_root_op(Func).
-
-desc_root_op(Func,Child) 
-  :- root_operator(Func), child(Func,Child).
-desc_root_op(Func,Child')
-  :- desc_root_op(Func,Child), child(Child,Child').
-has_var(Func) :- desc_root_op(Func,variable(V)).
+  :- body_root_temp_form(Func).
 
 ast(add(body_literals(Func,pos(Func'),body_literal(Func'));
         body_literal(Func',"pos",symbolic_atom(Func'));
         symbolic_atom(Func',Func')))
-  :- root_operator(Func), root2extern_cond(Func,Func'), 
-		 #false : not has_var(Func), body_root_op(Func).
+  :- root_temporal_formula(Func), 
+     root_tempf2body_safe_atomic_subf(Func,Func'), 
+     body_root_temp_form(Func).
 \end{lstlisting}
 \captionof{lstlisting}{generate-external.lp - part 2}
 \end{minipage}
