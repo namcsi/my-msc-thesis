@@ -10,7 +10,7 @@ be used to give a purely logical semantics for Answer Set Programming
 definitions of these logics, and in the following subsection extend
 them in the standard way into the temporal setting.
 
-We define a signature $\A$ as a set, the elements of which $a\inA$ we
+We define a signature $\A$ as a set, the elements of which $a\in A$ we
 call atoms. A formula over a signature $\A$ is defined by the grammar:
 
 \begin{align*}
@@ -28,17 +28,20 @@ and
 $\varphi \leftrightarrow \psi \defeq (\varphi \rightarrow \psi) \wedge
 (\varphi \leftarrow \psi)$.
 
-A specific syntactic subset of formulas of a particular form are of
-greater interest to us due to their relevance to logic programming.
 We define the set of all literals over $\A$ as
-$\textit{Lit}(\A) = \{ a, \lnot a\ |\ a \in \A \}$.
+$\textit{Lit}(\A) = \{ a, \lnot a\ |\ a \in \A \}$.  A specific subset
+of formulas of a particular form are of heightened interest to us due
+to their relevance to logic programming.
 
 \begin{definition}[Disjunctive rule]
     We call formulas of the following form disjunctive rules, or rules for short:
 \begin{align*}
   b_{1} \wedge \cdots \wedge b_{m} \rightarrow h_1 \vee \cdots \vee h_{n}
 \end{align*}
-where $h_{i}, b_{j} \in \textit{Lit}(\A)$. We call the set of literals $\{ h_i | 1 \leq i \leq n, i\in \mathbb{N}\}$ the \emph{head} of the rule, and the set of literals $\{ b_j | 1 \leq j \leq m, j \in \mathbb{N}\}$ the \emph{body} of the rule.
+where $i,j \in \mathbb{N}$, $h_{i}, b_{j} \in \textit{Lit}(\A)$. We
+call the set of literals $\{ h_i \mid 1 \leq i \leq n \}$ the
+\emph{head} of the rule, and the set of literals
+$\{ b_j \mid 1 \leq j \leq m \}$ the \emph{body} of the rule.
 \end{definition}
 
 We call a theory $P$ containing only (disjunctive) rules a
@@ -62,7 +65,7 @@ defined as follows:
     \end{description}
 \end{definition}
 
-We say that an interpretation $\handt$ is an HT model of theory
+We say that an HT interpretation $\handt$ is an HT model of theory
 $\Gamma$ iff $\handt \models \varphi$ for all $\varphi \in \Gamma$. We
 denote the set of all HT models of a theory $\Gamma$ as
 $\text{HT}(\Gamma)$. A formula $\varphi$ is a HT tautology, written as
@@ -72,15 +75,13 @@ tautologies the logic of Here-and-There (HT for short). Two formulas
 $\varphi$ and $\psi$ are said to be HT equivalent, denoted as
 $\varphi \equivht \psi$, iff $\models \varphi \leftrightarrow \psi$.
 
-The characteristic property of persistence in HT can be proven via
+A key property of HT, \textit{persistence} can be proven via
 structural induction.
 
 \begin{proposition}[Persistence]
   For any HT interpretation $\handt$, if $\handt \models \varphi$,
   then $\tandt \models \varphi$.
 \end{proposition}
-
-
 
 We call an HT interpretation $\handt$ total if $H=T$. By imposing an
 additional minimality condition on total interpretations, we arrive at
@@ -90,7 +91,7 @@ the concept of an equilibrium model, and of a stable model.
   A total HT interpretation $\tandt$ is said to be an equilibrium
   model of a theory $\Gamma$ iff $\tandt \models \Gamma$ and there is
   no HT interpretation $\handt$ such that $\handt \models \Gamma$ and
-  $H \subset T$. A set of atoms $T$ is a stable model of a theory
+  $H \subsetneq T$. A set of atoms $T$ is a stable model of a theory
   $\Gamma$ iff $\tandt$ is an equilibrium model of $\Gamma$. We denote
   the set of all equilibrium models of a theory $\Gamma$ as
   $\text{EL}(\Gamma)$.
@@ -99,10 +100,12 @@ the concept of an equilibrium model, and of a stable model.
 It is worth noting that this definition of a stable model above is
 equivalent to the original reduct-based characterization
 \cite{lipeva01a}, though we will not be making use of the reduct in
-this thesis. 
+this thesis.
 
-We would now like to characterize the necessary and sufficient
-conditions when two theories have the same answer sets in any context.
+We call the logic determined by the equilibrium models of a theory
+\emph{Equilibrium Logic} \cite{pearce06a}. We would now like to
+characterize the necessary and sufficient conditions when two theories
+have the same answer sets in any context.
 
 \begin{definition}[Strong Equivalence \cite{lipeva01a}]
   Two theories $\Gamma_1$ and $\Gamma_2$ are strongly equivalent iff for
@@ -114,10 +117,10 @@ Strong equivalence is a particularly significant property in a logic
 programming context, as it allows one to replace parts of a program
 with a strongly equivalent counterpart without affecting the stable
 models of the program as a whole. Requiring the usual notion of
-equivalence of theories in equilibrium logic, i.e. that $\Gamma_1$ and
+equivalence of theories in Equilibrium Logic, i.e. that $\Gamma_1$ and
 $\Gamma_2$ possess the same equilibrium models, is not sufficient to
 guarantee strong equivalence due to the non-monotonic nature of
-equilibrium logic \cite{lipeva01a}.  However, equivalence in the
+Equilibrium Logic \cite{lipeva01a}.  However, equivalence in the
 non-monotonic basis of HT is sufficient, and in fact also necessary.
 
 \begin{proposition}[Strong Equivalence and HT equivalence \cite{lipeva01a}]
@@ -172,8 +175,8 @@ inductively using the following rules:
 The values assigned to formulas by a 3-valued interpretation can also
 be characterized via HT models, as shown by the following proposition.
 
-\begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht}
-For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
+\begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht-properties}
+For any HT interpretation $\handt$ and formulas $\varphi$, $\psi \in \langa$:
 \begin{description}
   \item $I_{\handt}(\varphi) = 2$ iff $\handt \models \varphi$ 
   \item $I_{\handt}(\varphi) = 1$ iff $\tandt \models \varphi$ and $\handt \not\models \varphi$
@@ -182,16 +185,40 @@ For any 3-valued HT interpretation $I$ and formulas $\varphi$, $\psi$:
 \end{description}
 \end{proposition}
 
-As a consequence of Proposition \ref{prop:3-valued-ht}, we can
+As a consequence of Proposition \ref{prop:3-valued-ht-properties}, we can
 equivalently define when a 3-valued interpretation satisfies a
-formula, as follows: $I \models \varphi$ iff $I(\varphi)=2$.
+formula, as follows: $I \models \varphi$ iff $I(\varphi)=2$. The
+following proposition characterizes HT equivalence in terms of
+3-valued interpretations.
 
-As evident from the proposition, the HT formulation is more verbose,
-and thus more cumbersome to use when all 3 values assigned to formulas
-are relevant. 3-valued interpretations also allow us to check
-satisfaction or (strong) equivalence of formulas via a simple
-calculation of truth values according to the rules in Definition
-\ref{def:3-valued-extension}.
+\begin{proposition}
+For any $\varphi$, $\psi$ the following assertions are equivalent:
+  \begin{enumerate}[label={(\arabic*)}]
+    \setlength\itemsep{0.15em}
+    \item $\varphi \equivht \psi$
+    \item For all 3-valued interpretations $I$: $I(\varphi) = I(\psi)$.
+    \item For all 3-valued interpretations $I$: $I(\varphi) = 2$ iff $I(\psi) = 2$
+  \end{enumerate}
+\end{proposition}
+\begin{proof}
+  The equivalence of (1) and (2) follows directly from the final
+  assertion of Proposition \ref{prop:3-valued-ht-properties}. Clearly
+  (3) follows from (2). To see that (3) implies (2), it suffices to
+  show that, assuming (3), for all 3-valued interpretations
+  $I_{\handt}$ we have $I_{\handt}(\varphi) = 1$ iff
+  $I_{\handt}(\psi) = 1$. By Proposition
+  \ref{prop:3-valued-ht-properties}, this is the same as saying
+  $I_{\tandt}(\varphi) = 2, I_{\handt}(\varphi) \neq 2$ iff
+  $I_{\tandt}(\psi)=2, I_{\handt}(\psi) \neq 2$, which holds due to
+  (3).
+\end{proof}
+
+As evident from previous two propositions, the 3-valued interpretation
+based formulation of Here-and-There can be very convenient when all 3
+values assigned to formulas are relevant. 3-valued interpretations
+also allow us to check satisfaction or (strong) equivalence of
+formulas via a simple calculation of truth values according to the
+rules in Definition \ref{def:3-valued-extension}.
 
 On a more philosophical note, one way of conceptualizing the three
 values is to view the atoms in $H$ as being \textit{certainly true},

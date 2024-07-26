@@ -1,18 +1,17 @@
-\subsection{QTHT}
+\subsection{Quantified Temporal Here-and-There}
 
-\subsubsection{Foundations}
+Our introduction to Quantified Temporal Here-and-There (QTHT) will
+follow that of \cite{agcapevidi17a}. We define a (function-free)
+first-order signature as a tuple $(C,P)$, where $C$ is a set of
+constants, and $P$ is a set of predicate symbols, each having an
+associated arity. The terms of $(C,P)$ are then the set
+$T = C \cup X$, where $X$ is a set of variables.
 
-Our introduction to QTHT will follow that of \cite{agcapevidi17a}. We
-define a (function-free) first-order signature as a tuple $(C,P)$,
-where $C$ is a set of constants, and $P$ is a set of predicate
-symbols, each having an associated arity. The terms of $(C,P)$ are
-then the set $T = C \cup X$, where $X$ is a set of variables.
-
-The atoms over signature $(C,P)$ are constructed from $T$, and have
-the form $p(t_1,\dots,t_n)$, where $t_i \in T$ for
+The atoms over signature $(C,P)$ are constructed from $T$ and $P$, and
+have the form $p(t_1,\dots,t_n)$, where $t_i \in T$ for
 $\rangecc{i}{1}{n}$. We assume that the equality predicate is always
 an element of $P$, and denote it with infix notation as $t_1=t_2$. A
-first order temporal formula over $(C,P)$ is defined by the same
+first-order temporal formula over $(C,P)$ is defined by the same
 grammar as in the temporal formulas discussed in Subsection
 \ref{subsec:tht-tel}, except that it uses atoms such as
 $p(t_1, \dots, t_n)$ in place of propositional atoms, and has the
@@ -60,9 +59,10 @@ order quantifiers, as formalized below.
     \item if $\varphi$ is $p(t_1,\dots,t_n)$, then $\bm{M},k \models \varphi$ iff $p(\sigma(t_1), \dots, \sigma(t_n))\in H_k$
     \item if $\varphi$ is $t = s$, then  $\bm{M},k \models t = s$ iff $\sigma(t) = \sigma(s)$
     \end{itemize}
-  \item $\qthandt \models \forall x \phi(x)$ iff $\langle \dsigma, w,\bm{T} \rangle \models \phi(d)$ for all $d \in D$ and for all $w \in \{\bm{H}, \bm{T}\}$ 
-  \item $\bm{M} \models \exists x \phi(x)$ iff $\bm{M} \models \varphi(d)$ for some $d \in D$
-\end{itemize}
+  \item $\qthandt,k \models \forall x \phi(x)$ iff $\langle \dsigma, w,\bm{T} \rangle,k \models \phi(d)$ for all $d \in D$ and for all $w \in \{\bm{H}, \bm{T}\}$ 
+  \item $\bm{M},k \models \exists x \phi(x)$ iff $\bm{M},k \models \varphi(d)$ for some $d \in D$
+  \end{itemize}
+  We write $\qthandt \models$
 Note that though our input language is $\langcpt$, the satisfaction
 relation defined above for a TQHT structure $\qthandt$ is defined for
 formulas in $\langcdpt$, as to check the satisfaction of universal and
@@ -73,16 +73,16 @@ The logic induced by the tautologies as per the satisfaction relation
 above is called quantified temporal Here-and-There logic with static
 domain, or QTHT for short.
 
-Persistence can be proven to hold in TQHT.
+Persistence can be proven to hold in QTHT.
 
 \begin{proposition}[QTHT Persistence \cite{agcapevidi17a}]
   For any formula $\varphi \in \langcpt$, if $\qthandt \models \varphi$, then
   $\qttandt \models \varphi$.
 \end{proposition}
 
-First order temporal equilibrium models and stable models can be defined in the usual way.
+First-order temporal equilibrium models and stable models can be defined in the usual way.
 
-\begin{definition}[First Order Temporal Equilibrium Model/Stable Model \cite{agcapevidi17a}]
+\begin{definition}[First-Order Temporal Equilibrium Model/Stable Model \cite{agcapevidi17a}]
   A total TQHT structure $\qttandt$ is a (first-order) temporal
   equilibrium model of a theory $\Gamma \subset \langcpt$ iff
   $\qttandt \models \Gamma$ and there is no $\bm{H} < \bm{T}$ such
@@ -92,11 +92,11 @@ First order temporal equilibrium models and stable models can be defined in the 
   equilibrium model of $\Gamma$.
 \end{definition}
 
-We define a first order variant of a temporal rule and temporal program.
+We define a first-order variant of a temporal rule and temporal program.
 
-\begin{definition}[First Order Temporal Rule/Universal Temporal
+\begin{definition}[First-Order Temporal Rule/Universal Temporal
   Rule/\quad Universal Temporal Program]
-  We call a formula $\psi \in \langcpt$ \emph{implication and
+  We call a formula $\varphi \in \langcpt$ \emph{implication and
     quantifier-free} if it contains no quantifiers and no implications
   (apart from negation). We denote the set of such formulas as
   $\langfcpt$. We call a formula of the form $\varphi=\tempruleshort$,
@@ -134,15 +134,15 @@ In the following subsection we do not restrict our discussion to
 Herbrand structures, making our results applicable in settings where
 this restriction is not desirable, e.g.: in \cite{henive08a}.
 
-\subsubsection{Safety}
+\subsection{Safety}
 
 The usual non-temporal definition of safety requires that each
 variable occurring in a rule also occur in a positive literal of the
-body of the rule \cite{gekakasc12a}. This safety definition is
-extended to a syntactic fragment of temporal formulas in
-\cite{agcapevidi17a} by allowing atoms in the scope of a singe $\Next$
-to provide safety, and proved that this extended definition satisfied
-two key properties that safety guarantees in the non-temporal setting;
+body of the rule \cite{gekakasc12a}. This safety definition was
+extended in \cite{agcapevidi17a} to a syntactic fragment of temporal
+formulas, allowing atoms in the scope of a singe $\Next$ to provide
+safety. The authors proved that this extended definition satisfied two
+key properties that safety guarantees in the non-temporal setting;
 namely, the extended definition ensures \emph{domain independence},
 and ensures that there are no \emph{unnamed individuals} in the answer
 sets of a program \cite{capeva09a}\cite{capeva09b}. Domain
@@ -169,41 +169,37 @@ Herbrand structures.
 
 In what follows, we will relax the safety condition even further than
 in \cite{agcapevidi17a}, and prove that these desirable properties
-still hold, by retracing the steps of the proof the aforementioned
-paper. First, we define this extended notion of safety:
+still hold, by retracing the steps of the proofs in the aforementioned
+paper. First, we define this extended notion of safety. We denote by
+$atoms(\varphi)$ the set of atomic subformulas occurring in $\varphi$.
 
-\begin{definition}[Immediate Subformula]
-  For a formula $\varphi \in \langcpt$, we say
-  that $\psi$ is an immediate subformula of $\varphi$, iff
-  $\varphi = \odot \psi$ or $\varphi = \gamma \otimes \psi$ or
-  $\varphi = \psi \otimes \gamma$, where
-  $\psi, \gamma \in \langcpt$ and
-  $\odot/\otimes$ is any unary/binary temporal operator or logical
-  connective.
+\begin{definition}[Safe Subformula]
+  For a formula $\varphi \in \langfcpt$, we define a binary relation
+  $\mathrel{S}_{\varphi}$ over $subf(\varphi)$ as follows:
+  \[
+  \begin{aligned}
+    \mathrel{S}_{\varphi} \defeq \{ &(p,p) \mid p \in atoms(\varphi) \}\\
+    \cup \{ &(\gamma, \psi) \mid
+              \begin{aligned}[t]
+              \gamma, \psi, \xi \in subf(\varphi), \gamma \in \{ &\xi \land \psi, \psi \land \xi, \\
+    &\previous \psi, \eventuallyP \psi, \alwaysP \psi, \xi \since \psi, \xi \trigger \psi, \\
+    &\Next \psi, \eventuallyF \psi, \alwaysF \psi, \xi \until \psi, \xi \release \psi \} \} \end{aligned}
+  \end{aligned}
+\]
+Let $\mathrel{S}^{+}_{\varphi}$ be the transitive closure of
+$\mathrel{S}_{\varphi}$. We say that a subformula
+$\gamma \in subf(\varphi)$ is \emph{safe subformula} of $\varphi$ iff
+$\varphi \mathrel{S}^{+}_{\varphi} \gamma$. We denote the set of all
+such subformulas as $\safe{\varphi}$. We say that an atomic subformula
+$p \in atoms(\varphi)$ is a \emph{safe atomic subformula} of $\varphi$ iff
+$p \in \safe{\varphi}$
 \end{definition}
 
-\begin{definition}[Safety]
-  Given a temporal formula $\varphi \in \langfcpt$, we say a
-  subformula $\gamma \in subf(\varphi)$ is in an unsafe position in
-  $\varphi$, if it is the immediate subformula of a formula
-  $\psi \in subf(\varphi)$, where $\psi$ is of the following form:
-  $\psi = \neg \gamma \mid \gamma \vee \xi \mid \xi \vee \gamma \mid
-  \gamma \since \xi \mid \gamma \until \xi \mid \gamma \trigger \xi
-  \mid \gamma \release \xi$. For any such $\psi$, we furthermore
-  consider the subformulas in $subf(\psi) \cap subf(\varphi)$ to occur
-  in an unsafe position in $\varphi$. Any subformula of $\varphi$ that
-  is not in an unsafe position in $\varphi$ is said to be in a
-  \textit{safe position} in $\varphi$. We denote the set of such
-  subformulas as $\safe{\varphi}$. We denote by $atoms(\varphi)$ the
-  set of atomic subformulas occurring in $\varphi$. An atomic
-  subformula $p \in atoms(\varphi)$ of $\varphi$ is safe iff it occurs
-  in a safe position in $\varphi$, that is
-  $p \in safe(\varphi) \cap atoms(\varphi)$.
-
+\begin{definition}[Safe Temporal Rule, Safe Temporal Program]
   We call a variable $x_i$ occurring in a temporal rule
   $\varphi = \alwaysF(B \rightarrow H)$ safe, iff it has an occurrence
   in a safe atomic subformula of $B$. We call a temporal rule safe iff
-  all of it's variables are safe . A universal temporal rule
+  all of it's variables are safe. A universal temporal rule
   $\forallx \psi$ is safe iff $\psi$ is safe. A universal temporal
   program is safe, if all of it's rules are safe.
 \end{definition}
@@ -215,12 +211,12 @@ paper. First, we define this extended notion of safety:
   \forall x \forall y \alwaysF( \textit{shoot}(x) \land \previous(\textit{not\_load}(y,x) \since \textit{shoot}(x)) 
   \rightarrow \eventuallyF \textit{fail}(x) \land \textit{forgetful}(y)) 
 \end{equation*}
-This is due to the fact that the occurrence of the atom
-$\textit{not\_load}(y,x)$ is in an unsafe position in the body of the
-rule, and as such, $y$ is unsafe. The safety of $x$ is established by
-the atom $\textit{shoot}(x)$ in the body, but could also be
-established by the occurrence of the atom as the right hand operand of
-$\since$. Therefore, if we modify the rule to the following, it will now be considered safe.
+This is due to the fact that the atomic subformula
+$\textit{not\_load}(y,x)$ is not a safe subformula of the body of the
+rule, and as such, $y$ is unsafe as this is the only atomic subformula
+of the body in which $y$ occurs. The safety of $x$ is established by
+the atom $\textit{shoot}(x)$ in the body. Therefore, if we modify the
+rule to the following, it will now be considered safe.
 \begin{equation*}
   \forall x \forall y \alwaysF( \textit{shoot}(x) \land \textit{loader}(y) \land \previous(\textit{not\_load}(y,x) \since \textit{shoot}(x)) 
   \rightarrow \eventuallyF \textit{fail}(x) \land \textit{forgetful}(y)) 
@@ -230,7 +226,8 @@ $\since$. Therefore, if we modify the rule to the following, it will now be cons
 We will now embark on the path towards proving the two desirable
 properties of the new safety definition. As a first step, we will show
 some useful properties of implication and quantifier-free ground
-temporal formulas.
+temporal formulas. The following two lemmas establish a relationship
+between satisfaction of such formulas and their atomic subformulas.
 
 \begin{lemma}\label{lemma:safe-atomic-subformula-satisfied}
   Take a ground formula $\varphi$ from $\langfcdpt$. If for some
@@ -252,37 +249,46 @@ temporal formulas.
   $q \in \safe{\xi} \cap atoms(\xi)$ we must have some
   $k,l \in \intervcc{0}{\lambda}$ such that $M,k \models p$ and
   $M,l \models q$. We can make the inductive step by noting that
-  $\safe{\psi \wedge \xi} = \{ \psi \wedge \xi \} \cup \safe{\psi}
-  \cup \safe{\xi}$ and
+  $\safe{\psi \wedge \xi} = \safe{\psi} \cup \safe{\xi}$ and
   $atoms(\psi \wedge \xi) = atoms(\psi) \cup atoms(\xi)$. In cases
   when $\varphi = \psi \vee \xi$ or $\varphi = \neg \psi$, the
-  property holds trivially, as $\safe{\varphi} = \{ \varphi \}$, and
-  $\varphi$ is not an atom.
+  property holds trivially, as $\safe{\varphi} = \emptyset$.
 
   We will now consider past operators; the same argument can be
   applied to the dual future versions of these operators. If
+  $\varphi = \initially$ or $\varphi = \wprevious \psi$, then
+  $\safe{\varphi} = \emptyset$. If
   $M,j \models \varphi = \previous \psi$, then $M,j-1 \models \psi$,
   so we can make the inductive step by applying the induction
   hypothesis and noting that
-  $\safe{\previous \psi} = \{ \previous \psi \} \cup \safe{\psi}$. For
-  the cases where $\varphi = \psi \since \xi$ resp.
-  $\varphi = \psi \trigger \xi$, by inspecting the satisfaction relation for
-  respective the operators, one can conclude that if
-  $M,j \models \varphi$, then it must be the case that
-  $M,k \models \xi$ for some $\kinlambda$. Then, applying the
-  induction hypothesis, and noting that
-  $\safe{\varphi} = \safe{\xi} \cup \{ \psi \since \xi \}$
-  resp. $\safe{\varphi} = \safe{\xi} \cup \{ \psi \trigger \xi \}$
-  makes the inductive step, and concludes the proof.
+  $\safe{\previous \psi} = \safe{\psi}$. For the cases where
+  $\varphi = \xi \since \psi$ resp.  $\varphi = \xi \trigger \psi$, by
+  inspecting the satisfaction relation for respective the operators,
+  one can conclude that if $M,j \models \varphi$, then it must be the
+  case that $M,k \models \psi$ for some $\kinlambda$. Then, applying
+  the induction hypothesis, and noting that
+  $\safe{\varphi} = \safe{\psi}$ makes the inductive step, and
+  concludes the proof.
   
 \end{proof}
 
-\begin{definition}
-  Given a formula $\varphi \in \langcdpt$, we denote by $neg(\varphi)$
-  the subformulas of $\varphi$ that occur in the scope of a negation,
-  that is
-  $neg(\varphi) = \{ \psi \mid \text{there is some } \lnot \gamma \in
-  subf(\varphi) \text{ such that } \psi \in subf(\gamma) \}$.
+\begin{definition}[Positive Subformula]
+  Let $\otimes$ be any binary temporal/propositional connective, and
+  $\oplus$ be any unary temporal/propositional connective, excluding
+  negation.  For a formula $\varphi \in \langfcpt$, we define a binary
+  relation $\mathrel{P}_{\varphi}$ over $subf(\varphi)$ as follows:
+  \[
+    \begin{aligned}
+      \mathrel{P}_{\varphi} \defeq \{ &(p,p) \mid p \in atoms(\varphi) \}\\
+      \cup \{ &(\gamma, \psi) \mid
+                  \gamma, \psi, \xi \in subf(\varphi), \gamma \in \{ \oplus \psi, \xi \otimes \psi, \psi \otimes \xi \}
+    \end{aligned}
+  \]
+  Let $\mathrel{P}^{+}_{\varphi}$ be the transitive closure of
+  $\mathrel{P}_{\varphi}$. We say that a subformula
+  $\gamma \in subf(\varphi)$ is \emph{positive subformula} of
+  $\varphi$ iff $\varphi \mathrel{P}^{+}_{\varphi} \gamma$. We denote
+  the set of all such subformulas as $pos(\varphi)$.
 \end{definition}
 
 \begin{lemma}\label{lemma:t-not-h-atomic-subformula}
@@ -290,7 +296,7 @@ temporal formulas.
   $\rangeco{j}{0}{\lambda}$\\ $\qttandt,j \models \varphi$ and
   $\qthandt,j \not\models \varphi$, it follow that there is a
   $\kinlambda$ and an atomic subformula
-  $p \in atoms(\varphi) \setminus neg(\varphi)$, such that
+  $p \in atoms(\varphi) \cap pos(\varphi)$, such that
   $\qttandt,k \models p$ and $\qthandt,k \not\models p$.
 \end{lemma}
 \begin{proof}
@@ -301,34 +307,36 @@ temporal formulas.
   property holds vacuously.
 \end{proof}
 
+\subsubsection{No Unnamed Individuals}
 
-
-\begin{lemma}
+\begin{lemma}\label{lemma:var-assign-c-restrict}
   Let $\varphi=\alwaysF (B \rightarrow H)=\alwaysF \psi$ be a
   first-order temporal rule, and $\mu$ a variable assignment in
-  $\dsigma$. If $\varphi$ is safe, then for all $\kinlambda$,
-  $\qttandt,k \models \varphi^\mu$ implies
-  $\qttcandt,k \models \varphi^\mu$
+  $\dsigma$. If $\varphi$ is safe, then for all $\kinlambda$:
+
+$$
+\qttandt \models \varphi^\mu \text{ implies } \qttcandt \models \varphi^\mu
+$$
 \end{lemma}
 \begin{proof}
   In the following, let $M=\qttandt$, and $M_C=\qttcandt$.
 
-  Suppose indirectly that $M,k \models \varphi^\mu$, but
-  $M_C,k \not \models \varphi^\mu$. Then, there must be some
-  $k\leq i$, such that $M,i \models \psi^\mu$ and
+  Suppose indirectly that $M,0 \models \varphi^\mu$, but
+  $M_C,0 \not \models \varphi^\mu$. Then, there must be some
+  $\rangeco{i}{0}{\lambda}$, such that $M,i \models \psi^\mu$ and
   $M_C,i \not \models \psi^\mu$, which must mean that
   $M_C,i \models B^\mu$ and $M_C,i \not \models H^\mu$. By
   persistence, we then have $M,i \models B^\mu$, which means we must
   also have $M,i \models H^\mu$, as we know that
-  $M,k \models \alwaysF(B^\mu \rightarrow H^\mu)$. Now, we have found
+  $M,0 \models \alwaysF(B^\mu \rightarrow H^\mu)$. Now, we have found
   that $M,i \models H^\mu$ and $M_C,i \not \models H^\mu$. By applying
   Lemma \ref{lemma:t-not-h-atomic-subformula}, we derive that there is
-  some atomic subformula $q \in atoms(H) \setminus neg(H)$, and a
+  some atomic subformula $q \in atoms(H) \cap pos(H)$, and a
   $\rangeco{j}{0}{\lambda}$, such that $M,j \models q^\mu$ and
   $M_C,j \not \models q^\mu$. Therefore, we must have a variable $x$
   in $q$, with $\mu(x) \not \in \sigma(C)$. As $x$ is safe, there must
-  be an occurrence of $x$ in an atomic formula $p$ in a safe position
-  of $B$. Furthermore, as $\mu(x) \not \in \sigma(C)$, we also have
+  be an occurrence of $x$ in a safe atomic subformula $p$ of
+  $B$. Furthermore, as $\mu(x) \not \in \sigma(C)$, we also have
   $M_C,l \not \models p^\mu$ for any $\rangeco{l}{0}{\lambda}$. Having
   determined this fact, we can now apply the contraposition of Lemma
   \ref{lemma:safe-atomic-subformula-satisfied} to derive that
@@ -336,26 +344,30 @@ temporal formulas.
   proof.
 \end{proof}
 
-From here, we can follow the proof of Proposition 5 and Theorem 2 from \cite{agcapevidi17a} more
-or less verbatim to obtain the following results.
+By making use of Lemmas \ref{lemma:safe-atomic-subformula-satisfied},
+\ref{lemma:t-not-h-atomic-subformula} and
+\ref{lemma:var-assign-c-restrict}, we can now follow the proofs of
+Proposition 5 and Theorem 2 from \cite{agcapevidi17a} more or less
+verbatim to obtain the following results.
 
 \begin{proposition}
-  For any safe universal temporal rule $\varphi = \forallx \psi \in \langcpt$
+  For any safe universal temporal rule $\varphi = \forallx \psi$
   \begin{equation*} \qttandt \models \varphi \text{ iff } \qttcandt \models \varphi. \end{equation*}
 \end{proposition}
 
 \begin{theorem}[No Unnamed Individuals]
-  If $\varphi \in \langcpt$ is a safe universal temporal rule, and
-  $\qttandt$ is a temporal equilibrium model of $\varphi$, then
-  $\bm{T}\vert_{C}=\bm{T}$.
+  If $\varphi$ is a safe universal temporal rule, and $\qttandt$ is a
+  temporal equilibrium model of $\varphi$, then
+  $\bm{T}\vert_{C}=\bm{T}$ and $T_i \subseteq \A(\sigma(C),P)$ for all
+  $\rangeco{i}{0}{\lambda}$.
 \end{theorem}
 
-\subsubsection{Grounding}
+\subsubsection{Domain Independence}
 
-The grounding of a universal temporal rule is the set of ground
-temporal rules obtained by substituting all possible combinations of
-values in place of the universally quantified variables in the
-rule. Formally:
+The grounding of a universal temporal rule is defined as the set of
+ground temporal rules obtained by substituting all possible
+combinations of values in place of the universally quantified
+variables in the rule. Formally:
 
 \begin{definition}[Grounding]
   Let $V \subseteq D \cup C$ be a finite set of constants and/or
@@ -363,7 +375,7 @@ rule. Formally:
   $\varphi = \forallx \psi(x_1,x_2,\dots,x_n)$, denoted as
   $\ground{V}{\varphi}$, is defined as:
   \begin{align*}
-    \ground{V}{\varphi} \defeq \{ &\psi(v_1,v_2,\dots,v_n) \mid v_i \in V, \rangeco{i}{0}{\lambda}\}
+    \ground{V}{\varphi} \defeq \{ &\psi(v_1,v_2,\dots,v_n) \mid v_i \in V, \rangecc{i}{0}{n}\}
   \end{align*}
   Given a safe universal program $\Gamma$, we define
   $\ground{V}{\Gamma} \defeq \cup_{\varphi \in
@@ -388,7 +400,7 @@ need to prove the following lemma.
 \begin{proof}
   Given a safe temporal rule
   $\varphi(x) = \alwaysF(B(x) \rightarrow H(x))$, by safety, there
-  exists some atom $p(x)$ in a safe position of $B(x)$. Now let us
+  exists some atom $p(x)$ in a safe subformula of $B(x)$. Now let us
   take a TQHT structure $\qthandt$ such that $\bm{T}\vert_{C}=\bm{T}$
   and a domain element $d \in D \setminus \sigma(C)$. Since
   $\bm{T}\vert_{C}=\bm{T}$, we know that for any $\kinlambda$,
@@ -406,7 +418,7 @@ By building upon Lemma \ref{lemma:not-imsigma-domain-sat} and Lemma
 one showing that our definition of safety guarantees domain independence.
 
 \begin{proposition}\label{prop:sat-iff-sat-groundc}
-  Let $\varphi = \forallx \psi \in \langcpt$ be a safe universal temporal rule and \\
+  Let $\varphi = \forallx \psi$ be a safe universal temporal rule and \\
   $\mathcal{M} = \qthandt$ a QTHT structure such that
   $\bm{T}\vert_{C}=\bm{T}$. Then, the following holds:
 
@@ -418,8 +430,8 @@ one showing that our definition of safety guarantees domain independence.
 \begin{proposition}\label{prop:equil-iff-equil-groundc}
   Let $\varphi$ be a safe universal temporal rule and
   $\mathcal{M} = \qthandt$ a QTHT structure. Then, $\mathcal{M}$ is a
-  first order temporal equilibrium model of $\varphi$ iff
-  $\mathcal{M}$ is a first order temporal equilibrium model of
+  first-order temporal equilibrium model of $\varphi$ iff
+  $\mathcal{M}$ is a first-order temporal equilibrium model of
   $\ground{C}{\varphi}$.
 \end{proposition}
 
@@ -431,39 +443,25 @@ one showing that our definition of safety guarantees domain independence.
   temporal equilibrium model of $\ground{C'}{\varphi}$.
 \end{theorem}
 
-\subsubsection{Grounding assuming Herbrand Structures}
-Having showed that the desirable properties of domain independence and
+\subsection{Grounding}
+Having shown that the desirable properties of domain independence and
 no unnamed individuals are guaranteed by our safety definition when
 considering arbitrary QTHT structures $\qthandt$, we will now consider
 only Herbrand structures in the remainder of this section.
 
-As seen at the end of Section \ref{sec:ground}, obtaining a ground
-instantiation of a universal temporal program in it's gringo
-representation cannot simply be done by passing the program to
-gringo. This is due to the fact that the simplifications performed by
-the grounding procedure of gringo are not equivalent under the
-semantics of QTHT. We will therefore come up with an alternative
-grounding procedure. Our method will work by constructing a much
-simpler positive (temporal) logic program based on the original
-program, and grounding our original program by using ground atoms
-found in the Herbrand stable model of this simpler program. This will
-also allows us to restrict the number of ground rules compared to the
-naive approach of simply substituting any combination of constants in
-place of variables.
-
-% Given a temporal trace $\bm{T}$, we define the set
-% $\text{Facts}(T) \subseteq \A(D,P)$ as
-% $\text{Facts}(T) \defeq \{ p \in T_k \mid \kinlambda \}$. Now, given a
-% universal temporal logic program $\Gamma$, we define the set of
-% derivable facts as
-% $\text{Derivable}(\Gamma) \defeq \bigcup_{\qttandt} \in TSM(\Gamma)
-% \text{Facts}(T)$. In plain language, the derivable facts of a theory
-% is the set of atoms for which there is some temporal stable model in
-% which the atom holds at some time point.
-
-% It is easy to see that, if we can somehow obtain
-% $\text{Derivable}(\Gamma)$, or a superset, then we use it ground
-% $\Gamma$ by substituting
+Obtaining a ground instantiation of a universal temporal program in
+it's gringo representation cannot simply be done by passing the
+program to gringo, as seen at the end of Section
+\ref{sec:ground}. This is due to, among other things, the fact that
+the simplifications performed by the grounding procedure of gringo are
+not equivalent under the semantics of QTHT. We will therefore come up
+with an alternative grounding procedure. Our method will work by
+constructing a much simpler positive (temporal) logic program based on
+the original program, and grounding our original program by using
+ground atoms found in the unique Herbrand stable model of this simpler
+program. This will also allows us to restrict the number of ground
+rules compared to the naive approach of simply substituting any
+combination of constants in place of variables.
 
 Formally, given a safe universal temporal rule
 $r=\forallx \alwaysF(B \rightarrow H)$. The
@@ -472,13 +470,13 @@ rules:
 
 \begin{equation*} \delta(r) \defeq \{ \forall x_1, \dots \forall x_n
   \alwaysF(\bigwedge_{\substack{b \in atoms(B)\\ \cap \safe{B}}}b
-  \rightarrow h) \mid h \in atoms(H) \setminus neg(H)\}
+  \rightarrow h) \mid h \in atoms(H) \cap pos(H)\}
 \end{equation*}
 For a safe universal program we define
 $\delta (\Gamma) \defeq \cup_{r \in \Gamma} \delta(r)$. Note that
 since $\Gamma$ is assumed to be safe, $\delta(\Gamma)$ is also
 guaranteed to be safe. Furthermore, since finding a temporal
-equilibrium model of the program $\delta(\Gamma)$ is essentially just
+equilibrium model of the program $\delta(\Gamma)$ boils down to just
 solving the same positive logic program at each time point,
 $\delta(\Gamma)$ has a unique Herbrand stable model.
 
@@ -492,12 +490,11 @@ $\delta(\Gamma)$ has a unique Herbrand stable model.
   $\ttandt$ is in equilibrium.
 
   Since $\Gamma$ is safe, by Proposition
-  \ref{prop:sat-iff-sat-groundc} it also suffices to show that
-  $\ttjandt \models \ground{C}{\Gamma}$. Let us
-  denote by $r$ the grounding of some rule from $\Gamma$ over $C$,
-  $r = \tempruleshort$. To prove that $\ttjandt \models r$, we first
-  note that, since we already know that $\ttandt \models r$, it
-  suffices to show that, for any time point $\kinlambda$, if
+  \ref{prop:sat-iff-sat-groundc} it suffices to show that
+  $\ttjandt \models \ground{C}{\Gamma}$. Let $r \in \ground{C}{\Gamma}$, $r =
+  \tempruleshort$. To prove that $\ttjandt \models r$, we first note
+  that, since we already know that $\ttandt \models r$, it suffices to
+  show that, for any time point $\kinlambda$, if
   $\ttjandt_k \models B$, then $\ttjandt_k \models H$. Let us assume
   that $\ttjandt_k \models B$. Then, by persistence
   $\ttandt_k \models B$, which means we must also have
@@ -511,12 +508,12 @@ $\delta(\Gamma)$ has a unique Herbrand stable model.
   $\bm{T} \cap \bm{J} \subseteq \bm{J}$. As the rules in
   $\delta(\Gamma)$ are simply positive rules enclosed by a $\alwaysF$
   operator, this also implies that $\tjandj_i \models h$ for any
-  $h \in atoms(H) \setminus neg(H)$ and time point $\rangeco{i}{0}{\lambda}$.
+  $h \in atoms(H) \cap pos(H)$ and time point $\rangeco{i}{0}{\lambda}$.
 
   Having established this, let us suppose indirectly that
   $\ttjandt_k \not\models H$. As $\ttandt_k \models H$, by Lemma
   \ref{lemma:t-not-h-atomic-subformula} we must have some
-  $h \in atoms(H) \setminus neg(H)$ and some $\rangeco{j}{0}{\lambda}$ such that
+  $h \in atoms(H) \cap pos(H)$ and some $\rangeco{j}{0}{\lambda}$ such that
   $\ttandt_j \models h$ and $\ttjandt_j \not\models h$. But this
   cannot be the case, as we have shown that $\tjandj_i \models h$, for
   any time point $\rangeco{i}{0}{\lambda}$, so in particular
@@ -529,7 +526,7 @@ $\delta^{\prime}(\Gamma)$ consisting of rules
 
 \begin{equation*} \delta^{\prime}(r) \defeq \{ \forall x_1, \dots \forall x_n
   \bigwedge_{\substack{b \in atoms(B)\\ \cap \safe{B}}}b
-  \rightarrow h \mid h \in atoms(H) \setminus neg(H)\}
+  \rightarrow h \mid h \in atoms(H) \cap pos(H)\}
 \end{equation*}
 
 as we have $J = J_k$ for any $\kinlambda$. Positive logic programs can
@@ -546,7 +543,7 @@ next(shoot(potato_gun)) :- initial.
 and(eventually_after(fail(X)),forgetful(Y)) 
  :- shoot(X), loader(Y), prev(since(not_load(Y,X),shoot(X))).
   \end{lstlisting}
-  For $\lambda=2$ this program has the unique first order stable
+  For $\lambda=2$ this program has the unique first-order stable
   temporal stable model
   \begin{align*}
   \bm{T} = (&\{ loader(john), shoot(potato\_gun) \},\\
@@ -576,18 +573,27 @@ precise, we introduce the following definition.
   (B(x_1,x_2,\dots,x_n) \rightarrow H(x_1,x_2,\dots,x_n))$, we define
   it's grounding over $A$ as:
   \begin{align*}
-    \ground{A}{\varphi} \defeq \{ &\psi(c_1,c_2,\dots,c_n) \mid c_i \in C,\\ &\text{ for all } p \in atoms(B(c_1,c_2,\dots,c_n)) \cap \safe{B(c_1,c_2,\dots,c_n)}:\\ &p \in A \}
+    \ground{A}{\varphi}& \defeq \{ \psi(c_1,c_2,\dots,c_n) \mid c_i \in C, \rangecc{i}{0}{n}\\
+    &\text{ for all } p \in atoms(B(c_1,c_2,\dots,c_n)) \cap \safe{B(c_1,c_2,\dots,c_n)}:p \in A \}
   \end{align*}
   Given a safe universal program $\Gamma$, we define
   $\ground{A}{\Gamma} \defeq \cup_{\varphi \in
     \Gamma}\ground{A}{\varphi}$
 \end{definition}
 
+The grounding of a safe universal temporal program $\Gamma$ over a set
+of atoms $\ground{A}{\Gamma}$ results in a subset of the rules
+generated via the naive grounding $\ground{C}{\Gamma}$. Nonetheless,
+when we use the unique Herbrand stable model of
+$\delta^{\prime}(\Gamma)$ as set of atoms we ground over, they share
+the same set of equilibrium models, as shown by the following
+proposition.
+
 \begin{proposition}
   Let $\Gamma$ be a safe universal temporal program, $\bm{T}$ a trace
-  with $T_i \subseteq \A(C,P)$ and $J$ be the unique Herbrand stable
+  with $T_i \subseteq \A(C,P)$ and $J$ the unique Herbrand stable
   model of $\delta^{\prime}(\Gamma)$. Then, the following three
-  assertions are equivalent: 
+  assertions are equivalent:
   \begin{enumerate}[label={(\arabic*)}]
     \setlength\itemsep{0.15em}
     \item $\bm{T}$ is a Herbrand stable model of $\Gamma$
@@ -633,7 +639,8 @@ precise, we introduce the following definition.
   $\thandt \models \ground{C}{\Gamma}$; then,
   $\thandt \models \ground{J}{\Gamma}$ as
   $\ground{J}{\Gamma} \subseteq \ground{C}{\Gamma}$, so we must have
-  $\bm{H} = \bm{T}$, concluding the proof.
+  $\bm{H} = \bm{T}$ as $\ttandt$ is in equilibrium
+  w.r.t. $\ground{J}{\Gamma}$, concluding the proof.
 \end{proof}
 
 Our method to obtain the ground instantiation $\ground{J}{\Gamma}$ of
@@ -641,56 +648,72 @@ our input program is to to cleverly enhance our original program
 $\Gamma$ with external statements similar to the form of those of
 $\delta^\prime(\Gamma)$.
 
-To roughly summarize how external statements work in gringo, any
-\verb|a| marked as external via a \verb|#external a.| statement will
-mark \verb|a| to not be removed from bodies of statements and
-conditions, even if they do not appear in the head of any rule
+As a refresher on how external statements work in gringo, any \verb|a|
+marked as external via a \verb|#external a.| statement will mark
+\verb|a| to not be removed from bodies of statements and conditions,
+even if they do not appear in the head of any rule
 \cite{PotasscoUserGuide19}. External statements may also have bodies,
 in which case the external statement is ground like a rule, and the
 obtained ground heads are marked as external, while the ground body is
 discarded. As an example, the program
 \begin{lstlisting}[language=clingo]
+c(X) :- a(X), b(X).
 #external b(1).
 #external a(X) : b(X).
 \end{lstlisting}
 would be ground to the two external statements \verb|#external b(1).|
-and \\\verb|#external a(1)|.
+and \\\verb|#external a(1)|. and the ground rule
+\verb|c(1) :- a(1), b(1).|.
 
-Now to describe the external statement. First, we will generate one
-external statement for each rule in $r' \in \delta^\prime(\Gamma)$,
-with the head and bodies of the external statement being the same as
-$r'$ (unless $r'$ is a fact, in which case the external in
-unnecessary). These first set of external statements will, in effect
-cause the grounder to derive unique stable model $J$ of
-$\delta^\prime(\Gamma)$, but in the form of ground external statements
-(or facts), thus marking each atom in $J$ to not be simplified during
-grounding, and making these atoms accessible for grounding.
+Now to describe the external statement we enhance our program
+with. 
 
-Second, for each rule $r \in \Gamma$ we will generate one external
-statement for each non-atomic formula $\gamma$ in the body of $r$, the
-head of which will be $\gamma$, and the body of which will be the
-conjunction of all safe atomic subformulas occurring in $r$, as well
-as the conjunction of . This second set of rules will ensure that the
-protected atoms in $J$ are substituted in their correct place in
-atomic subformulas.
+First, we will generate one external statement for each rule in
+$r' \in \delta^\prime(\Gamma)$, with the head and bodies of the
+external statement being the same as $r'$ (unless $r'$ is a fact, in
+which case the external in unnecessary). Second, for each rule
+$r \in \Gamma$ we will generate one external statement for each
+non-atomic formula $\gamma$ in the body of $r$, the head of which will
+be $\gamma$, and the body of which will be the body of (any)
+$r' \in \delta^\prime(\Gamma)$.
+
 
 \begin{example}
   As an example, take the temporal program in Example
   \ref{exam:shoot-nonground-safe}. The externals generated for that program would be:
-  \begin{lstlisting}[numbers=none]
-    #external fail(X) : shoot(X); loader(Y); shoot(X).
-    #external forgetful(Y) : shoot(X); loader(Y); shoot(X).
+\begin{lstlisting}[numbers=none]
+#external fail(X) : shoot(X); loader(Y); shoot(X).
+#external forgetful(Y) : shoot(X); loader(Y); shoot(X).
 
-    #external initial.
-    #external prev(since(not_load(Y,X),shoot(X))) : shoot(X); loader(Y); shoot(X).
+#external initial.
+#external prev(since(not_load(Y,X),shoot(X))) : shoot(X); loader(Y); shoot(X).
   \end{lstlisting}
   The first set of rules correspond to the first type described above,
   while the second corresponds to the second.
 \end{example}
 
+The first set of external statements will, in effect cause the
+grounder to derive unique stable model $J$ of $\delta^\prime(\Gamma)$,
+but in the form of ground external statements (or facts). This will
+allow gringo to generate the ground program $\ground{J}{\Gamma}$ by
+using $J$ as the \emph{instantiation domain}
+\cite[p. 82]{gekakasc12a}, with one caveat. Gringo will not execute
+this grounding as we would desire for rules $r$ who's body contain a
+non-atomic formula $\gamma$, as it will not (necessarily) see any
+rules with $\gamma$ in it's head, and will therefore discard the rule.
+
+To protect such rules from simplification, for each rule
+$r \in \Gamma$ we will generate one external statement for each
+non-atomic formula $\gamma$ in the body of $r$, the head of which will
+be $\gamma$, and the body of which will be the body of any
+$r' \in \delta^\prime(\Gamma)$. The rectifies the previous flaw in our
+approach by protecting $\gamma$ from simplification, but only for such
+substitutions of variables as allowed by the definition of
+$\ground{J}{\Gamma}$. This completes the description of our grounding
+method.
 
 We carry out the generation of these external statements automatically
-using a novel non-ground meta-programming system for AST which allows
+using a novel non-ground meta-programming system for ASP which allows
 us to specify transformations over non-ground programs. This system is
 described, as well as the meta-encoding that performs this
 transformation, in the following subsection.

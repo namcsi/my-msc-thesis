@@ -1,5 +1,125 @@
-\subsection{Non-ground reification and transformation}
+\section{Non-Ground Metaprogramming}
 
+In this section we present the
+\emph{renopro}\footnote{\url{https://github.com/krr-up/renopro}}
+system (\emph{re}ification for \emph{no}nground \emph{pro}grams), which
+facilitates metaprogramming over non-ground ASP programs in the
+language of gringo.
+
+While meta-programming for ground programs are supported natively by
+gringo, until this point no such facilities have existed for
+non-ground programs. The renopro system supports the reification of
+gringo programs by serializing the abstract syntax tree (AST) of,
+which can then serve as input to a non-ground program. . The system
+furthermore supports the inverse of this operation; that is, the
+transformation of a set of facts describing a valid AST in renopro's
+reification format back into a gringo program. We call this inverse
+operation \emph{reflection}.
+
+In the following subsections, we will discuss two operations of
+reification and reflection in more detail, and finally, describe a
+functionality of renopro that combines the two; namely
+\emph{transformation}. This functionality first reifies an input
+non-ground program. The reified facts are then given as input to a
+\emph{transformation meta-encoding}, the stable models of which
+describes a set of transformations to be applied to the
+program. Finally, the transformed set of facts are reflected back into
+a gringo program, completing the transformation. As an example
+application of this transformation functionality, we will present a
+meta-encoding which generates the set of externals required to
+correctly ground a universal temporal logic program, as described at
+the end of Section \ref{sec:non-ground}.
+
+\subsection{Reification}
+
+Due to the richness of the gringo language, the reification format of
+renopro is much more complex than the ground reification format. We
+will therefore not describe the format in it's entirety, and restrict
+the discussion to the subset necessary to describe our example
+use-case of external generation. We note that the reification format
+has an almost one-to-one correspondence to the AST representation of
+the clingo python
+API\footnote{\url{https://potassco.org/clingo/python-api/current/clingo/ast.html}},
+and as such, the latter can serve as a guide to the format. Let us
+first take the following program, and describe how it is reified by
+renopro.
+
+\begin{lstlisting}[language=clingo]
+c(a(X)) :- b(X), not d. 
+b(1).
+\end{lstlisting}
+
+The reified representation contains the following set of facts:
+
+\begin{lstlisting}[language=clingo]
+program(0,"base",constants(1),statements(2)).
+  statements(2,0,rule(3)).
+    rule(3,literal(4),body_literals(11)).
+      literal(4,"pos",symbolic_atom(5)).
+        symbolic_atom(5,function(6)).
+          function(6,c,terms(7)).
+            terms(7,0,function(8)).
+              function(8,a,terms(9)).
+                terms(9,0,variable(10)).
+                  variable(10,"X").
+      body_literals(11,0,body_literal(12)).
+        body_literal(12,"pos",symbolic_atom(13)).
+          symbolic_atom(13,function(14)).
+            function(14,b,terms(15)).
+              terms(15,0,variable(16)).
+                variable(16,"X").
+      body_literals(11,1,body_literal(17)).
+        body_literal(17,"not",symbolic_atom(18)).
+          symbolic_atom(18,function(19)).
+            function(19,d,terms(20)).
+  statements(2,1,rule(21)).
+    rule(21,literal(22),body_literals(27)).
+      literal(22,"pos",symbolic_atom(23)).
+        symbolic_atom(23,function(24)).
+          function(24,b,terms(25)).
+            terms(25,0,number(26)).
+              number(26,1).
+\end{lstlisting}
+
+The facts above are ordered an indented in a way that mimics the tree
+structure of the AST it encodes. Each fact corresponds to a node in
+the AST of the program. 
+
+The first argument of each facts is an integer id of the fact. The id
+of each fact is unique (with the exception of tuple facts described in
+the next paragraph). We call the id wrapped in a function term with the
+same name as the fact, the fact's \emph{identifier}. The identifier of
+a fact can occur in other facts, indicating a child-parent
+relationship between the two facts.  Take as example the fact on line
+3, encoding a rule node in the AST. The term \verb|literal(4)| that
+serves as the second argument of the fact, indicates that the literal
+fact with id 4 is the head node of the rule (and is thus a child node
+of the rule node).
+
+There are also facts that encode an element of a tuple of AST
+nodes. Such tuples occur in the AST when there are a variable number
+of nodes that may appear as children, such as the literals forming the
+body of a rule, as rules may have any number literals in their body,
+including none. For such facts that encode a tuple element, the second
+argument indicates the position of the element in the tuple, with the
+third and final argument being the identifier of the element. On line
+3 for example, we see that the rule with id 3 has a tuple of body
+literals with identifier \verb|body_literals(11)| constituting it's
+body. On lines 11 and 17 we see that the tuple contains the body
+literals with identifiers \verb|body_literal(12)| as it's first
+element, and \verb|body_literal(17)| as it's second element.  A tuple
+may also be empty; in this case there will be no facts encoding it's
+elements in the reified representation. For example, the rule fact on
+line 22 which encodes the fact \verb|b(1)| has the child tuple of body
+literals with identifier \verb||
+
+The root of the ast is the fact
+\verb|program(0,"base",constants(1),statements(2)).|. Rules in the
+gringo language are considered to implicitly be under the
+\verb|#program base.| subprogram\cite{karoscwa21a}. As such, this
+facts encodes the presence of a (sub)program with name "base", with
+child tuple of program constants with identifier 1, and a child tuple
+of statements with identifier 2.
 
 \begin{center}
 \begin{minipage}{\linewidth}
@@ -10,8 +130,8 @@ operator_arity(
    eventually_after;eventually_before),1).
 operator_arity((until;since;release;trigger;and;or),2).
 
-arg((weak_prev;weak_next),0,unsafe).
-arg((until;since;release;trigger),0,unsafe).
+arg((weak_prev;weak_next;neg)),0,unsafe).
+arg((until;since;release;trigger)),0,unsafe).
 arg(or,(0;1),unsafe).
 arg(Opname,Arg,safe)
   :- operator_arity(Opname,Arity), Arg=0..Arity-1, 
@@ -25,11 +145,16 @@ operator(function(F))
      func_arity(F,Arity).
 
 operand(function(F),function(F'),Safety)
-  :- operator(function(F)), function(F,Name,terms(T)), arg(Name,P,Safety),
-		 terms(T,P,function(F')).
+  :- operator(function(F)), function(F,Name,terms(T)), 
+     Name!=neg, rg(Name,P,Safety), terms(T,P,function(F')).
+
+atom_sign(A,Sign)
+  :- literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
+atom_sign(A,Sign)
+  :- body_literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
 
 root_operator(Func)
-  :- operator(Func), symbolic_atom(_,Func).
+  :- operator(Func), symbolic_atom(A,Func), atom_sign(A,"pos").
 
 root2desc_operand(Root,Operand,Safety)
   :- root_operator(Root), operand(Root,Operand,Safety).
@@ -52,11 +177,6 @@ root2desc_leaf_operand(Root,Operand,Safety)
 \begin{center}
 \begin{minipage}{\linewidth}
   \begin{lstlisting}[]
-atom_sign(A,Sign)
-  :- literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
-atom_sign(A,Sign)
-  :- body_literal(_,Sign,symbolic_atom(A)), symbolic_atom(A,_).
-
 head_root_op(Func)
   :-  literal(L,"pos",symbolic_atom(S)), symbolic_atom(S,Func),
       root_operator(Func), not literals(_,_,literal(L)).
@@ -67,8 +187,7 @@ safe_atomic_subformula(Func,Func)
   :- symbolic_atom(A,Func), not root_operator(Func), 
      atom_sign(A,"pos").
 safe_atomic_subformula(Func,Func')
-  :- symbolic_atom(A,Func), root_operator(Func), 
-     atom_sign(A,"pos"), 
+  :- symbolic_atom(A,Func), root_operator(Func),
      root2desc_leaf_operand(Func,Func',safe).
 
 stm2desc((statements(STM),Pos),Child) 

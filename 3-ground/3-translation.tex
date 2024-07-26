@@ -1,5 +1,3 @@
-\subsection{Translating Temporal Rules to Propositional Rules}
-
 Before we present our translation, we show that when we restrict
 ourselves to finite traces, the $\release/\trigger$ operator can be
 defined in terms of the $\until/\since$ operator, respectively
@@ -17,12 +15,12 @@ If $\lambda \neq \omega$ then:
 \end{align*}
 \end{proposition}
 \begin{proof}
-  We will show the first equivalence, as the second can be proven
-  similarly.  To prove strong equivalence in THT, we need to show that
-  for any $\kinlambda$ and any HT trace $\thandt$,
+  We will prove only the case of $\release$; $\since$ can be handled
+  the same way. By Proposition \ref{prop:char-strong-equiv-3val}, it
+  suffices to show that for any HT trace $\thandt$ and $\kinlambda$,
   $\thandt,k \models \varphi \release \psi$ iff
   $\thandt,k \models \psi \until (\psi \wedge (\varphi \vee
-  \finally)).$
+  \finally))$.
 
   For the left to right direction assume that
   $\thandt,k \models \varphi \release \psi$. Then, per the definition
@@ -30,10 +28,11 @@ If $\lambda \neq \omega$ then:
   $\rangeco{j}{k}{\lambda}$, or there exists some
   $\rangeco{j}{k}{\lambda}$ such that $\handt,j \models \varphi$ and
   $\handt,i \models \psi$ for all $\rangecc{i}{k}{j}$. In both cases,
-  $\handt \models \psi \until (\psi \wedge (\varphi \vee \finally))$,
-  with the time point that satisfies the until being $\lambda-1$ in
-  the first case, and $j$ in the second. For the right to left
-  direction, a similar argument can be made.
+  $\thandt,k \models \psi \until (\psi \wedge (\varphi \vee
+  \finally))$, with the time point who's existence is required for the
+  satisfaction of the until being $\lambda-1$ in the first case, and
+  $j$ in the second. For the right to left direction, a similar
+  argument can be made.
 \end{proof}
 
 Note that in the infinite case, the first equivalence does not hold as
@@ -48,26 +47,35 @@ $der(\varphi \release \psi) \defeq \psi \until (\psi \wedge (\varphi
 \vee \finally)) \text{ and } der(\varphi \trigger \psi) \defeq \psi \since (\psi
 \wedge (\varphi \vee \initially))$.
 
-We now present the translation from temporal logic programs to logic
-programs. The formalization of this translation is inspired by
+\subsection{Translating Temporal Rules to Propositional Rules}
+
+We will now present the translation from temporal logic programs to
+logic programs. Once this translation is established, the stable
+models of the output logic program can then be obtained by an answer
+set solver, in our case, \verb|clasp|, which will correspond to the
+temporal stable models of the input temporal logic program.
+
+The formalization of the translation is inspired by
 \cite[p. 9]{capeva05a}, where the authors define a translation from
 arbitrary propositional theories to rules; the proof of our upcoming
 theorem will follow a similar logical structure as that of Theorem
-2. in the aforementioned paper. Once the translation from temporal
-logic programs to logic programs is established, the stable models of
-the output logic program can then be obtained by an answer set solver,
-in our case, \verb|clasp|, which will correspond to the temporal
-stable models of the input temporal logic program.
+2. in the aforementioned paper.
 
 We start by introducing some notation.  Given a temporal formula
 $\gamma$, let $subf(\gamma)$ denote all subformulas occurring in
 $\gamma$. We consider $\gamma$ to be a subformula of $\gamma$ and so
-$\gamma \in subf(\gamma)$. We extend $subf$ over temporal logic
-programs, defining it as the following:
+$\gamma \in subf(\gamma)$. We extend $subf$ to temporal logic programs
+in a non-standard way, defining it as the following:
 \begin{align*}
-subf(\Gamma) \defeq &\{ subf(b_i) \mid \temprulelong \in \Gamma, \rangecc{i}{1}{n}, n,m \in \mathbb{N} \}\\
-  \cup &\{ subf(h_j) \mid \temprulelong \in \Gamma,\rangecc{j}{1}{m}, n,m \in \mathbb{N} \}
+subf(\Gamma) \defeq (&\{ subf(b_i) \mid \temprulelong \in \Gamma, \rangecc{i}{1}{n} \}\\
+  \cup &\{ subf(h_j) \mid \temprulelong \in \Gamma,\rangecc{j}{1}{m} \})\setminus \A
 \end{align*}
+
+The set $subf(\Gamma)$ collects, for each rule in $\Gamma$, every
+non-atomic subformula occurring in the implication-free temporal
+formulas who's conjunction/disjunction constitute the head/body of the
+rule, respectively.
+
 We define the set of temporal formulas over $\A$ with a top-level
 derived operator as:
 $$
@@ -77,300 +85,32 @@ $$
               \eventuallyP\varphi, \alwaysF\varphi, \alwaysP\varphi, \varphi
               \release \psi, \varphi \trigger \psi \} \}
 $$
-We define a variant of $subf$, $subf^*$ as:
-$$
-subf^*(\Gamma) \defeq subf(\Gamma) \cup \{ der(\gamma) \mid \gamma \in subf(\Gamma) \cap \langdat \}\\
-$$
-To sum up in words, the function $subf^*$ collects each subformula
-occurring in implication-free temporal formulas constituting the head
-and body of $\Gamma$, and additionally, the derivation of each
-subformula that has a top-level derived operator. Note that
-$subf^*(\Gamma) \subset \langfat$.
-
-Then, for a temporal logic program $\Gamma$ over signature \A, we define a
-new signature $\A_{\Gamma,\lambda}$ as:
-$$
-\A_{\Gamma,\lambda} = \{ L_{\varphi}^k \mid \kinlambda, \varphi \in subf^*(\Gamma) \}
-$$
+Then, for a temporal logic program $\Gamma$ over signature \A, we
+define a new signature $\A_{\Gamma,\lambda}$, over which $\Gamma$'s
+translation will be constructed, as follows:
+\begin{align*}
+  \A_{\Gamma,\lambda} = &\{ L_{\varphi}^k \mid \varphi \in subf(\Gamma), \kinlambda \} \\
+                      \cup &\{ L_{der(\gamma)}^k \mid \gamma \in subf(\Gamma) \cap \langdat, \kinlambda \} \\
+                      \cup &\{ L^k_{\varphi \since \psi,j} \mid \varphi \since \psi \in subf(\Gamma),  \kinlambda, \rangecc{j}{0}{k} \} \\
+                      \cup &\{ L^k_{\varphi \until \psi,j} \mid \varphi \until \psi \in subf(\Gamma),  \kinlambda, \rangecc{j}{k}{\lambda} \}
+\end{align*}
 This signature contains one atom $L_\varphi^k$ for each time point
-$\kinlambda$ and formula $\gamma$ in $subf^*(\Gamma)$. For any time
-point $\kinlambda$ and any non-atomic formula
-$\gamma \in \mathcal{F}_\A^T$ the \emph{definition} of $\gamma$ at
-time point $k$, written as $df^k(\gamma)$, is the formula over the new
-signature $\A_{\Gamma,\lambda}$:
+$\kinlambda$ and formula $\varphi$ in $subf(\Gamma)$, as well as some
+additional auxiliary atoms. The translation of $\Gamma$ will be
+constructed in such a way that $L^k_\varphi$ is satisfied by a stable
+model of the translation iff $\varphi$ is satisfied by the
+corresponding temporal stable model or $\Gamma$ at time point $k$.
 
-\begin{align*}
-df^k(\gamma) \defeq \begin{cases}
-  L^k_{\gamma} \leftrightarrow L_{\varphi}^k \otimes L_{\psi}^k 
-  &\text{ if } \gamma = \varphi \otimes \psi \text{ and } \otimes \in \{ \vee, \wedge\}\\[2ex]
-  L^k_{\gamma} \leftrightarrow \gamma
-  &\text{ if } \gamma \in \{ \bot, \top \}\\[2ex]
-  L^k_\gamma \leftrightarrow \begin{cases} 
-    \top &\text{ when } k = \lambda - 1\\
-    \bot &\text{ when } k < \lambda - 1
-  \end{cases}
-  &\text{ if } \gamma = \finally \\[2ex]
-  L^k_\gamma \leftrightarrow \begin{cases} 
-    \top &\text{ when } k = 0\\
-    \bot &\text{ when } k > 0
-  \end{cases}
-  &\text{ if } \gamma = \initially \\[2ex]
-  L^k_\gamma \leftrightarrow \begin{cases} 
-    L^{k+1}_{\varphi} &\text{ when } k < \lambda - 1\\
-    \bot &\text{ when } k = \lambda - 1
-    \end{cases}
-  &\text{ if } \gamma = \Next \varphi \\[2ex]
-  L^k_{\gamma} \leftrightarrow \begin{cases} 
-    L^{k-1}_{\varphi} &\text{ when } 0 < k\\
-    \bot &\text{ when } k = 0
-    \end{cases}
-  &\text{ if } \gamma = \previous \varphi \\[2ex]
-  L^k_{\gamma} \leftrightarrow \bigvee_{j=k}^{\lambda-1}(L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)
-  &\text{ if } \gamma = \varphi \until \psi \\[2ex]
-  L^k_{\gamma} \leftrightarrow \bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
-  &\text{ if } \gamma = \varphi \since \psi \\[2ex]
-  L^k_{\gamma} \leftrightarrow L^k_{der(\gamma)}
-  &\text{ if } \gamma \in \mathcal{D}^T_{\A}
-\end{cases}
-\end{align*}
-
-The values assigned by $df^k(\gamma)$ above are, in essence, a
-translation of the satisfaction relations for THT, as described in the
-meta-language of this text, into a concrete representation using
-propositional connectives, while also making use of the strongly
-equivalent formulation of derived operators to simplify the
-definition.
-
-We can now define the translation of a temporal logic program $\Gamma$
-as:
-\begin{align*}
-  \chi(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
-                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
-                  & \cup \{ df^k(\gamma) \mid \gamma \in subf^*(\Gamma), \kinlambda \}
-\end{align*}
-% The first element of the union adds literals $L_\varphi^0$ who's
-% intended meaning is that $\varphi$ must hold at time point $0$ for any
-% $\varphi \in \Gamma$. The second element of the union realizes this
-% intention by recursively adding the definitions of all subformulas of
-% $\Gamma$ for all time points $\kinlambda$.
-
-We would like to use the stable models of this translated theory to
-find the temporal stable models of the input theory. It stands to
-reason then, that some correspondence between the two must be
-proven. The following definition, and the subsequent results establish
-such a connection.
-\begin{definition}[Mapping of Interpretations]
-  Given a temporal logic program $\Gamma$ over $\A$, we define the
-  following mappings.  
-
-  For any 3-valued temporal interpretation $m$
-  over $\A$ with $m \in \text{THT}(\Gamma,\lambda)$, we define the
-  mapping from $m$ to a 3 valued interpretation over
-  $\A_{\Gamma,\lambda}$ as $\mathcal{I}(m) = I_m$, where
-  $I_m(L^k_\varphi) \defeq m(k,\varphi))$ for any
-  $L^k_\varphi \in \A_{\Gamma,\lambda}$.
-
-  Furthermore, for any 3-valued interpretation $I$ over
-  $\A_{\Gamma,\lambda}$ with $I \in \text{HT}(\chi(\Gamma))$, we
-  define the mapping from $I$ to a 3-valued function
-  $m_I: \intervco{0}{\lambda} \times \langat \rightarrow
-  \textbf{3}$ as $\mathcal{M}(I) = m_I$, where
-  $m_I(k,\varphi) \defeq I(L_{\varphi}^k)$ for any $\kinlambda$ and
-  $\varphi \in \langat$.
-\end{definition}
-
-\begin{theorem}[Bijection of Here-and-There Models]\label{theorem:translation}
-
-  For any $I \in \text{HT}(\chi(\Gamma))$, $\mathcal{M}(I)$ is a
-  3-valued temporal interpretation over $\A$. Additionally,
-  $\mathcal{I}$ is a bijection between $\text{THT}(\Gamma,\lambda)$
-  and $\text{HT}(\chi(\Gamma))$, and $\mathcal{M}$ is the inverse
-  function of $\mathcal{I}$.
-\end{theorem}
-
-\begin{proof}
-  Let us first recall from Proposition \ref{prop:3-valued-ht} that
-  $I_m \models \varphi \leftrightarrow \psi$ iff
-  $I_m(\varphi) = I_m(\psi)$. We begin by showing that $m_I$ is indeed
-  a 3-valued interpretation if $I \in \text{HT}(\chi(\Gamma))$. To
-  show this, we must verify that the values assigned by $m_I$ satisfy
-  the rules defining the extension of 3-valued interpretations to
-  formulas, as laid out in Definition
-  \ref{def:3-valued-extension-temporal}.
-  
-
-  For a binary propositional connective
-  $\otimes \in \{ \vee, \wedge\}$ let $f_{\otimes}$, $f_{\otimes}^k$
-  denote it's associated 3 valued evaluation functions in the
-  non-temporal and temporal setting, respectively. Then, we have
-  \begin{align*}
-    m_I(k,\varphi \otimes \psi) 
-    &= I(L^k_{\varphi \otimes \psi})
-    \stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi})\\
-    &= f_{\otimes}(I_m(L^k_\varphi),I_m(L^k_\psi)) 
-    = f_{\otimes}^k(m(k,\varphi),m(k,\psi))\\
-    m_I(k,\previous \varphi) 
-    &= I(L^k_{\previous \varphi}) \stackrel{*}{=} \left. 
-      \begin{cases}
-        I(L^{k-1}_\varphi) = m(k-1,\varphi) \text{ if } k > 0\\
-        0 \text{ if } k = 0 
-      \end{cases}\\
-    m_I(k,\varphi \since \psi)
-    &= I(L^k_{\varphi \since \psi}) \stackrel{*}= I_m(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i))\\
-    &= \max \{\min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
-    &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\}
-  \end{align*}
-  where $\stackrel{*}=$ holds due to the fact that $I$ satisfies the
-  definitions of the formulas above. A similar argument can be made
-  for remaining operators/formulas.
-
-  To prove the bijection, we first note that for any $m$ we have
-  $m_{I_{m}}(k,\varphi) = I_m(L^k_\varphi) = m(k,\varphi)$. Similarly, we
-  get for any $I$ that
-  $I_{m_I}(L^k_\varphi) = m_I(k,\varphi) = I(L_{\varphi}^k)$.  To
-  prove the theorem then, it remains to show that
-  $\mathcal{I}: \text{THT}(\Gamma,\lambda) \rightarrow
-  \text{HT}(\chi(\Gamma))$ and
-  $\mathcal{M}: \text{HT}(\chi(\Gamma)) \rightarrow
-  \text{THT}(\Gamma,\lambda)$.
-
-  We will first prove that
-  $\mathcal{I}: \text{THT}(\Gamma,\lambda) \rightarrow
-  \text{HT}(\chi(\Gamma))$. Let $m$ be a 3-valued interpretation over
-  $\A$ such that $m \models \Gamma$. Then, we must show that
-  $I_m \models \chi(\Gamma)$. We will do so by showing that $I_m$
-  satisfies the two sets of formulas who's union constitutes
-  $\chi(\Gamma)$.
-
-  For the first set, given that $m \models \Gamma$, for any
-  $\tempruleshort \in \Gamma$ we have $m(0,\tempruleshort)=2$ as well
-  as the following equalities:
-  \begin{align*}
-  m(0,\tempruleshort)& = max\{ m(k, \lrulelong ) \mid \kinlambda \}\\
-  &\begin{aligned} = max\{ impl(&min\{ m(k,b_i) \mid \rangecc{i}{1}{n} \},\\
-                               &max\{ m(k,h_j) \mid \rangecc{j}{1}{n} \}) \mid \kinlambda \}\end{aligned}\\
-  &\begin{aligned} = max\{ impl(&min\{ I_m(L^k_{b_i}) \mid \rangecc{i}{1}{n} \},\\
-                                &max\{ I_m(L^k_{h_j}) \mid \rangecc{j}{1}{n} \}) \mid \kinlambda \}\end{aligned}\\
-  &= I_m(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n} \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m})
-  \end{align*}
-  showing us that $I_m$ satisfies the first set of formulas.
-
-  For the second set we must show that $df^k(\gamma)$ is satisfied by
-  $I_m$ for any $\gamma \in subf^*(\Gamma), \kinlambda$. To start off,
-  for $\gamma=\varphi \otimes \psi, \otimes \in \{ \land, \lor \}$, we
-  have
-  $I_m \models L^k_{\varphi \otimes \psi} \leftrightarrow L^k_\varphi
-  \otimes L^k_\psi$, as:
-  \begin{align*}
-  I_m(L^k_{\varphi \otimes \psi}) = m(k,\varphi \otimes \psi) &= f_{\otimes}^k(m(k,\varphi),m(k,\psi))\\
-  &= f_{\otimes}(I_m(L^k_\varphi),I_m(L^k_\psi)) = I_m(L^k_{\varphi} \otimes L^k_{\psi})
-  \end{align*}
-  if $\gamma=\previous \varphi$:
-  $$
-  I_m(L^k_{\previous \varphi}) = m(k,\previous \varphi) = \begin{cases}
-    m(k-1,\varphi)=I_m(L^{k-1}_\varphi)=I_m(L^{k-1}_\varphi) &\text{ if } k > 0\\
-    0=I_m(\bot) &\text{ if } k = 0
-    \end{cases}
-  $$
-  if $\gamma=\varphi \since \psi$:
-  \begin{align*}
-  I_m(L^k_{\varphi \since \psi}) 
-    &= m(k,\varphi \since \psi)\\ 
-    &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\}\\
-    &= \max \{\min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
-    &= I_m(\bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i))
-  \end{align*}
-  if $\gamma \in \langdat$
-  $$
-  I_m(L^k_{\gamma}) = m(k,\gamma) \stackrel{*}{=} m(k,der(\gamma)) = I_m(L^k_{der(\gamma)})
-  $$
-  where $\stackrel{*}{=}$ can be seen by noting that
-  $\gamma \equivtht der(\gamma)$, and applying Proposition
-  \ref{prop:3-valued-temporal-properties}. The definitions of the
-  remaining formulas can also be easily checked.
-
-  We will now proceed to prove that
-  $\mathcal{M}: \text{HT}(\chi(\Gamma)) \rightarrow
-  \text{THT}(\Gamma,\lambda)$, that is, for any $I$ such that
-  $I \models \chi(\Gamma)$, we have $m_I \models \Gamma$. Since
-  $I \models \chi(\Gamma)$, we have for any
-  $\tempruleshort \in \Gamma$ that
-  $I_m(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
-  \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m})=2$. We can also
-  easily show, (as we did before for $I$ and $m_I$) that
-  $m(0,\tempruleshort)=I_m(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land
-  \dots \land L_{b_n} \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m}$,
-  which concludes the proof.
-\end{proof}
-
-\begin{corollary}[Bijection of Equilibrium Models]\label{cor:bijection-of-sm}
-  $\mathcal{I}\vert_{\text{TEL}(\Gamma,\lambda)}$ is a bijection
-  between $\text{TEL}(\Gamma,\lambda)$ and $\text{EL}(\chi(\Gamma))$
-  and $\mathcal{M}\vert_{\text{EL}(\chi(\Gamma))}$ is the inverse
-  function of $\mathcal{I}\vert_{\text{TEL}(\Gamma,\lambda)}$.
-\end{corollary}
-
-\begin{proof}
-  Given Theorem \ref{theorem:translation}, it is enough to show that
-  the respective function restrictions do indeed map to the codomains
-  as stated in this result.
-
-  For one direction, suppose that $m \in
-  \text{TEL}(\Gamma,\lambda)$. From Theorem \ref{theorem:translation}
-  we know that $I_m \models \chi(\Gamma)$. Suppose indirectly that
-  $I_m$ is not in equilibrium, that is, there is another 3-valued
-  interpretation $J \in \text{HT}(\chi(\Gamma))$, such that
-  $J^{-1}(0) = I_m^{-1}(0)$ and $J^{-1}(2) \subset I_m^{-1}(2)$. For
-  such a $J$, there must be some atom of the form
-  $L_{a}^k \in \A_{\Gamma,\lambda}$ for which $J(L_{a}^k)=1$,
-  $I(L_a^k)=2$, as if there were no such atom, the bijection
-  established in Theorem \ref{theorem:translation} would not in fact
-  be a bijection. But, if this is the case, then $m_J(k,a) = 1$ and
-  $m(k,a) = 2$, and $m_J \models \Gamma$, so $m$ is not in
-  equilibrium, a contradiction.
-
-  A similar argument can be made for the other direction.
-\end{proof}
-
-Corollary \ref{cor:bijection-of-sm} thus establishes a method of
-finding temporal stable models of a temporal logic program $\Gamma$ by
-translating it to the propositional theory $\chi(\Gamma)$, and finding
-it's stable models. Since we have $m_I(k,a)=I(L_a^k)$ we need simply
-to extract the values of $I(L_a^k), a\in \A$ from a stable model of
-$\chi(\Gamma)$ to obtain the corresponding temporal stable model of
-$\Gamma$. However, commonly used answer set solvers do not accept
-arbitrary theories as input, but instead restrict the input to logic
-programs. Fortunately, for any $\gamma \in subf^*(\Gamma)$ we can
-apply a set of transformations on $df^k(\gamma)$ described in Figure
-\ref{fig:gamma-df-pi} to reduce the definition of $\gamma$ to a set of
-rules, denoted as $\pi^k(\gamma)$. Figure \ref{fig:gamma-df-pi} omits
-the value of $\pi^k(\gamma)$ when $\gamma \in \langdat$,
-in which case it is simply defined as
-$\pi^k(\gamma) \defeq \{ L^k_{\gamma} \rightarrow L^k_{der(\gamma)},
-L^k_{der(\gamma)} \rightarrow L^k_{\gamma} \}$. Note that the
-transformation introduces new auxiliary atoms of the form
-$L^k_{\varphi \until \psi,j}$ and $L^k_{\varphi \since \psi,j}$, so we
-introduce the revised signature
-\begin{align*}
-\A_{\Gamma,\lambda}^* = \A_{\Gamma,\lambda} 
-&\cup \{ L^k_{\varphi \until \psi,j} \mid L^k_{\varphi \until \psi} \in \A_{\Gamma,\lambda}, \rangeco{j}{0}{\lambda} \}\\
-&\cup \{ L^k_{\varphi \since \psi,j} \mid L^k_{\varphi \since \psi} \in \A_{\Gamma,\lambda}, \rangeco{j}{0}{\lambda} \}
-\end{align*}
-For a temporal logic program $\Gamma$ we define it's translation to a logic
-program over signature $\A_{\Gamma,\lambda}^*$ as:
-\begin{align*}
-  \tau(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
-                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
-                  & \cup \{ \pi^k(\gamma) \mid \gamma \in subf^*(\Gamma), \kinlambda \}
-\end{align*}
-The transformation from $df^k(\gamma)$ to $\pi^k(\gamma)$ is, for the
-most part, simply applying the strongly equivalent, vocabulary
-preserving transformations defined in \cite{capeva05a} to unfold
-$df^k(\gamma)$ into rules. However, we cannot say that
-$\chi(\Gamma) \equivht \tau(\Gamma)$, as they are not over the same
-signature due to the auxiliary atoms introduced. Nonetheless, a
-similar bijection can be show between the stable models of
-$\chi(\Gamma)$ and $\tau(\Gamma)$, so our approach remains valid.
+To this end we construct for any time point $\kinlambda$ and any
+$\gamma \in subf(\Gamma)$ a formula $df^k(\gamma)$ over
+$\A_{\Gamma,\lambda}$, called the \emph{definition} of $\gamma$ at
+time point $k$. The formulas $df^k(\gamma)$ are shown in the middle
+column of Figure \ref{fig:gamma-df-pi}. These formulas are,
+in essence, a translation of the satisfaction relations for THT as
+described in the meta-language of this text in Definition
+\ref{def:tht-sat}, into a symbolic representation using propositional
+connectives, while also making use of the strongly equivalent
+formulation of derived operators to simplify the definition.
 
 \begin{figure}
 \begin{center}
@@ -382,42 +122,42 @@ $\begin{array}{|l|l|l|}
 \hline 
 
 \varphi \wedge \psi 
-& \mathbf{L}_{\varphi \wedge \psi}^k \leftrightarrow \mathbf{L}^k_{\varphi} \wedge \mathbf{L}^k_\psi 
+& L_{\varphi \wedge \psi}^k \leftrightarrow L^k_{\varphi} \wedge L^k_\psi 
 & \begin{array}{l}
-\mathbf{L}_{\varphi \wedge \psi}^k \rightarrow \mathbf{L}_{\varphi}^k \\
-\mathbf{L}_{\varphi \wedge \psi}^k \rightarrow \mathbf{L}_\psi^k \\
-\mathbf{L}_{\varphi}^k \wedge \mathbf{L}_\psi^k \rightarrow \mathbf{L}_{\varphi \wedge \psi}^k
+L_{\varphi \wedge \psi}^k \rightarrow L_{\varphi}^k \\
+L_{\varphi \wedge \psi}^k \rightarrow L_\psi^k \\
+L_{\varphi}^k \wedge L_\psi^k \rightarrow L_{\varphi \wedge \psi}^k
 \end{array} \\
 
 \hline
 
 \varphi \vee \psi 
-& \mathbf{L}_{\varphi \vee \psi}^k \leftrightarrow \mathbf{L}_{\varphi}^k \vee \mathbf{L}_\psi^k 
+& L_{\varphi \vee \psi}^k \leftrightarrow L_{\varphi}^k \vee L_\psi^k 
 & \begin{array}{l}
-\mathbf{L}_{\varphi}^k \rightarrow \mathbf{L}_{\varphi \vee \psi}^k \\
-\mathbf{L}_\psi^k \rightarrow \mathbf{L}_{\varphi \vee \psi}^k \\
-\mathbf{L}_{\varphi \vee \psi}^k \rightarrow \mathbf{L}_{\varphi}^k \vee \mathbf{L}_\psi^k
+L_{\varphi}^k \rightarrow L_{\varphi \vee \psi}^k \\
+L_\psi^k \rightarrow L_{\varphi \vee \psi}^k \\
+L_{\varphi \vee \psi}^k \rightarrow L_{\varphi}^k \vee L_\psi^k
 \end{array} \\
 
 \hline 
 
 \neg \varphi 
-& \mathbf{L}_{\neg \varphi}^k \leftrightarrow \neg \mathbf{L}_{\varphi}^k 
+& L_{\neg \varphi}^k \leftrightarrow \neg L_{\varphi}^k 
 & \begin{array}{l}
-\neg \mathbf{L}_{\varphi}^k \rightarrow \mathbf{L}_{\neg \varphi}^k \\
-\mathbf{L}_{\neg \varphi}^k \rightarrow \neg \mathbf{L}_{\varphi}^k
+\neg L_{\varphi}^k \rightarrow L_{\neg \varphi}^k \\
+L_{\neg \varphi}^k \rightarrow \neg L_{\varphi}^k
 \end{array} \\
 
 \hline
 
 L^k_{\bot}
-& \bot
+& L^k_{\bot} \leftrightarrow \bot
 & L^k_{\bot} \rightarrow \bot\\
 
 \hline
 
 L^k_{\top}
-& \top
+& L^k_{\top} \leftrightarrow \top
 & \top \rightarrow L^k_{\top}\\
 
 \hline
@@ -463,34 +203,296 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
 
 \hline
 \varphi \until \psi
-& L^k_{\varphi \until \psi} \leftrightarrow \bigvee_{j=k}^{\lambda-1}(L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)
+& \begin{aligned} 
+  &$(L^k_{\varphi \until \psi} \leftrightarrow \bigvee_{j=k}^{\lambda-1} L^k_{\varphi \until \psi,j}) \land$\\
+  &$\bigwedge_{j=k}^{\lambda-1} (L^k_{\varphi \until \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)$ 
+  \end{aligned}
 &
   \begin{array}{l}
     L^k_{\varphi \until \psi} \rightarrow \bigvee_{j=k}^{\lambda-1} L^k_{\varphi \until \psi,j}\\
-    L^k_{\varphi \until \psi,j} \rightarrow  L^k_{\varphi \until \psi} \text{ for all } \rangeco{j}{k}{\lambda}\\
-    L^k_{\varphi \until \psi,j} \rightarrow L^j_{\psi} \text{ for all } \rangeco{j}{k}{\lambda} \\
-    L^k_{\varphi \until \psi,j} \rightarrow L^i_{\varphi} \text{ for all } \rangeco{j}{k}{\lambda}, \rangeco{i}{k}{j}\\
-    L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i \rightarrow L^k_{\varphi \until \psi,j} \text{ for all } \rangeco{j}{k}{\lambda}
+    L^k_{\varphi \until \psi,j} \rightarrow  L^k_{\varphi \until \psi} \hfill (\rangeco{j}{k}{\lambda})\\
+    L^k_{\varphi \until \psi,j} \rightarrow L^j_{\psi} \hfill (\rangeco{j}{k}{\lambda}) \\
+    L^k_{\varphi \until \psi,j} \rightarrow L^i_{\varphi} \hfill (\rangeco{j}{k}{\lambda}, \rangeco{i}{k}{j})\\
+    L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i \rightarrow L^k_{\varphi \until \psi,j} \hfill (\rangeco{j}{k}{\lambda})
     
   \end{array} \\
 
 \hline
 
 \varphi \since \psi
-& L^k_{\varphi \since \psi} \leftrightarrow \bigvee_{j=0}^{k}(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
+& \begin{aligned} 
+  &$(L^k_{\varphi \since \psi} \leftrightarrow \bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) \land$\\
+  &$\bigwedge_{j=0}^{k} (L^k_{\varphi \since \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)$ 
+  \end{aligned}
 &
   \begin{array}{l}
     L^k_{\varphi \since \psi} \rightarrow \bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}\\
-    L^k_{\varphi \since \psi,j} \rightarrow  L^k_{\varphi \since \psi} \text{ for all } \rangecc{j}{0}{k}\\
-    L^k_{\varphi \since \psi,j} \rightarrow L^j_{\psi} \text{ for all } \rangecc{j}{0}{k} \\
-    L^k_{\varphi \since \psi,j} \rightarrow L^i_{\varphi} \text{ for all } \rangecc{j}{0}{k}, \rangeoc{i}{j}{k}\\
-    L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i \rightarrow L^k_{\varphi \since \psi,j} \text{ for all } \rangecc{j}{0}{k}
+    L^k_{\varphi \since \psi,j} \rightarrow  L^k_{\varphi \since \psi} \hfill (\rangecc{j}{0}{k})\\
+    L^k_{\varphi \since \psi,j} \rightarrow L^j_{\psi} \hfill (\rangecc{j}{0}{k}) \\
+    L^k_{\varphi \since \psi,j} \rightarrow L^i_{\varphi} \hfill (\rangecc{j}{0}{k}, \rangeoc{i}{j}{k}) \\
+    L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i \rightarrow L^k_{\varphi \since \psi,j} \hfill (\rangecc{j}{0}{k})
     
   \end{array} \\
 
 \hline
 
+\gamma \in \langdat
+& L^k_{\gamma} \leftrightarrow L^k_{der(\gamma)}
+& \begin{array}{l}
+L_{\gamma}^k \rightarrow L_{der(\gamma)}^k \\
+L_{der(\gamma)}^k \rightarrow L_{\gamma}^k
+\end{array} \\
+
+\hline
+
 \end{array}$
 \end{center}
-\caption{Table defining transformation $\pi^k(\gamma)$ for any temporal formula $\gamma$\label{fig:gamma-df-pi}, omitting derived operators.}
+\caption{Table defining $df^k(\gamma)$ and
+  $\pi^k(\gamma)$ for any temporal formula $\gamma \in
+  subf(\Gamma)$ and $\kinlambda$.\label{fig:gamma-df-pi}}
 \end{figure}
+
+We can now define the translation of a temporal logic program $\Gamma$
+as:
+\begin{align*}
+  \chi(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
+                  & \cup \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda \}
+\end{align*}
+% The first element of the union adds literals $L_\varphi^0$ who's
+% intended meaning is that $\varphi$ must hold at time point $0$ for any
+% $\varphi \in \Gamma$. The second element of the union realizes this
+% intention by recursively adding the definitions of all subformulas of
+% $\Gamma$ for all time points $\kinlambda$.
+
+We would like to use the stable models of this translated theory to
+find the temporal stable models of the input theory. It stands to
+reason then, that some correspondence between the two must be
+proven. The following definition, and the subsequent theorem establish
+such a connection. Let us also recall from Proposition
+\ref{prop:3-valued-ht-properties} that
+$I_m \models \varphi \leftrightarrow \psi$ iff
+$I_m(\varphi) = I_m(\psi)$; this will be made use of heavily in the
+following proofs.
+\begin{definition}[Mapping of Interpretations]
+  For any 3-valued interpretation $I$ over $\A_{\Gamma,\lambda}$ with
+  $I \in \text{HT}(\chi(\Gamma))$, we define the mapping from $I$ to a
+  3-valued temporal interpretation as $\mathcal{M}(I) = m_I$, where
+  $m_I(k,a) \defeq I(L_{a}^k)$ for any $\kinlambda$ and $a \in \A$.
+\end{definition}
+
+\begin{lemma}\label{lemma:bij-helper}
+  For any $I \in \text{HT}(\chi(\Gamma))$, the interpretation $I$ is
+  fully determined by it's values on atoms
+  $\{ L^k_{a} \mid \kinlambda, a \in A \}$, as the following assertions hold for any $\kinlambda$:
+  \begin{enumerate}[label={(\arabic*)}]
+    \setlength\itemsep{0.15em}
+    \item $I(L^k_{der(\gamma)}) = I(L^k_{\gamma})$ for all $\gamma \in subf(\Gamma) \cap \langdat$
+    \item $I(L^k_{\varphi \until \psi,j}) = \min (I(L^j_{\psi}), \min
+      \{I(L^i_{\varphi}) \mid k \leq i < j\})$ for all $\rangeco{j}{k}{\lambda}$
+    \item
+      $I(L^k_{\varphi \since \psi,j}) = \min (I(L^j_{\psi}), \min
+      \{I(L^i_{\varphi}) \mid j<i \leq k\})$ for all $\rangecc{j}{0}{k}$
+    \item $I(L^k_{\gamma}) = m_I(k,\gamma)$ for all $ \gamma \in subf(\Gamma)$
+  \end{enumerate}
+\end{lemma}
+
+\begin{proof} We will prove each assertion in order.
+
+  (1): Since $I \models \chi(\Gamma)$, we have
+  $I \models \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
+  \}$. In particular, for any $\gamma \in subf(\Gamma) \cap \langdat$,
+  $I \models L^k_{\gamma} \leftrightarrow L^k_{der(\gamma)}$, which
+  means $I(L^k_{der(\gamma)}) = I(L^k_{\gamma}))$.
+
+  (2): As $I \models df^k(\varphi \until \psi)$, we have
+  $I \models \bigwedge_{j=k}^{\lambda-1} (L^k_{\varphi \until \psi,j}
+  \leftrightarrow L_\psi^j \wedge
+  \bigwedge_{i=k}^{j-1}L_{\varphi}^i)$, which implies that for any
+  $\rangeco{j}{k}{\lambda}$
+  $$
+  I(L^k_{\varphi \until \psi,j}) = I(L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i) = \min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid k \leq i < j\})
+  $$
+
+  (3): Can be show to hold the same way as (2).
+
+  (4): We shall prove the assertion by structural induction on
+  $\gamma \in subf(\Gamma)$. The statement holds when $\gamma \in \A$
+  per the definition of the mapping $\mathcal{M}$.
+
+  We will show the inductive step when $\gamma$ is of the form
+  $\varphi \lor \psi/\varphi \land \psi/\previous \varphi/\varphi
+  \since \psi$ or when $\gamma \in \langdat$; a similar argument can
+  be made the remaining cases.
+
+  For a binary propositional connective
+  $\otimes \in \{ \vee, \wedge\}$ let $f_{\otimes}$, $f_{\otimes}^k$
+  denote it's associated 3 valued evaluation functions in the
+  non-temporal and temporal setting, respectively. Then, we have
+  \begin{align*}
+    I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi}) 
+    = f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) \stackrel{**}{=} f_{\otimes}(m_I(k,\varphi),m_I(k,\psi))  \\
+    &= f_{\otimes}^k(m_I(k,\varphi),m_I(k,\psi)) = m_I(k,\varphi \otimes \psi)\\
+    I(L^k_{\previous \varphi}) &\stackrel{*}{=} \left. 
+      \begin{cases}
+        I(L^{k-1}_\varphi) \stackrel{**}{=} m_I(k-1,\varphi) \text{ if } k > 0\\
+        I(\bot) = 0 \text{ if } k = 0 
+      \end{cases} = m_I(k,\previous \varphi)\\
+    I(L^k_{\varphi \since \psi}) &\stackrel{*}= I(\bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) 
+    = \max \{ I(L^k_{\varphi \since \psi,j}) \mid 0 \leq j \leq k \}\\
+                                  &\stackrel{(3)}{=} \max \{\min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+                                  &\stackrel{**}{=} \max \{\min (m_I(j, \psi), \min \{m_I(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+                                  &= m_I(k,\varphi \since \psi)\\
+  I(L^k_{\gamma}) &\stackrel{*}{=} I(L^k_{der(\gamma)}) \stackrel{**}{=} m_I(k,der(\gamma)) = m_I(k,\gamma) \text{ if } \gamma \in \langdat
+  \end{align*}
+  where $\stackrel{*}=$ holds due to the fact that
+  $I \models \{ df^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda
+  \}$, $\stackrel{**}=$ holds due to the induction hypothesis, and
+  $\stackrel{(3)}{=}$ holds due to point (3) of this Lemma.
+\end{proof}
+
+\begin{theorem}[Bijection Between HT and THT
+  Models]\label{theorem:translation}
+  $\mathcal{M}$ is a bijection between $\text{HT}(\chi(\Gamma))$ and
+  $\text{THT}(\Gamma,\lambda)$
+\end{theorem}
+
+\begin{proof} We break the proof down into the following steps:
+  \begin{enumerate}[label={(\arabic*)}]
+    \setlength\itemsep{0.15em}
+  \item $\mathcal{M}$ is injective.
+  \item The codomain of $\mathcal{M}$ is $\text{THT}(\Gamma,\lambda)$.
+  \item $\mathcal{M}$ is surjective.
+  \end{enumerate}
+    
+
+  (1): Let $I$, $I^{\prime} \in \text{HT}(\chi(\Gamma))$. If the two
+  interpretation differ on some atom of the form $L^k_a$, $a \in \A$,
+  then of course $I \neq I^{\prime}$, and also
+  $m_I \neq m_{I^{\prime}}$. On the other hand, if they match on all
+  the atoms of the aforementioned form, then they will also match on
+  all atoms in the signature $\A_{\Gamma,\lambda}$ due to Lemma
+  \ref{lemma:bij-helper}, and as such $I = I^{\prime}$.
+
+  (2): Let $I \in \text{HT}(\chi(\Gamma))$; we must then show that
+  $m_I(0,\Gamma) = 2$. Since $I \models \chi(\Gamma)$, we have for any
+  $\tempruleshort \in \Gamma$ that
+  $I(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+  \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m})=2$. We then also have the following equation
+  \begin{align*}
+  m_I(0,\tempruleshort) &= max\{ m_I(k, \lrulelong ) \mid \kinlambda \}\\
+  &\begin{aligned} = max\{ impl(&min\{ m_I(k,b_i) \mid \rangecc{i}{1}{n} \},\\
+                               &max\{ m_I(k,h_j) \mid \rangecc{j}{1}{m} \}) \mid \kinlambda \}\end{aligned}\\
+  &\begin{aligned} \stackrel{*}{=} max\{ impl(&min\{ I(L^k_{b_i}) \mid \rangecc{i}{1}{n} \},\\
+                                &max\{ I(L^k_{h_j}) \mid \rangecc{j}{1}{m} \}) \mid \kinlambda \}\end{aligned}\\
+  &= I(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n} \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m}) = 2
+  \end{align*}
+  where $\stackrel{*}=$ holds due to Lemma \ref{lemma:bij-helper}.
+
+  (3): To show that $\mathcal{M}$ is surjective, we must find for any
+  $m \in \text{THT}(\Gamma,\lamgda)$ some $I \in \text{HT}(\Gamma)$
+  such that $\mathcal{M}(I) = m$. Let us define a 3-valued
+  interpretation $I_m$ over $\A_{\Gamma,\lambda}$ as follows. We
+  define $I_m(L_{a}^k) \defeq m(k,a)$ for all $a \in \A$,
+  $I_m(L^k_{\gamma}) \defeq m(k,\gamma)$ for all
+  $\kinlambda, \gamma \in subf(\Gamma)$, and for any other
+  $L^k_\varphi \in \A_{\Gamma,\lambda}$, we define
+  $I_m(L^k_{\varphi})$ as determined by equations in points (1)-(3) of
+  Lemma \ref{lemma:bij-helper}. Clearly we have
+  $\mathcal{M}(I_m) = m$, so it suffices to show that
+  $I_m \models \chi(\Gamma)$. We break this into two steps, showing
+  that $I_m$ satisfies the two sets of formulas who's union
+  constitutes $\chi(\Gamma)$.
+
+  For the first set, given that $m \models \Gamma$, for any
+  $\tempruleshort \in \Gamma$ we have $m(0,\tempruleshort)=2$, and we
+  can construct a similar set of equations as in step (2) of the proof
+  to show that
+  $I_m(\bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+  \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m}) = 2$:
+
+  For the second set we must show that $df^k(\gamma)$ is satisfied by
+  $I_m$ for any $\gamma \in subf(\Gamma), \kinlambda$. The following
+  equations show that this is the case when $\gamma$ is of the form
+  $\varphi \lor \psi/\varphi \land \psi/\previous \varphi/\varphi
+  \since \psi$ or when $\gamma \in \langdat$. A similar argument can
+  be made in the remaining cases.
+  \begin{align*}
+  I_m(L^k_{\varphi \otimes \psi}) &= m(k,\varphi \otimes \psi) = f_{\otimes}^k(m(k,\varphi),m(k,\psi))\\
+  &= f_{\otimes}(I_m(L^k_\varphi),I_m(L^k_\psi)) = I_m(L^k_{\varphi} \otimes L^k_{\psi}) \text{ if } \otimes \in \{ \land, \lor \}\\
+  I_m(L^k_{\previous \varphi}) &= m(k,\previous \varphi) = \begin{cases}
+    m(k-1,\varphi)=I_m(L^{k-1}_\varphi) &\text{ if } k > 0\\
+    0=I_m(\bot) &\text{ if } k = 0
+  \end{cases}\\
+    I_m(L_{\varphi \since \psi,j}^k) &= \min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\})\\
+                                  &= I_m(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i) \text{ for all } 0 \leq j \leq k\\
+    I_m(L^k_{\varphi \since \psi}) 
+                                  &= m(k,\varphi \since \psi)\\ 
+                                  &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\}\\
+                                  &= \max \{\min (I_m(L^j_{\psi}), \min \{I_m(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
+                                  &= \max \{ I_m(L_{\varphi \since \psi,j}^k) \mid 0 \leq j \leq k \} \\
+                                  &= I_m(\bigvee_{j=0}^{k} L_{\varphi \since \psi,j}^k )\\
+    I_m(L^k_{\gamma}) &= m(k,\gamma) \stackrel{*}{=} m(k,der(\gamma)) = I_m(L^k_{der(\gamma)}) \text{ if } \gamma \in \langdat
+  \end{align*}
+  where $\stackrel{*}{=}$ holds as $\gamma \equivtht der(\gamma)$ for
+  any $\gamma \in \langdat$.
+\end{proof}
+
+\begin{corollary}[Bijection of Equilibrium Models]\label{cor:bijection-of-sm}
+  $\mathcal{M}\vert_{\text{EL}(\chi(\Gamma))}$ is a bijection
+  between $\text{EL}(\chi(\Gamma))$ and $\text{TEL}(\Gamma,\lambda)$.
+\end{corollary}
+
+\begin{proof}
+  Given Theorem \ref{theorem:translation}, it is enough to show that
+  $\mathcal{M}^{-1}\vert_{\text{TEL}(\Gamma)}$ maps surjectively onto
+  $\text{EL}(\chi(\Gamma))$.
+
+  First, suppose that $m \in \text{TEL}(\Gamma,\lambda)$, and let
+  $I_m = \mathcal{M}^-1(m)$. From Theorem \ref{theorem:translation} we
+  know that $I_m \models \chi(\Gamma)$. Suppose indirectly that there
+  is some $J \in \text{HT}(\chi(\Gamma))$, such that
+  $J^{-1}(0) = I_m^{-1}(0)$ and $J^{-1}(2) \subsetneq I_m^{-1}(2)$. By
+  Lemma \ref{lemma:bij-helper}, for such a $J$, there must be some
+  atom of the form $L_{a}^k \in \A_{\Gamma,\lambda}$ for which
+  $J(L_{a}^k)=1$, $I_m(L_a^k)=2$. But then, we have
+  $m_J^{-1}(0) = m^{-1}(0)$ as well as $m_J(k,a) = 1$, $m(k,a) = 2$, a
+  contradiction as $m$ is in equilibrium.
+
+  On the other hand, for any any $I \in \text{EL}(\chi(\Gamma))$ we
+  can similarly show that we must have $m_I \in \text{TEL}(\Gamma)$.
+  As $\mathcal{M}^{-1}(m_I) = I$, $\mathcal{M}^{-1}$ does indeed hit
+  $I$, and is therefore surjective.
+\end{proof}
+
+Corollary \ref{cor:bijection-of-sm} thus establishes a method of
+finding temporal stable models of a temporal logic program $\Gamma$ by
+translating it to the propositional theory $\chi(\Gamma)$, and finding
+it's stable models. Since we have $m_I(k,a)=I(L_a^k)$ for any
+$a\in \A$, for any stable model $T$ of $\chi(\Gamma)$, we be can
+construct the corresponding temporal stable model $\bm{T}$ of
+$\Gamma$, where $\bm{T} = (T_i)_{i=0}^{\lambda - 1}$ and
+$T_i = \{ a \mid L^i_{a} \in T, a \in \A \}$.
+
+However, commonly used answer set solvers do not accept arbitrary
+propositional theories as input, but instead restrict the input to
+logic programs. Fortunately, for any $\gamma \in subf(\Gamma)$ we can
+apply a set of strongly equivalent transformations on $df^k(\gamma)$
+described \cite{capeva05a} to transform $df^k(\gamma)$ to a set of
+rules $\pi^k(\gamma)$ such that $df^k(\gamma) \equivht
+\pi^k(\gamma)$. These sets of rules are depicted in the rightmost
+column of Figure \ref{fig:gamma-df-pi}.
+
+For a temporal logic program $\Gamma$ we define it's translation to a logic
+program $\tau(\Gamma)$ over signature $\A_{\Gamma,\lambda}$ as:
+\begin{align*}
+  \tau(\Gamma)  = &\{ \bigwedge_{k=0}^{\lambda-1} L_{b_1}^k \land \dots \land L_{b_n}
+                    \rightarrow L_{h_1}^k \lor \dots \lor L_{h_m} \mid \tempruleshort \in \Gamma \} \\
+                  & \cup \{ \cup \pi^k(\gamma) \mid \gamma \in subf(\Gamma), \kinlambda \}
+\end{align*}
+
+As $df^k(\gamma) \equivht \pi^k(\gamma)$, we have
+$\tau(\Gamma) \equivht \chi(\Gamma)$, so in particular they have the
+same stable models. Therefore, we can construct the set of temporal
+stable models of $\Gamma$ by using the stable models $T$ of
+$\tau(\Gamma)$ as before.

@@ -9,7 +9,8 @@ of LTL, we take similar approach as in propositional logic, defining
 first a monotonic Here-and-There variant, among which we define models
 which are in equilibrium via a totality and minimality condition. The
 definitions and propositions of this section follow those of
-\citeauthor{agcadipescscvi20a}\cite{agcadipescscvi20a}.
+\citeauthor{agcadipescscvi20a}\cite{agcadipescscvi20a}, with some
+modifications.
 
 A temporal formula over a set of atoms $\A$ is defined by the
 following grammar:
@@ -39,7 +40,7 @@ temporal operators are read as follows:
     \wprevious & \text{\emph{weak previous}} & \wnext & \text{\emph{weak next}}\\
     \eventuallyP & \text{\emph{eventually before}} & \eventuallyF & \text{\emph{eventually after}}\\
     \alwaysP & \text{\emph{always before}} & \alwaysF & \text{\emph{always after}}\\
-    \since & \text{\emph{since}} & \Next & \text{\emph{until}}\\
+    \since & \text{\emph{since}} & \until & \text{\emph{until}}\\
     \trigger & \text{\emph{trigger}} & \release & \text{\emph{release}}
 \end{array}
 \]
@@ -52,26 +53,31 @@ where $\psi$ was true, while $\varphi \until \psi$ says that $\varphi$
 must be true until some time point in the future where $\psi$ is true.
 The meaning of trigger and release are somewhat less
 intuitive. $\varphi \trigger \psi$ mean that $\psi$ has been true
-either for all time steps in the past, or since some time point in the
-past when $\varphi$ and $\psi$ were both true. $\varphi \release \psi$
-in turn means that $\psi$ will be true either for all time steps in
-the future, or until some time point in the future when $\varphi$ and
-$\psi$ will both be true.
+either for all time steps in the past (including the current), or
+since some time point in the past when $\varphi$ and $\psi$ were both
+true. $\varphi \release \psi$ in turn means that $\psi$ will be true
+either for all time steps in the future (including the current), or
+until some time point in the future when $\varphi$ and $\psi$ will
+both be true.
 
 A more precise discussion of the semantics of the temporal operators
 requires us to first fix some terminology and notation. Let $\omega$
 denote the first infinite ordinal. For any $a \in \mathbb{N}$ and
 $b \in \mathbb{N} \cup {\omega}$, we introduce the notation
-$\intervcc{a}{b} \defeq \{ i \in \mathbb{N} \mid a \leq i \leq b \}$,
-$\intervco{a}{b} \defeq \{ i \in \mathbb{N} \mid a \leq i < b \}$,
-$\intervoc{a}{b} \defeq \{ i \in \mathbb{N} \mid a < i \leq b \}$ and
-$\intervoo{a}{b} \defeq \{ i \in \mathbb{N} \mid a < i < b \}$. A
-trace $\bm{T}$ of length $\lambda$ over signature $\A$ is then defined
-as a (possibly infinite) sequence of sets of atoms
-$\bm{T} \in \A^{\intervco{0}{\lambda}}$. We denote by $T_i$ the $i$-th
-element of a trace, where $\rangeco{i}{0}{\lambda}$. For two traces
-$\bm{H}$ and $\bm{T}$, we write $\bm{H < T}$ iff $H_i \subset T_i$ for
-all $\rangeco{i}{0}{\lambda}$.
+$\intervcc{a}{b} \defeq \{ i \mid i \in \mathbb{N}, a \leq i \leq b
+\}$,
+$\intervco{a}{b} \defeq \{ i \mid i \in \mathbb{N}, a \leq i < b \}$,
+$\intervoc{a}{b} \defeq \{ i \mid i \in \mathbb{N}, a < i \leq b \}$
+and $\intervoo{a}{b} \defeq \{ i \mid i \in \mathbb{N}, a < i < b
+\}$. A trace $\bm{T}$ of length $\lambda$ over signature $\A$ is then
+defined as a (possibly infinite) sequence of sets of atoms
+$\bm{T} \in (2^{\A})^{\intervco{0}{\lambda}}$. We denote by $T_i$ the
+$i$-th element of a trace (i.e. $\bm{T}(i)$), where
+$\rangeco{i}{0}{\lambda}$. For two traces $\bm{H}$ and $\bm{T}$, we
+write $\bm{H < T}$ iff $H_i \subseteq T_i$ for all
+$\rangeco{i}{0}{\lambda}$, and there is some $\rangeco{j}{0}{\lambda}$
+such that $H_j \subsetneq T_j$. We write $\bm{H \leq T}$ iff
+$\bm{H < T}$ or $\bm{H} = \bm{T}$
 
 If for each time point we consider two worlds, a "here" and a "there",
 instead of a single world, we arrive at the notion of an HT
@@ -82,7 +88,7 @@ are now ready to extend the logic of HT with the temporal operators
 defined above, resulting in the logic of Temporal Here-And-There, or
 THT for short.
 
-\begin{definition}[THT satisfaction \cite{agcadipescscvi20a}]
+\begin{definition}[THT satisfaction \cite{agcadipescscvi20a}]\label{def:tht-sat}
   An HT-trace $\thandt$ of length $\lambda$ over signature $\A$
   satisfies a temporal formula $\varphi \in \langat$ at
   time point $\kinlambda$, written as $\thandt,k \models \varphi$ if
@@ -98,8 +104,8 @@ THT for short.
     or $\langle \bm{H}^{\prime},\bm{T} \rangle, k \models \psi$, 
     for all $\bm{H}^{\prime} \in\{\bm{H}, \bm{T}\}$
   \item $\bf{M},k \models \initially$ iff $k=0$
-  \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M},k-1 \models \varphi$
-  \item $\bf{M},k \models \wprevious \varphi$ iff $k=0$ or $\bf{M},k-1 \models \varphi$
+  \item $\bf{M},k \models \previous \varphi$ iff $k>0$ and $\bf{M}, k-1 \models \varphi$
+  \item $\bf{M},k \models \wprevious \varphi$ iff $k=0$ or $\bf{M}, k-1 \models \varphi$
   \item $\bf{M},k \models \eventuallyP \varphi$ iff $j \models \varphi$ for some $\rangecc{j}{0}{k}$  
   \item $\bf{M},k \models \alwaysP \varphi$ iff $j \models \varphi$ for all $\rangecc{j}{0}{k}$  
   \item $\bf{M},k \models \varphi \since \psi$ iff for some $j \in[0 . . k]$, we have $\bf{M}, j \models \psi$ and $\bf{M},i \models \varphi$ for all $\rangeoc{i}{j}{k}$
@@ -115,20 +121,22 @@ THT for short.
 \end{enumerate}
 \end{definition}
 
-We say that an HT-trace $\thandt$ is a THT model of a temporal theory
-$\Gamma$ iff $\thandt,0 \models \varphi$ for all $\varphi \in
-\Gamma$. We denote the set of all THT models of a theory $\Gamma$ of
-length $\lambda$ as $\text{THT}(\Gamma,\lambda)$. A formula $\varphi$
-is a THT tautology, written as $\models \varphi$, if
-$\handt,k \models \varphi$ for any HT-trace $\thandt$ and
-$\kinlambda$. We call the logic induced by the set of all tautologies
-the logic of Temporal Here-and-There (THT for short). Two formulas
-$\varphi$ and $\psi$ are said to be THT equivalent, denoted as
-$\varphi \equivtht \psi$, iff $\models \varphi \leftrightarrow
-\psi$. Note that while THT models are only required to satisfy a
-formula at the initial time step, to verify that a formula is a
-tautology, one must check not only for any HT-trace, but also any time
-point that the equivalence holds.
+We say that an HT-trace $\thandt$ is a THT model of a temporal formula
+$\varphi$ iff $\thandt,0 \models \varphi$. We write
+$\thandt \models \varphi$ iff $\thandt,0 \models \varphi$, and for any
+theory $\Gamma \subseteq \langat$ we write $\thandt \models \Gamma$
+iff $\varphi \models \Gamma$ for all $\varphi \in \Gamma$. We denote
+the set of all THT models of a theory $\Gamma$ of length $\lambda$ as
+$\text{THT}(\Gamma,\lambda)$. A formula $\varphi$ is a THT tautology,
+written as $\models \varphi$, if $\handt,k \models \varphi$ for any
+HT-trace $\thandt$ and $\kinlambda$. We call the logic induced by the
+set of all tautologies the logic of Temporal Here-and-There (THT for
+short). Two formulas $\varphi$ and $\psi$ are said to be THT
+equivalent, denoted as $\varphi \equivtht \psi$, iff
+$\models \varphi \leftrightarrow \psi$. Note that while THT models are
+only required to satisfy a formula at the initial time step,
+tautologies (and thus THT equivalence) must be check not only for any
+HT-trace, but also any time point.
 
 Temporal equilibrium models and temporal stable models are defined
 similarly as in the HT case.
@@ -137,11 +145,14 @@ similarly as in the HT case.
   A total HT-trace $\ttandt$ is said to be a temporal equilibrium
   model of a temporal theory $\Gamma$ iff $\ttandt \models \Gamma$,
   and there is no HT-trace $\thandt$ such that
-  $\thandt \models \Gamma$ and $\bm{H} \subset \bm{T}$. A trace
+  $\thandt \models \Gamma$ and $\bm{H} < \bm{T}$. A trace
   $\bm{T}$ is a temporal stable model of a temporal theory $\Gamma$
-  iff $\ttandt$ is a temporal equilibrium model of $\Gamma$. We denote
-  the set of all temporal equilibrium models of a theory $\Gamma$ of length $\lambda$
-  as $\text{TEL}(\Gamma,\lambda)$.
+  iff $\ttandt$ is a temporal equilibrium model of $\Gamma$.
+
+  We denote the set of all temporal equilibrium models of a theory
+  $\Gamma$ of length $\lambda$ as $\text{TEL}(\Gamma,\lambda)$. We
+  call the logic determined by the temporal equilibrium models of a
+  theory \emph{Temporal Equilibrium Logic}.
 \end{definition}
 
 \begin{example}\label{exam:shoot-ground-theory}
@@ -224,10 +235,10 @@ above, it's \textit{derivation}. We map such formulas to their
 derivation via the function $der(\gamma)$, e.g. for
 $\gamma = \wprevious \varphi$,
 $der(\wprevious \varphi) = \previous \varphi \vee \initially$. We note
-that the $\initially$/$\finally$ operator could also be considered as
-derived operators, as
-$\initially \equivtht \lnot \previous
-\top$/$\finally \equivetht \lnot \Next \top$, but we do not do so.
+that the $\initially$ and $\finally$ operator could also be considered
+as derived operators (but we do not do so), as
+$\initially \equivtht \lnot \previous \top$ and
+$\finally \equivtht \lnot \Next \top$.
 
 THT, similarly to HT, can also be characterized via a 3-valued THT
 interpretation $m$. In the case of THT though, the interpretation is
@@ -265,21 +276,12 @@ m(k+1, \varphi) & \text { if } k+1<\lambda\end{cases} \\
 \end{align*}
 \end{definition}
 
-We also call a 3-valued function
-$m: \intervco{0}{\lambda} \times \langat \rightarrow
-\textbf{3}$ a 3-valued (temporal) interpretation, when $m$ satisfies
-the equalities laid out in Definition
-\ref{def:3-valued-extension-temporal}. This definition is sound, as if
-this is the case, the 3-valued function $m$ can simply be viewed as an
-extension of the 3-valued interpretation $m\vert_\A$ to
-$\langat$.
-
 The 3-valued THT interpretation satisfies similar properties as the
 3-valued HT interpretation discussed in the previous section.
 
 \begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-temporal-properties}
-  For any 3-valued THT interpretation $m$, $\kinlambda$ and temporal
-  formulas $\varphi$, $\psi$:
+  For any HT trace $\thandt$, $\kinlambda$ and temporal
+  formulas $\varphi$, $\psi$, the following assertions hold:
 \begin{description}
 \item $m_{\thandt}(k,\varphi) = 2$ iff $\thandt,k \models \varphi$
 \item $m_{\thandt}(k,\varphi) = 1$ iff $\ttandt,k \models \varphi$ and $\thandt,k \not\models \varphi$
@@ -294,6 +296,20 @@ Definition \ref{def:3-valued-extension-temporal} by noting that for
 any derived operator $\gamma$ and $\kinlambda$,
 $m(k,\gamma)=m(k,der(\gamma))$ due to strong equivalence. We refer the
 reader to \cite{agcadipescscvi20a} for the concrete values.
+
+THT equivalence can characterized via 3-valued interpretations, similarly as in HT.
+
+\begin{proposition}\label{prop:char-strong-equiv-3val}
+For any $\varphi$, $\psi$ the following assertions are equivalent:
+  \begin{enumerate}[label={(\arabic*)}]
+    \setlength\itemsep{0.15em}
+    \item $\varphi \equivtht \psi$
+    \item For all 3-valued interpretations $m$ and $\kinlambda$: $m(k,\varphi) = m(k,\psi)$
+    \item For all 3-valued interpretations $m$ and $\kinlambda$: 
+      
+$m(k,\varphi) = 2$ iff $m(k,\psi) = 2$
+  \end{enumerate}
+\end{proposition}
 
 Finally, we distinguish the syntactic fragment that we will restrict
 our discussion to in the rest of the paper.

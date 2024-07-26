@@ -20,7 +20,7 @@
 \newcommand{\lruleshort}{B \rightarrow H}
 \newcommand{\temprulelong}{\alwaysF(\lrulelong)}
 \newcommand{\tempruleshort}{\alwaysF(\lruleshort)}
-% \renewcommand{\until}{\ensuremath{\mathbin{\mbox{\outline{$\bm{\mathsf{U}}$}}}}}
+% \renewcommand{\until}{\ensuremath{\mathbin{\mbox{\outline{$\bm{\mathsf{G}}$}}}}}
 % \renewcommand{\release}{\ensuremath{\mathbin{\mbox{\outline{$\bm{\mathsf{R}}$}}}}}
 % \renewcommand{\finally}{\ensuremath{\mbox{\outline{$\bm{\mathsf{F}}$}}}}
 
@@ -28,7 +28,7 @@
 \newcommand*{\dsigma}{\ensuremath{\langle D, \sigma \rangle}}
 \newcommand*{\qthandt}{\ensuremath{\langle \dsigma, \bm{H},\bm{T} \rangle}}
 \newcommand*{\qttandt}{\ensuremath{\langle \dsigma, \bm{T},\bm{T} \rangle}}
-\newcommand*{\qttcandt}{\ensuremath{\langle \dsigma, \bm{T}_{|C},\bm{T} \rangle}}
+\newcommand*{\qttcandt}{\ensuremath{\langle \dsigma, \bm{T}\vert_C},\bm{T} \rangle}}
 
 \newcommand*{\herbrandhandt}{\ensuremath{\langle \langle C, id \rangle, \bm{H},\bm{T} \rangle}}
 \newcommand*{\herbrandtandt}{\ensuremath{\langle \langle C, id \rangle, \bm{T},\bm{T} \rangle}}
@@ -55,4 +55,31 @@
 \newcommand*{\forallx}{\ensuremath{\forall x_1 \forall x_2 \dots \forall x_n}}
 
 \newcommand*{\ground}[2]{\ensuremath{\operatorname{Gr}_{#1}(#2)}}
+
+% Fix scaling of outlined operator in sub/subsubscript
+
+\let\olduntil\until
+\renewcommand{\until}{\mathchoice
+  {\olduntil}
+  {\olduntil}
+  {\scaleto{\olduntil}{4.5pt}}
+  {\scaleto{\olduntil}{3pt}}
+}
+
+\let\oldnext\next
+\renewcommand{\next}{\mathchoice
+  {\oldnext}
+  {\oldnext}
+  {\scaleto{\oldnext}{4.5pt}}
+  {\scaleto{\oldnext}{3pt}}
+}
+
+\let\oldfinally\finally
+\renewcommand{\finally}{\mathchoice
+  {\oldfinally}
+  {\oldfinally}
+  {\scaleto{\oldfinally}{4.5pt}}
+  {\scaleto{\oldfinally}{3pt}}
+}
+
 

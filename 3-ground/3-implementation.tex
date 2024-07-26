@@ -2,18 +2,19 @@
 
 Metaprogramming is a generic technique in programming languages, where
 an input program is translated, or \emph{reified} into some primitive
-datatype of the language. This reified representation then serve as
+datatype of the language. This reified representation then serves as
 input to a meta program, which in turn may reinterpret the semantics
 of the reified program. The complexity of this translation varies
 based on the complexity of the language's syntax. Lisp may serve as a
-gold standard here, where reification is simply done by quotation. 
+gold standard here, where reification is simply done by quotation.
 
 The ASP grounder gringo offers native support for meta-programming by
 first grounding the input program, and then serializing a
-representation of the ground program as a set of facts
-\cite{karoscwa21a}. This set of facts can then be fed as input to a
-\emph{meta-encoding}, which can reinterpret the semantics of the
-ground language constructs. The transformation $\tau(\Gamma)$
+representation (namely the \emph{aspif}
+representation\cite{PotasscoUserGuide19}) of the ground program as a
+set of facts \cite{karoscwa21a}. This set of facts can then be fed as
+input to a \emph{meta-encoding}, which can reinterpret the semantics
+of the ground language constructs. The transformation $\tau(\Gamma)$
 described in the previous section will be implemented by such a
 meta-encoding. We will not detail the reification format in this
 thesis. For a description of the format, and some examples of simpler
@@ -36,10 +37,8 @@ respectively. For example \verb|since(a,b)| corresponds to
 $a \since b$. Second, the symbol must not occur nested within a symbol
 that is not an operator, i.e. in \verb|dog(next(spotty))|, the
 \verb|next/1| is not considered a temporal operator, as \verb|dog/1|
-is not an operator.
-
-We call this representation of a temporal program it's \emph{gringo
-  representation}.
+is not an operator. We call this representation of a temporal program
+it's \emph{gringo representation}.
 
 \begin{example}\label{exam:shoot-ground-symbolic}
   The gringo representation of the temporal program in Example
@@ -172,16 +171,18 @@ not_atom(F)
 \subsubsection{Meta Encoding}
 
 Given an input temporal logic program (in it's gringo representation),
-referred to as tap.lp we can obtain it's temporal stable models by
+referred to as tlp.lp we can obtain it's temporal stable models by
 executing the command:
 
 \begin{lstlisting}[language=bash,numbers=none]
-clingo tap.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
+clingo tlp.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
 \end{lstlisting}
 
 where \verb|<n>| is some natural number, and sets the trace length
-$\lambda$ for the translation. We begin the description of
-meta-telingo.lp encoding, which extends over Listing 1 and Listing 2.
+$\lambda$ for the translation. We now present a description of
+meta-telingo.lp meta-program, which extends over Listing 1 and Listing
+2. This meta-program (or shall we say meta-encoding) implements the
+translation $\tau(\Gamma)$.
 
 We begin with Listing 1. In the first line, we introduce a helper
 predicate \verb|time(K)|, which ranges over the time points of the trace we
@@ -201,9 +202,9 @@ Lines 13-15 takes care of some technicalities required for the
 implementation. The reification format of gringo represents literals
 in the input program as integers \verb|L| in predicates
 \verb|literal_tuple(B,L)|. This integer representation is then linked
-to it's symbolic representation \verb|O| (a symbolic term in the
+to it's symbolic representation \verb|O| (a symbolic function in the
 gringo language) via the predicate \verb|output(O,B)|. Our translation
-will represent the atoms $L_\gamma^k \in \A_{\Gamma,\lambda}^*$ via
+will represent the atoms $L_\gamma^k \in \A_{\Gamma,\lambda}$ via
 \verb|true(O,K)|, where \verb|O| is symbolic representation of
 $\gamma$, and \verb|K| is a time point. Lines 13-14 make integer
 representation \verb|hold(L,K)| equivalent to the symbolic
@@ -213,17 +214,19 @@ generates no facts of the form \verb|literal_tuple(B,L)|. Line 15 thus
 asserts the truth of such facts for all time points.
 
 Lines 17-19 introduce the predicate \verb|subformula(F)|, which will
-range over all formulas $\gamma \in subf^*(\Gamma)$. It starts on line
-17 from the formulas occurring in the head and bodies of rules in
-$\Gamma$, found in the first argument of \verb|output(O,_)|, and then
-recursively collects all subformulas via the recursive rules on lines
-18-19. Note that these rules do not collect all subformulas in
-$subf^*(\Gamma)$; the derivations of derived operators will be
-collected later in the encoding.
+define the set of all $\gamma$ with
+$L^k_{\gamma} \in \A_{\Gamma,\lambda}$. It starts on line 17 from the
+formulas occurring in the head and bodies of rules in $\Gamma$, found
+in the first argument of \verb|output(O,_)|, and then collects all
+subformulas in $subf(\Gamma)$ via the recursive rules on lines 18-19.
 
 The rules in lines 21-61 do not require much explanation as they
 express, more or less verbatim, the rules in $\pi^k(\gamma)$ as seen
-in Figure \ref{fig:gamma-df-pi}. Note that the predicates
+in Figure \ref{fig:gamma-df-pi}. These rules are all conditioned on
+the existence of the subformula via the predicate \verb|subformula/1|
+occurring in the body of each rule; this is due to the fact that in
+$\tau(\Gamma)$, we only have $\pi^k(\gamma) \subseteq \tau(\Gamma)$ for
+$\gamma$ such that/ $\gamma \in subf(\Gamma)$. Note also that the predicates
 \verb|true(until(L,R,J),K)| and \verb|true(since(L,R,J),K)| correspond
 to auxiliary atoms $L^k_{\varphi \until \psi,j}$ and
 $L^k_{\varphi \since \psi,j}$, respectively.
@@ -236,8 +239,9 @@ following. If the formula \verb|F1| occurs as a subformula, and
 adds the derivations of derived operators to the set subformulas,
 completing the definition of \verb|subformula/1|. Lines 17-18 assert
 that when \verb|derive(F1,F2)| holds, \verb|true(F1,K)| is equivalent
-to \verb|true(F2,K)|, completing the translation from $\Gamma$ to
-$\tau(\Gamma)$.
+to \verb|true(F2,K)|. This completes the translation from $\Gamma$ to
+$\tau(\Gamma)$; the remainder of the encoding is responsible for
+formatting the output of meta-telingo.
 
 The lines 20-25 of Listing 2 tag any subformulas that are not atoms
 via the predicate \verb|show/1|. This includes all of the symbols that
@@ -246,7 +250,7 @@ denote a temporal operator, as well as \verb|true| and
 as not being atoms; the reason for this will become apparent in the
 next paragraph.
 
-Lines 27-32 are responsible for setting the output handling of
+Lines 27-32 are responsible for formatting the output of
 meta-telingo.lp, which is designed to mimic the output handling of
 regular clingo. First, on line 27 we tell clingo to hide all atoms in
 the output, and to show only terms that are explicitly marked to be
@@ -256,7 +260,7 @@ lines 28-29 set up the default output handling. The statement shows a
 term \verb|(F,K)| for all subformulas \verb|F| that are atomic
 formulas and hold at time point \verb|K|; this behaviour is disabled
 if the input program has a \verb|#show show.| statement, mimicking the
-behaviour of clingo. 
+behaviour of clingo.
 
 Line 30 shows the term \verb|(S,K)|, if there is a show statement of
 the form \verb|#show show(S): Body|, where \verb|Body| holds at time
@@ -269,37 +273,33 @@ statements with a body by the fact that there is no fact of the form
 show \verb|atom_tuple(_,L)|, where \verb|L| is the integer
 representation of \verb|S|.
 
-Finally, lines 34-37 suppress info messages from clingo, when some
-predicate in the reified representation over which there are no facts
-produced by the reification of the input program. This can occur
-during normal operation of the system, and the info messages would not
-be particularly informative to the user, so we suppress them. This
-concludes the meta-encoding.
+Finally, lines 34-37 suppress info messages from clingo, when there
+are no facts over some predicate in the reified representation. This
+can occur during normal operation of the system, and the info messages
+would not be particularly informative to the user, so we suppress
+them. This concludes the meta-encoding.
 
 \subsubsection{Issues Surrounding Grounding}
 
 One flaw of the meta-telingo system that must bears mentioning is
 caused by gringo during the initial grounding and reification of the
 input program. As a highly optimized grounder, gringo performs some
-simplifications of the input program during grounding. Namely, if
-during grounding it is determined that an atom cannot occur in any
-answer set, then all rules with that atom occurring positively in
-their bodies are discarded, and all negative occurrences of that atom
-in the body of any rule are removed. Furthermore, if an atom is
-determined during grounding to hold in all answer sets, and rules with
-a negative occurrence of the atom in their body are discarded
-\cite{gekakasc12a}.
+simplifications of the input program during grounding. One such
+simplification is the following: if during grounding it is determined
+that an atom cannot occur in any answer set (for example, if it does
+not occur in any rule head), then all rules with that atom occurring
+positively in their bodies are discarded. \cite{gekakasc12a}.
 
 These simplifications preserve the stable models of the input program,
 and therefore do not cause any issues, when reification and
 meta-interpretation is not involved. However, these simplifications
 may not be equivalent according to the semantics implemented by our
 meta-encoding, as gringo has no knowledge of these semantics when
-performing the aforementioned simplifications. Indeed, this is the
-case for meta-telingo as well. Take for example the temporal program
-from Example \ref{exam:shoot-ground-symbolic}. Setting $\lambda=3$ the
-expected single temporal answer set for this program would be the
-trace
+performing the aforementioned simplifications during
+reification. Unfortunately, this is the case for meta-telingo. Take
+for example the temporal program from Example
+\ref{exam:shoot-ground-symbolic}. Setting $\lambda=3$ the expected
+single temporal answer set for this program would be the trace
 $\bm{T}=(\{ shoot \}, \{ not\_load \}, \{ shoot, forgetful, fail \}
 \})$. However, during grounding all of the rules of the program would
 be discarded as the atoms \verb|initially| and
@@ -307,9 +307,12 @@ be discarded as the atoms \verb|initially| and
 so we would get the empty trace as the single temporal answer set.
 
 Atoms can be guarded from simplification during grounding by using
-clingo's external statements \cite{PotasscoUserGuide19}, so adding the
-following additional external statements statement resolve this issue
-in this specific case.
+clingo's external statements. Any atom \verb|a| marked as external via
+a \verb|#external a.| statement will mark \verb|a| to not be removed
+from bodies of statements and conditions, even if they do not appear
+in the head of any rule \cite{PotasscoUserGuide19}. Therefore, adding
+the following additional external statements statement resolve this
+issue in this specific case.
 
 \begin{lstlisting}[language=clingo,numbers=none]
 #external initial.
@@ -320,8 +323,8 @@ Having to reason through gringo's grounding procedure and the
 simplifications performed, and manually adding external statements is
 hardly a good user experience for our system. Protecting rules from
 simplification becomes even trickier if we allow our input program to
-contain variables. Additionally, once variables are allowed, we must
-face some challenges in the semantics of programs. 
+contain variables. Additionally, once variables are allowed, question
+of \emph{safety} must be addressed.
 
 \begin{example}\label{exam:shoot-nonground-unsafe}
   Take the following program, a modification of Example
@@ -340,16 +343,17 @@ of 2, with the second argument giving the potato gun, and the first
 argument the person who would be responsible to load it after
 shooting. 
 
-Let us ignore for now the simplification of gringo. Since we
-have two consecutive shots of \verb|potato_gun| at time points 0 and
-1, the body of the final rule is satisfied at time step 1, regardless
-of the truth value of the left operand of \verb|since|. So, assuming
-the domain we ground the program over it's Herbrand universe (as is
-usually the case for logic programs), for any substitution of a
-constant \verb|c| from the universe for the variable \verb|Y|, we
-should theoretically derive \verb|forgetful(c)|. As the program only
-contains one constant, namely \verb|potato_gun|, we see that we should
-derive \verb|forgetful(potato_gun)|, which is clearly
+Let us ignore for now possible issues caused by the simplification of
+gringo, and take this temporal logic program with variables at face
+value. Since we have two consecutive shots of \verb|potato_gun| at
+time points 0 and 1, the body of the final rule is satisfied at time
+step 1, regardless of the truth value of the left operand of
+\verb|since|. So, assuming the domain we ground the program over it's
+Herbrand universe (as is usually the case for logic programs), for any
+substitution of a constant \verb|c| from the universe for the variable
+\verb|Y|, we should theoretically derive \verb|forgetful(c)|. As the
+program only contains one constant, namely \verb|potato_gun|, we see
+that we should derive \verb|forgetful(potato_gun)|, which is clearly
 undesirable. Additionally, if we introduce a new fact
 \verb|happy(flower).|, just by virtue of introducing a new constant to
 the Herbrand universe, we should also derive \verb|forgetful(flower)|,
@@ -360,10 +364,10 @@ in safe (regular) logic programs, hinting at the fact that the rule
 should be considered \textit{unsafe}.
 \end{example}
 
-To be able to formally tackle the issues of safety and protecting
-rules from simplification during grounding of the input temporal
-program, will formally discuss the semantics of first order temporal
-logic programs with variables in the following section. We will then
-present a system for applying metaprogramming to non-ground ASP
-programs to resolve the issues surrounding grounding in the
-meta-telingo system.
+To be able to formally tackle the issues of safety and protection of
+rules from simplification during grounding and reification of the
+input temporal program, will formally discuss the semantics of
+first-order temporal logic programs with variables in the following
+section. We will then present a system for applying metaprogramming to
+non-ground ASP programs to resolve the issues surrounding grounding in
+the meta-telingo system.
