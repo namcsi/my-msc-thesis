@@ -1,4 +1,46 @@
 \section{Introduction   }
 \label{sec:introduction}
 
-The first two sections of this thesis were developed as part of an Individual Research module an the University of Potsdam.
+Answer Set Programming\cite{martru99a}\cite{niemela99a} has emerged as
+a popular approach to declaratively solving practical problems
+requiring non-monotonic reasoning. An important development in the
+field was the discovery of a purely logical semantics for ASP called
+Equilibrium Logic\cite{pearce06a}, allowing further extensions to ASP
+to be formalized in a succinct and precise manner. One such extension
+of Equilibrium Logic extends ASP with temporal modal operator as in
+Linear-time Temporal Logic\cite{pnueli77a}, resulting in Temporal
+Equilibrium Logic (TEL)\cite{cabveg07a}. As real-world applications of
+ASP often deal with some manner of temporal reasoning, this logic has
+a multitude of applications, and have already seen multiple system
+implementations based on TEL, such as \emph{STeLP}\cite{cabdie11a} and
+\emph{telingo}\cite{cakamosc19a}.
+
+This thesis continues this trend, and is centered around the
+implementation of a temporal ASP system, called
+\emph{meta-telingo}. As the name suggests, this system is implemented
+using meta-programming. We study the theoretical underpinnings of the
+system in detail, proving the correctness of the approach on the
+ground and non-ground level, tackling issues of safety and grounding
+by extending the discussion to Quantified Temporal Equilibrium
+Logic\cite{agcapevidi17a}. We also present a novel system called
+\emph{renopro} that enables the application of meta-programming to
+non-ground ASP programs, and show how it can be applied in the
+implementation of meta-telingo. The result is a system which can
+handle a very broad class of temporal formulas, allowing for a variety
+of programs that the telingo and STeLP system would not accept, but
+solving for a finite amount of time steps that must be pre-determined by the
+user.
+
+This thesis is organized as follows. In Section \ref{sec:background}
+we give an overview of Equilibrium Logic and Temporal Equilibrium
+Logic, and present their most important properties. Then, in Section
+\ref{sec:ground} we present the core part of meta-telingo, which is
+based on a translation from temporal logic programs to regular logic
+programs. In Section \ref{sec:non-ground} we extend the discussion of
+the system to the non-ground level, give a new definition of safety
+and examine it's properties. Finally, in Section \ref{sec:renopro} we
+present the renopro system, an how it can be used to finish the
+implementation of meta-telingo. We note that Sections
+\ref{sec:background} and \ref{sec:ground} of this thesis were
+developed as part of an Individual Research Module at the University
+of Potsdam.

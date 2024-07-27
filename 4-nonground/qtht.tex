@@ -552,10 +552,10 @@ and(eventually_after(fail(X)),forgetful(Y))
   The transformed set of (non-temporal) rules
   $\delta^{\prime}(\Gamma)$ would then be:
   \begin{lstlisting}[language=clingo,numbers=none]
-    loader(john).
-    shoot(potato_gun).
-    fail(X) :- shoot(X), loader(Y), shoot(X).
-    forgetful(Y) :- shoot(X), loader(Y), shoot(X).
+loader(john).
+shoot(potato_gun).
+fail(X) :- shoot(X), loader(Y), shoot(X).
+forgetful(Y) :- shoot(X), loader(Y), shoot(X).
   \end{lstlisting}
   Which has the unique Herbrand stable model
   $$
@@ -666,13 +666,14 @@ and \\\verb|#external a(1)|. and the ground rule
 \verb|c(1) :- a(1), b(1).|.
 
 Now to describe the external statement we enhance our program
-with. 
+with. The external statements are broken down into two sets, which we
+call \emph{head externals} and \emph{body externals}.
 
-First, we will generate one external statement for each rule in
-$r' \in \delta^\prime(\Gamma)$, with the head and bodies of the
-external statement being the same as $r'$ (unless $r'$ is a fact, in
-which case the external in unnecessary). Second, for each rule
-$r \in \Gamma$ we will generate one external statement for each
+In the set of head externals, we have one external statement for each
+rule in $r' \in \delta^\prime(\Gamma)$, with the head and bodies of
+the external statement being the same as $r'$ (unless $r'$ is a fact,
+in which case the external in unnecessary). In the body externals we
+have for each rule $r \in \Gamma$ one external statement for each
 non-atomic formula $\gamma$ in the body of $r$, the head of which will
 be $\gamma$, and the body of which will be the body of (any)
 $r' \in \delta^\prime(\Gamma)$.
@@ -688,26 +689,23 @@ $r' \in \delta^\prime(\Gamma)$.
 #external initial.
 #external prev(since(not_load(Y,X),shoot(X))) : shoot(X); loader(Y); shoot(X).
   \end{lstlisting}
-  The first set of rules correspond to the first type described above,
-  while the second corresponds to the second.
+  The first set of rules are the head externals, while the second set
+  are the body externals.
 \end{example}
 
-The first set of external statements will, in effect cause the
-grounder to derive unique stable model $J$ of $\delta^\prime(\Gamma)$,
-but in the form of ground external statements (or facts). This will
-allow gringo to generate the ground program $\ground{J}{\Gamma}$ by
-using $J$ as the \emph{instantiation domain}
-\cite[p. 82]{gekakasc12a}, with one caveat. Gringo will not execute
-this grounding as we would desire for rules $r$ who's body contain a
-non-atomic formula $\gamma$, as it will not (necessarily) see any
-rules with $\gamma$ in it's head, and will therefore discard the rule.
+The head externals will, in effect cause the grounder to derive unique
+stable model $J$ of $\delta^\prime(\Gamma)$, but in the form of ground
+external statements (or facts). This will allow gringo to generate the
+ground program $\ground{J}{\Gamma}$ by using $J$ as the
+\emph{instantiation domain} \cite[p. 82]{gekakasc12a}, with one
+caveat. Gringo will not execute this grounding as we would desire for
+rules $r$ who's body contain a non-atomic formula $\gamma$, as it will
+not (necessarily) see any rules with $\gamma$ in it's head, and will
+therefore discard the rule.
 
-To protect such rules from simplification, for each rule
-$r \in \Gamma$ we will generate one external statement for each
-non-atomic formula $\gamma$ in the body of $r$, the head of which will
-be $\gamma$, and the body of which will be the body of any
-$r' \in \delta^\prime(\Gamma)$. The rectifies the previous flaw in our
-approach by protecting $\gamma$ from simplification, but only for such
+To protect such rules from simplification, we have the set of body
+externals. These externals rectify the previous flaw in our approach
+by protecting $\gamma$ from simplification, but only for such
 substitutions of variables as allowed by the definition of
 $\ground{J}{\Gamma}$. This completes the description of our grounding
 method.

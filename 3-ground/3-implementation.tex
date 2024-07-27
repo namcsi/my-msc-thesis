@@ -54,6 +54,28 @@ and(eventually_after(fail),forgetful)
 \end{center}
 \end{example}
 
+We note that the system accepts a broader class of programs than
+telingo, it's namesake, as telingo only accepts so-called
+\emph{past-future rules}, where past operator may only occur in the
+body, and future operator may only occur in the head.
+
+\subsubsection{Meta Encoding}
+
+Given an input temporal logic program (in it's gringo representation),
+referred to as tlp.lp we can obtain it's temporal stable models by
+executing the command:
+
+\begin{lstlisting}[language=bash,numbers=none]
+clingo tlp.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
+\end{lstlisting}
+
+where \verb|<n>| is some natural number, and sets the trace length
+$\lambda$ for the translation. 
+
+We now present a description of meta-telingo.lp meta-program, which
+extends over Listing 1 and Listing 2. This meta-program (or shall we
+say meta-encoding) implements the translation $\tau(\Gamma)$.
+
 \begin{center}
 \begin{minipage}{\linewidth}
 \begin{lstlisting}[language=clingo, label={lst:meta-telingo-one}]
@@ -167,22 +189,6 @@ not_atom(F)
 \captionof{lstlisting}{meta-telingo.lp - part 2}
 \end{minipage}
 \end{center}
-
-\subsubsection{Meta Encoding}
-
-Given an input temporal logic program (in it's gringo representation),
-referred to as tlp.lp we can obtain it's temporal stable models by
-executing the command:
-
-\begin{lstlisting}[language=bash,numbers=none]
-clingo tlp.lp --output=reify | clingo - meta-telingo.lp -c lambda=<n>
-\end{lstlisting}
-
-where \verb|<n>| is some natural number, and sets the trace length
-$\lambda$ for the translation. We now present a description of
-meta-telingo.lp meta-program, which extends over Listing 1 and Listing
-2. This meta-program (or shall we say meta-encoding) implements the
-translation $\tau(\Gamma)$.
 
 We begin with Listing 1. In the first line, we introduce a helper
 predicate \verb|time(K)|, which ranges over the time points of the trace we
