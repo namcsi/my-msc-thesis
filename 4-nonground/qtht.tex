@@ -54,7 +54,7 @@ atoms, and additionally TQHT satisfaction is also defined for first
 order quantifiers, as formalized below.
 
 \begin{itemize}
-  \item if $\varphi$ \in $\A(C \cup D,P)$, then:
+  \item if $\varphi \in \A(C \cup D,P)$, then:
     \begin{itemize}
     \item if $\varphi$ is $p(t_1,\dots,t_n)$, then $\bm{M},k \models \varphi$ iff $p(\sigma(t_1), \dots, \sigma(t_n))\in H_k$
     \item if $\varphi$ is $t = s$, then  $\bm{M},k \models t = s$ iff $\sigma(t) = \sigma(s)$
@@ -87,7 +87,7 @@ First-order temporal equilibrium models and stable models can be defined in the 
   equilibrium model of a theory $\Gamma \subset \langcpt$ iff
   $\qttandt \models \Gamma$ and there is no $\bm{H} < \bm{T}$ such
   that $\qthandt \models \Gamma$. A trace
-  $\lange \dsigma, \bm{T} \rangle$ is a (first-order) temporal stable
+  $\langle \dsigma, \bm{T} \rangle$ is a (first-order) temporal stable
   model of a temporal theory $\Gamma$ iff $\qttandt$ is a temporal
   equilibrium model of $\Gamma$.
 \end{definition}

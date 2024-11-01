@@ -204,8 +204,8 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
 \hline
 \varphi \until \psi
 & \begin{aligned} 
-  &$(L^k_{\varphi \until \psi} \leftrightarrow \bigvee_{j=k}^{\lambda-1} L^k_{\varphi \until \psi,j}) \land$\\
-  &$\bigwedge_{j=k}^{\lambda-1} (L^k_{\varphi \until \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)$ 
+  &(L^k_{\varphi \until \psi} \leftrightarrow \bigvee_{j=k}^{\lambda-1} L^k_{\varphi \until \psi,j}) \land\\
+  &\bigwedge_{j=k}^{\lambda-1} (L^k_{\varphi \until \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)
   \end{aligned}
 &
   \begin{array}{l}
@@ -221,8 +221,8 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
 
 \varphi \since \psi
 & \begin{aligned} 
-  &$(L^k_{\varphi \since \psi} \leftrightarrow \bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) \land$\\
-  &$\bigwedge_{j=0}^{k} (L^k_{\varphi \since \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)$ 
+  &(L^k_{\varphi \since \psi} \leftrightarrow \bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) \land\\
+  &\bigwedge_{j=0}^{k} (L^k_{\varphi \since \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i) 
   \end{aligned}
 &
   \begin{array}{l}
@@ -333,7 +333,7 @@ following proofs.
     I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi}) 
     = f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) \stackrel{**}{=} f_{\otimes}(m_I(k,\varphi),m_I(k,\psi))  \\
     &= f_{\otimes}^k(m_I(k,\varphi),m_I(k,\psi)) = m_I(k,\varphi \otimes \psi)\\
-    I(L^k_{\previous \varphi}) &\stackrel{*}{=} \left. 
+    I(L^k_{\previous \varphi}) &\stackrel{*}{=}
       \begin{cases}
         I(L^{k-1}_\varphi) \stackrel{**}{=} m_I(k-1,\varphi) \text{ if } k > 0\\
         I(\bot) = 0 \text{ if } k = 0 
@@ -390,7 +390,7 @@ following proofs.
   where $\stackrel{*}=$ holds due to Lemma \ref{lemma:bij-helper}.
 
   (3): To show that $\mathcal{M}$ is surjective, we must find for any
-  $m \in \text{THT}(\Gamma,\lamgda)$ some $I \in \text{HT}(\Gamma)$
+  $m \in \text{THT}(\Gamma,\langdat)$ some $I \in \text{HT}(\Gamma)$
   such that $\mathcal{M}(I) = m$. Let us define a 3-valued
   interpretation $I_m$ over $\A_{\Gamma,\lambda}$ as follows. We
   define $I_m(L_{a}^k) \defeq m(k,a)$ for all $a \in \A$,

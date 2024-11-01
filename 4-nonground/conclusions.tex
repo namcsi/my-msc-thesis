@@ -1,0 +1,53 @@
+\section{Conclusion and Future Work}
+
+In this thesis, we saw a full overview of the theoretical and
+technical work required to implement a temporal answer set solver from
+first principles. In Section \ref{sec:ground} we defined a translation
+from temporal programs to logic programs, and proved it's correctness
+by providing a one-to-one mapping between the temporal stable models
+of the former stable models of the latter. The implementation of this
+translation was carried out via a concise meta-encoding.
+
+We then moved our discussion from the propositional to the first-order
+level in Section \ref{sec:non-ground}, to be able discuss difficulties
+arising when we allow non-Herbrand domains and universally quantified
+variables in temporal logic programs. We defined a permissive safety
+criterion over universal temporal logic programs, and showed that safe
+temporal logic programs have the desirable properties of domain
+independence and no unnamed individuals. For such safe temporal
+programs, we also provided a formal grounding method over the Herbrand
+universe which improves on the naive grounding method.
+
+Finally, we presented a novel system for non-ground metaprogramming
+called renopro, with which we carried out the program transformations
+required by our grounding method.
+
+There are a number of topics discussed in this thesis that could
+warrant further investigation. On the first-order level, the next step
+would be to consider structures with function symbols of arity greater
+than 0, as in the gringo language. This generalization would require a
+re-thinking of our grounding approach, due to the possibility of
+infinite grounding. Take for example the following temporal program:
+
+\begin{lstlisting}[language=clingo,numbers=none]
+a(1).
+next(a(f(X))) :- a(X).
+\end{lstlisting}
+
+This program, assuming $\lambda < \omega$, should have a finite
+grounding. However, according to our current grounding approach, the
+simplified program would be
+
+\begin{lstlisting}[language=clingo,numbers=none]
+a(1).
+a(f(X)) :- a(X).
+\end{lstlisting}
+
+which would have an infinite grounding, despite that fact that the
+original program has a finite grounding.
+
+There are also a variety of applications of renopro that could be
+explored in the future. One could for example implement linting
+capabilities, by declaratively specifying linting rules in ASP. Other
+applications may include program synthesis, and optimization of logic
+programs via transformation.
