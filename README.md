@@ -1,5 +1,4 @@
-# Latex Paper For Translating Temporal Logics Into Alternating Automatons
-
+# Master's Thesis of Amadé Nemes
 
 ## Building
 
