@@ -57,7 +57,7 @@ defined as follows:
         \item $\handt \models a$ iff $a\in H$
         \item $\handt \models \varphi_1 \wedge \varphi_2$ iff $\handt \models \varphi_1$ and  $\handt \models \varphi_2$
         \item $\handt \models \varphi_1 \vee \varphi_2$ iff $\handt \models \varphi_1$ or  $\handt \models \varphi_2$
-        \item $\handt \models \varphi_1 \to \varphi_2$ iff $\langle w,T \rangle \not \models \varphi_1$ or  $\langle w,T \rangle \models \varphi_2\;$ for all 
+        \item $\handt \models \varphi_1 \to \varphi_2$ iff $\langle w,T \rangle \not \models \varphi_1$ or  $\langle w,T \rangle \models \varphi_2\;$ for all
         $w \in \{H,T\}$
     \end{description}
 \end{definition}
@@ -156,15 +156,15 @@ inductively using the following rules:
   \begin{align*}
     &I(\bot) = 0
     &&I(\top) = 2 \\
-    &I(\varphi \wedge \psi) = min(I(\varphi),I(\psi)) 
+    &I(\varphi \wedge \psi) = min(I(\varphi),I(\psi))
     &&I(\varphi \vee \varphi) = max(I(\varphi),I(\psi)) \\
-    &I(\varphi \rightarrow \psi) = 
+    &I(\varphi \rightarrow \psi) =
       \begin{cases}
         2 & \text { if } I(\varphi) \leq I(\psi) \\
         I(\psi) & \text { otherwise }
       \end{cases}
-    &&I(\neg \varphi) = \begin{cases}2 
-      & \text { if } I(\varphi)=0 \\ 
+    &&I(\neg \varphi) = \begin{cases}2
+      & \text { if } I(\varphi)=0 \\
       0 & \text { otherwise }\end{cases}
   \end{align*}
 \end{definition}
@@ -175,7 +175,7 @@ be characterized via HT models, as shown by the following proposition.
 \begin{proposition}[\cite{capeva05a}]\label{prop:3-valued-ht-properties}
 For any HT interpretation $\handt$ and formulas $\varphi$, $\psi \in \langa$:
 \begin{description}
-  \item $I_{\handt}(\varphi) = 2$ iff $\handt \models \varphi$ 
+  \item $I_{\handt}(\varphi) = 2$ iff $\handt \models \varphi$
   \item $I_{\handt}(\varphi) = 1$ iff $\tandt \models \varphi$ and $\handt \not\models \varphi$
   \item $I_{\handt}(\varphi) = 0$ iff $\tandt \not\models \varphi$
   \item  $I_{\handt}(\varphi) = I_{\handt}(\psi)$ iff $\handt \models \varphi \leftrightarrow \psi$

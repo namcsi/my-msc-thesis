@@ -80,7 +80,7 @@ We define the set of temporal formulas over $\A$ with a top-level
 derived operator as:
 $$
 \langdat \defeq \{ \gamma \mid \varphi \in
-\langat, \psi \in \langat, 
+\langat, \psi \in \langat,
 \gamma \in \{ \wnext\varphi, \wprevious\varphi, \eventuallyF\varphi,
               \eventuallyP\varphi, \alwaysF\varphi, \alwaysP\varphi, \varphi
               \release \psi, \varphi \trigger \psi \} \}
@@ -115,14 +115,14 @@ formulation of derived operators to simplify the definition.
 \begin{figure}
 \begin{center}
 $\begin{array}{|l|l|l|}
-\hline 
+\hline
 
 \gamma & df^{k}(\gamma) & \pi^k(\gamma)\\
 
-\hline 
+\hline
 
-\varphi \wedge \psi 
-& L_{\varphi \wedge \psi}^k \leftrightarrow L^k_{\varphi} \wedge L^k_\psi 
+\varphi \wedge \psi
+& L_{\varphi \wedge \psi}^k \leftrightarrow L^k_{\varphi} \wedge L^k_\psi
 & \begin{array}{l}
 L_{\varphi \wedge \psi}^k \rightarrow L_{\varphi}^k \\
 L_{\varphi \wedge \psi}^k \rightarrow L_\psi^k \\
@@ -131,18 +131,18 @@ L_{\varphi}^k \wedge L_\psi^k \rightarrow L_{\varphi \wedge \psi}^k
 
 \hline
 
-\varphi \vee \psi 
-& L_{\varphi \vee \psi}^k \leftrightarrow L_{\varphi}^k \vee L_\psi^k 
+\varphi \vee \psi
+& L_{\varphi \vee \psi}^k \leftrightarrow L_{\varphi}^k \vee L_\psi^k
 & \begin{array}{l}
 L_{\varphi}^k \rightarrow L_{\varphi \vee \psi}^k \\
 L_\psi^k \rightarrow L_{\varphi \vee \psi}^k \\
 L_{\varphi \vee \psi}^k \rightarrow L_{\varphi}^k \vee L_\psi^k
 \end{array} \\
 
-\hline 
+\hline
 
-\neg \varphi 
-& L_{\neg \varphi}^k \leftrightarrow \neg L_{\varphi}^k 
+\neg \varphi
+& L_{\neg \varphi}^k \leftrightarrow \neg L_{\varphi}^k
 & \begin{array}{l}
 \neg L_{\varphi}^k \rightarrow L_{\neg \varphi}^k \\
 L_{\neg \varphi}^k \rightarrow \neg L_{\varphi}^k
@@ -185,7 +185,7 @@ L^k_{\initially}
 \Next \varphi
 
 & L^k_{\Next \varphi} \leftrightarrow \begin{cases} L^{k+1}_{\varphi} &\text{when } k < \lambda - 1\\ \bot &\text{ when } k = \lambda - 1 \end{cases}
-& 
+&
   \begin{array}{l}
     L^k_{\Next \varphi} \rightarrow \begin{cases} L^{k+1}_{\varphi} &\text{when } k < \lambda - 1\\ \bot &\text{ when } k = \lambda - 1 \end{cases}\\
     L^{k+1}_{\varphi} \rightarrow L^k_{\Next \varphi} \qquad \text{when } k < \lambda -1
@@ -203,7 +203,7 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
 
 \hline
 \varphi \until \psi
-& \begin{aligned} 
+& \begin{aligned}
   &(L^k_{\varphi \until \psi} \leftrightarrow \bigvee_{j=k}^{\lambda-1} L^k_{\varphi \until \psi,j}) \land\\
   &\bigwedge_{j=k}^{\lambda-1} (L^k_{\varphi \until \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i)
   \end{aligned}
@@ -214,15 +214,15 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
     L^k_{\varphi \until \psi,j} \rightarrow L^j_{\psi} \hfill (\rangeco{j}{k}{\lambda}) \\
     L^k_{\varphi \until \psi,j} \rightarrow L^i_{\varphi} \hfill (\rangeco{j}{k}{\lambda}, \rangeco{i}{k}{j})\\
     L_\psi^j \wedge \bigwedge_{i=k}^{j-1}L_{\varphi}^i \rightarrow L^k_{\varphi \until \psi,j} \hfill (\rangeco{j}{k}{\lambda})
-    
+
   \end{array} \\
 
 \hline
 
 \varphi \since \psi
-& \begin{aligned} 
+& \begin{aligned}
   &(L^k_{\varphi \since \psi} \leftrightarrow \bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) \land\\
-  &\bigwedge_{j=0}^{k} (L^k_{\varphi \since \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i) 
+  &\bigwedge_{j=0}^{k} (L^k_{\varphi \since \psi,j} \leftrightarrow L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i)
   \end{aligned}
 &
   \begin{array}{l}
@@ -231,7 +231,7 @@ L_{\varphi}^{k-1} \rightarrow L_{\previous \varphi}^k \qquad \text{when } 0 < k
     L^k_{\varphi \since \psi,j} \rightarrow L^j_{\psi} \hfill (\rangecc{j}{0}{k}) \\
     L^k_{\varphi \since \psi,j} \rightarrow L^i_{\varphi} \hfill (\rangecc{j}{0}{k}, \rangeoc{i}{j}{k}) \\
     L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i \rightarrow L^k_{\varphi \since \psi,j} \hfill (\rangecc{j}{0}{k})
-    
+
   \end{array} \\
 
 \hline
@@ -330,15 +330,15 @@ following proofs.
   denote it's associated 3 valued evaluation functions in the
   non-temporal and temporal setting, respectively. Then, we have
   \begin{align*}
-    I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi}) 
+    I(L^k_{\varphi \otimes \psi}) &\stackrel{*}{=} I(L^k_{\varphi} \otimes L^k_{\psi})
     = f_{\otimes}(I(L^k_\varphi),I(L^k_\psi)) \stackrel{**}{=} f_{\otimes}(m_I(k,\varphi),m_I(k,\psi))  \\
     &= f_{\otimes}^k(m_I(k,\varphi),m_I(k,\psi)) = m_I(k,\varphi \otimes \psi)\\
     I(L^k_{\previous \varphi}) &\stackrel{*}{=}
       \begin{cases}
         I(L^{k-1}_\varphi) \stackrel{**}{=} m_I(k-1,\varphi) \text{ if } k > 0\\
-        I(\bot) = 0 \text{ if } k = 0 
+        I(\bot) = 0 \text{ if } k = 0
       \end{cases} = m_I(k,\previous \varphi)\\
-    I(L^k_{\varphi \since \psi}) &\stackrel{*}= I(\bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j}) 
+    I(L^k_{\varphi \since \psi}) &\stackrel{*}= I(\bigvee_{j=0}^{k} L^k_{\varphi \since \psi,j})
     = \max \{ I(L^k_{\varphi \since \psi,j}) \mid 0 \leq j \leq k \}\\
                                   &\stackrel{(3)}{=} \max \{\min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
                                   &\stackrel{**}{=} \max \{\min (m_I(j, \psi), \min \{m_I(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
@@ -364,7 +364,7 @@ following proofs.
   \item The codomain of $\mathcal{M}$ is $\text{THT}(\Gamma,\lambda)$.
   \item $\mathcal{M}$ is surjective.
   \end{enumerate}
-    
+
 
   (1): Let $I$, $I^{\prime} \in \text{HT}(\chi(\Gamma))$. If the two
   interpretation differ on some atom of the form $L^k_a$, $a \in \A$,
@@ -426,8 +426,8 @@ following proofs.
   \end{cases}\\
     I_m(L_{\varphi \since \psi,j}^k) &= \min (I(L^j_{\psi}), \min \{I(L^i_{\varphi}) \mid j<i \leq k\})\\
                                   &= I_m(L_\psi^j \wedge \bigwedge_{i=j+1}^{k}L_{\varphi}^i) \text{ for all } 0 \leq j \leq k\\
-    I_m(L^k_{\varphi \since \psi}) 
-                                  &= m(k,\varphi \since \psi)\\ 
+    I_m(L^k_{\varphi \since \psi})
+                                  &= m(k,\varphi \since \psi)\\
                                   &= \max \{\min (m(j, \psi), \min \{m(i, \varphi) \mid j<i \leq k\}) \mid 0 \leq j \leq k\}\\
                                   &= \max \{\min (I_m(L^j_{\psi}), \min \{I_m(L^i_{\varphi}) \mid j<i \leq k\}) \mid 0 \leq j \leq k\} \\
                                   &= \max \{ I_m(L_{\varphi \since \psi,j}^k) \mid 0 \leq j \leq k \} \\
