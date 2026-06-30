@@ -68,11 +68,11 @@ $\gamma \in subf(\gamma)$. We extend $subf$ to temporal logic programs
 in a non-standard way, defining it as the following:
 \begin{align*}
 subf(\Gamma) \defeq (&\{ subf(b_i) \mid \temprulelong \in \Gamma, \rangecc{i}{1}{n} \}\\
-  \cup &\{ subf(h_j) \mid \temprulelong \in \Gamma,\rangecc{j}{1}{m} \})\setminus \A
+  \cup &\{ subf(h_j) \mid \temprulelong \in \Gamma,\rangecc{j}{1}{m} \})
 \end{align*}
 
 The set $subf(\Gamma)$ collects, for each rule in $\Gamma$, every
-non-atomic subformula occurring in the implication-free temporal
+subformula occurring in the implication-free temporal
 formulas who's conjunction/disjunction constitute the head/body of the
 rule, respectively.
 
