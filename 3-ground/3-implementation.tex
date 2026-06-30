@@ -38,7 +38,7 @@ $a \since b$. Second, the symbol must not occur nested within a symbol
 that is not an operator, i.e. in \verb|dog(next(spotty))|, the
 \verb|next/1| is not considered a temporal operator, as \verb|dog/1|
 is not an operator. We call this representation of a temporal program
-it's \emph{gringo representation}.
+its \emph{gringo representation}.
 
 \begin{example}\label{exam:shoot-ground-symbolic}
   The gringo representation of the temporal program in Example
@@ -55,14 +55,14 @@ and(eventually_after(fail),forgetful)
 \end{example}
 
 We note that the system accepts a broader class of programs than
-telingo, it's namesake, as telingo only accepts so-called
+telingo, its namesake, as telingo only accepts so-called
 \emph{past-future rules}, where past operator may only occur in the
 body, and future operator may only occur in the head.
 
 \subsubsection{Meta Encoding}
 
-Given an input temporal logic program (in it's gringo representation),
-referred to as tlp.lp we can obtain it's temporal stable models by
+Given an input temporal logic program (in its gringo representation),
+referred to as tlp.lp we can obtain its temporal stable models by
 executing the command:
 
 \begin{lstlisting}[language=bash,numbers=none]
@@ -208,7 +208,7 @@ Lines 13-15 takes care of some technicalities required for the
 implementation. The reification format of gringo represents literals
 in the input program as integers \verb|L| in predicates
 \verb|literal_tuple(B,L)|. This integer representation is then linked
-to it's symbolic representation \verb|O| (a symbolic function in the
+to its symbolic representation \verb|O| (a symbolic function in the
 gringo language) via the predicate \verb|output(O,B)|. Our translation
 will represent the atoms $L_\gamma^k \in \A_{\Gamma,\lambda}$ via
 \verb|true(O,K)|, where \verb|O| is symbolic representation of
@@ -264,9 +264,9 @@ shown via a show statement. This is necessary, as by default, we wish
 to only print the symbols corresponding to atoms. The statement on
 lines 28-29 set up the default output handling. The statement shows a
 term \verb|(F,K)| for all subformulas \verb|F| that are atomic
-formulas and hold at time point \verb|K|; this behaviour is disabled
+formulas and hold at time point \verb|K|; this behavior is disabled
 if the input program has a \verb|#show show.| statement, mimicking the
-behaviour of clingo.
+behavior of clingo.
 
 Line 30 shows the term \verb|(S,K)|, if there is a show statement of
 the form \verb|#show show(S): Body|, where \verb|Body| holds at time
@@ -354,7 +354,7 @@ gringo, and take this temporal logic program with variables at face
 value. Since we have two consecutive shots of \verb|potato_gun| at
 time points 0 and 1, the body of the final rule is satisfied at time
 step 1, regardless of the truth value of the left operand of
-\verb|since|. So, assuming the domain we ground the program over it's
+\verb|since|. So, assuming the domain we ground the program over its
 Herbrand universe (as is usually the case for logic programs), for any
 substitution of a constant \verb|c| from the universe for the variable
 \verb|Y|, we should theoretically derive \verb|forgetful(c)|. As the

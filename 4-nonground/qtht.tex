@@ -197,9 +197,9 @@ $p \in \safe{\varphi}$
   We call a variable $x_i$ occurring in a temporal rule
   $\varphi = \alwaysF(B \rightarrow H)$ safe, iff it has an occurrence
   in a safe atomic subformula of $B$. We call a temporal rule safe iff
-  all of it's variables are safe. A universal temporal rule
+  all of its variables are safe. A universal temporal rule
   $\forallx \psi$ is safe iff $\psi$ is safe. A universal temporal
-  program is safe, if all of it's rules are safe.
+  program is safe, if all of its rules are safe.
 \end{definition}
 \begin{example}
   Under this definition of safety, the following universal temporal
@@ -271,15 +271,15 @@ between satisfaction of such formulas and their atomic subformulas.
 \end{proof}
 
 \begin{definition}[Positive Subformula]\label{def:pos-subformula}
-  Let $\otimes$ be any binary temporal/propositional connective, and
-  $\oplus$ be any unary temporal/propositional connective, excluding
-  negation.  For a formula $\varphi \in \langfcpt$, we define a binary
+  For a formula $\varphi \in \langfcpt$, we define a binary
   relation $\mathrel{P}_{\varphi}$ over $subf(\varphi)$ as follows:
   \[
     \begin{aligned}
       \mathrel{P}_{\varphi} \defeq \{ &(p,p) \mid p \in atoms(\varphi) \}\\
       \cup \{ &(\gamma, \psi) \mid
-                  \gamma, \psi, \xi \in subf(\varphi), \gamma \in \{ \oplus \psi, \xi \otimes \psi, \psi \otimes \xi \}
+             \gamma, \psi, \xi \in subf(\varphi), \gamma \in \{ \oplus \psi, \xi \otimes \psi, \psi \otimes \xi \},\\
+           &\oplus \in \{ \previous, \wprevious, \eventuallyP, \alwaysP, \Next, \wnext, \eventuallyF, \alwaysF \},
+           \otimes \in \{ \since, \trigger, \until, \release, \wedge, \vee \} \}
     \end{aligned}
   \]
   Let $\mathrel{P}^{+}_{\varphi}$ be the transitive closure of
@@ -448,7 +448,7 @@ considering arbitrary QTHT structures $\qthandt$, we will now consider
 only Herbrand structures in the remainder of this section.
 
 Obtaining a ground instantiation of a universal temporal program in
-it's gringo representation cannot simply be done by passing the
+its gringo representation cannot simply be done by passing the
 program to gringo, as seen at the end of Section
 \ref{sec:ground}. This is due to, among other things, the fact that
 the simplifications performed by the grounding procedure of gringo are
@@ -569,7 +569,7 @@ precise, we introduce the following definition.
   universal temporal rule
   $\varphi = \forallx \psi(x_1,x_2,\dots,x_n) = \forallx \alwaysF
   (B(x_1,x_2,\dots,x_n) \rightarrow H(x_1,x_2,\dots,x_n))$, we define
-  it's grounding over $A$ as:
+  its grounding over $A$ as:
   \begin{align*}
     \ground{A}{\varphi}& \defeq \{ \psi(c_1,c_2,\dots,c_n) \mid c_i \in C, \rangecc{i}{0}{n}\\
     &\text{ for all } p \in atoms(B(c_1,c_2,\dots,c_n)) \cap \safe{B(c_1,c_2,\dots,c_n)}:p \in A \}
@@ -698,7 +698,7 @@ ground program $\ground{J}{\Gamma}$ by using $J$ as the
 \emph{instantiation domain} \cite[p. 82]{gekakasc12a}, with one
 caveat. Gringo will not execute this grounding as we would desire for
 rules $r$ who's body contain a non-atomic formula $\gamma$, as it will
-not (necessarily) see any rules with $\gamma$ in it's head, and will
+not (necessarily) see any rules with $\gamma$ in its head, and will
 therefore discard the rule.
 
 To protect such rules from simplification, we have the set of body

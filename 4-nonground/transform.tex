@@ -9,7 +9,7 @@ language of gringo.
 While meta-programming for ground programs are supported natively by
 gringo, until this point no such facilities have existed for
 non-ground programs. The renopro system supports the reification of
-gringo programs by serializing it's abstract syntax tree (AST) into a
+gringo programs by serializing its abstract syntax tree (AST) into a
 set of facts, which can then serve as input to a meta-encoding. The
 system furthermore supports the inverse of this operation; that is,
 the transformation of a set of facts describing a valid AST in
@@ -34,7 +34,7 @@ the end of Section \ref{sec:non-ground}.
 
 Due to the richness of the gringo language, the reification format of
 renopro is much more complex than the ground reification format. We
-will therefore not describe the format in it's entirety, and restrict
+will therefore not describe the format in its entirety, and restrict
 the discussion to the subset necessary to describe our example
 use-case of external generation. We note that the reification format
 has an almost one-to-one correspondence to the AST representation of
@@ -115,12 +115,12 @@ body. For such facts that encode a tuple element, the second argument
 indicates the position of the element in the tuple, with the third and
 final argument being the identifier of the element itself. On line 3
 for example, we see that the rule with id 3 has a tuple of body
-literals with identifier \texttt{body\_literals(11)} constituting it's
+literals with identifier \texttt{body\_literals(11)} constituting its
 body. On lines 11 and 17 we see that the tuple contains the body
-literals with identifiers \texttt{body\_literal(12)} as it's first
-element, and \texttt{body\_literal(17)} as it's second element.  A
+literals with identifiers \texttt{body\_literal(12)} as its first
+element, and \texttt{body\_literal(17)} as its second element.  A
 tuple may also be empty; in this case there will be no facts encoding
-it's elements in the reified representation. For example, the rule
+its elements in the reified representation. For example, the rule
 fact on line 22 which encodes the fact \texttt{b(1)} has the child
 tuple of body literals with identifier \texttt{body\_literals(27)},
 with no body literal fact with id 27 occurring in the reification, as
@@ -149,7 +149,7 @@ the encoded AST a forest instead of a tree.
 The reification contains two types of facts encoding literals,
 \texttt{literal} and \texttt{body\_literal}, with the latter only
 allowed to occur in the body of rules. For both, the second argument
-indicates it's sign, with "pos" being positive, and "not" being
+indicates its sign, with "pos" being positive, and "not" being
 negative. The third argument identifies the child atom of the literal,
 which will in our discussion always be a symbolic atom, but in general
 the gringo language has other types of atoms, such as comparisons etc.
@@ -160,7 +160,7 @@ differentiate function symbols that are an atoms from function symbols
 that are function terms in the gringo language.
 
 Function facts encode a function symbol node in the underlying
-AST. The second argument of a function fact it it's name, encoded as a
+AST. The second argument of a function fact is its name, encoded as a
 constant. For example, on line 6 we see that the name of the function
 symbol \texttt{c(a(X))} is c. The third argument of a function fact is
 a tuple of terms, which encode the function symbol's arguments. If
@@ -215,7 +215,7 @@ child(program(0),statements(2)).
 
 As mentioned before, reflection is the inverse operation of
 reification, and as such, takes as input a set of reified facts
-encoding a valid AST, and outputs it's representation as a gringo
+encoding a valid AST, and outputs its representation as a gringo
 program. For example, if we were to save the reified facts seen
 previously as reified-prg.lp, and called the following:
 
@@ -229,7 +229,7 @@ Reflection is performed by starting from the facts over signature
 \texttt{program/4}; as discussed before, these facts serve as the
 root(s) of the AST. Then, based on the child identifiers found in
 facts, the reachable AST nodes encoded by the set of facts are walked
-through recursively to reconstruct the program in it's gringo
+through recursively to reconstruct the program in its gringo
 representation via the clingo API. It is required that every integer
 id is unique per type of reified fact, as otherwise the child facts
 cannot be be determined unambiguously.
@@ -326,7 +326,7 @@ now describe.
 
 In the first part of the meta-encoding on lines 1-5 we define the
 predicate \verb|operator_arity/2|. The first argument of this
-predicate is the name of a (temporal) operator in it's gringo
+predicate is the name of a (temporal) operator in its gringo
 representation, and the second argument is the operator's arity.
 
 Next, on lines 7-12 we define when an argument of an operator is safe
@@ -336,10 +336,10 @@ Definition \ref{def:safe-subformula}. The second argument is the
 safety via the constants \verb|safe| and \verb|unsafe|.
 
 With the next rule, we assign to each function id occurring in the
-input reified facts it's arity. This is done by counting up the number
+input reified facts its arity. This is done by counting up the number
 of elements of the term tuple forming the function's arguments. With
 the rule spanning lines 17-19, we define when a function may be
-considered an temporal formula, namely, when it's name and arity matches one
+considered a temporal formula, namely, when its name and arity matches one
 defined by \verb|operator_arity/2|.
 
 Now, we define a predicate of key importance, \verb|subformula/3|. The
@@ -370,7 +370,7 @@ remains so for all subformulas. A subformula reachable via this
 predicate is considered atomic, if it is not a temporal formula.
 
 Moving on to the second part of the encoding, we define
-\texttt{safe\_atomic\_subformua/2}, which holds iff the first argument
+\texttt{safe\_atomic\_subformula/2}, which holds iff the first argument
 is a safe atomic subformula of the second, exactly matching Definition
 \ref{def:safe-subformula}. Lines 8-19 defines the predicate
 \texttt{root\_tempf2body\_safe\_atomic\_subf/2}, which as the name
@@ -388,14 +388,14 @@ statements will be gathered. Here we take advantage of the fact that
 the ids of reified facts need not necessarily be integers, and may
 also be constants of function symbols, and use the id
 \texttt{externals} for the id of the new subprogram statement, as well
-as it's tuple of statements. This reuse of the id is not problematic,
+as its tuple of statements. This reuse of the id is not problematic,
 as ids need only to be unique per type of fact.
 
 The addition of the head and body externals are done by the three
 rules spanning lines 30-48. As head and body external statements have
 the same form of body, the bodies of both types of statements are
 added by the rule starting on line 44. The rule on line 30 adds the
-external statement and it's head for head externals, while the rule on
+external statement and its head for head externals, while the rule on
 line 38 does the same for body externals.
 
 Going in order, the rule on line 30 adds, for each root temporal
